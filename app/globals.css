@@ -1,0 +1,550 @@
+@import "tailwindcss";
+
+/* Kechki rejim `class` orqali boshqariladi (next-themes `.dark` qo'yadi),
+   `prefers-color-scheme` emas — foydalanuvchi o'zi tanlay olsin. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   Dizayn tizimi — sam-yosh tadbirkor.uz
+
+   Minimalizm: asos oq, matn deyarli qora, chegaralar juda nozik.
+   Rang faqat bitta — brend yashili, u ham kam ishlatiladi.
+   Ishlaydigan narsa rang emas: tipografiya, bo'shliq va nozik chegara.
+   ========================================================================== */
+
+@theme {
+    /* --- Neytral shkala --- */
+    --color-ink-50: oklch(98.5% 0.001 260);
+    --color-ink-100: oklch(96.8% 0.002 260);
+    --color-ink-150: oklch(94.6% 0.003 260);
+    --color-ink-200: oklch(92.4% 0.004 260);
+    --color-ink-300: oklch(87.0% 0.006 260);
+    --color-ink-400: oklch(71.5% 0.010 260);
+    --color-ink-500: oklch(58.0% 0.012 260);
+    --color-ink-600: oklch(46.5% 0.014 260);
+    --color-ink-700: oklch(37.5% 0.014 260);
+    --color-ink-800: oklch(27.0% 0.013 260);
+    --color-ink-850: oklch(21.5% 0.012 262);
+    --color-ink-900: oklch(17.5% 0.011 264);
+    --color-ink-950: oklch(12.5% 0.010 266);
+
+    /* --- Brend: bitta rang, kam ishlatiladi --- */
+    --color-brand-50: oklch(97.0% 0.020 165);
+    --color-brand-100: oklch(93.6% 0.045 165);
+    --color-brand-200: oklch(87.5% 0.080 165);
+    --color-brand-300: oklch(79.0% 0.115 164);
+    --color-brand-400: oklch(70.5% 0.132 163);
+    --color-brand-500: oklch(62.0% 0.130 162);
+    --color-brand-600: oklch(53.0% 0.113 162);
+    --color-brand-700: oklch(44.0% 0.093 162);
+    --color-brand-800: oklch(36.0% 0.073 163);
+    --color-brand-900: oklch(29.5% 0.058 164);
+
+    /* --- Shriftlar --- */
+    --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    --font-display: var(--font-display), var(--font-inter), ui-sans-serif, sans-serif;
+
+    /* --- Harakat --- */
+    --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==========================================================================
+   Semantik ranglar — komponentlar faqat shularni ishlatadi.
+   Kechki rejimda shu qiymatlar almashadi, komponentlar o'zgarmaydi.
+   ========================================================================== */
+
+@theme inline {
+    --color-page: var(--page);
+    --color-surface: var(--surface);
+    --color-raised: var(--raised);
+    --color-line: var(--line);
+    --color-line-soft: var(--line-soft);
+    --color-text: var(--text);
+    --color-muted: var(--muted);
+    --color-faint: var(--faint);
+    --color-accent: var(--accent);
+    --color-accent-soft: var(--accent-soft);
+    --color-accent-text: var(--accent-text);
+    --color-invert: var(--invert);
+    --color-on-invert: var(--on-invert);
+}
+
+@layer base {
+
+:root {
+    color-scheme: light;
+
+    --page: #ffffff;
+    --surface: var(--color-ink-50);
+    --raised: #ffffff;
+    --line: var(--color-ink-200);
+    --line-soft: var(--color-ink-150);
+    --text: var(--color-ink-900);
+    --muted: var(--color-ink-500);
+    --faint: var(--color-ink-400);
+    --accent: var(--color-brand-600);
+    --accent-soft: var(--color-brand-50);
+    --accent-text: var(--color-brand-700);
+    --invert: var(--color-ink-950);
+    --on-invert: #ffffff;
+}
+
+.dark {
+    color-scheme: dark;
+
+    --page: var(--color-ink-950);
+    --surface: var(--color-ink-900);
+    --raised: var(--color-ink-900);
+    --line: oklch(28% 0.012 262);
+    --line-soft: oklch(23% 0.012 262);
+    --text: oklch(96% 0.002 260);
+    --muted: oklch(68% 0.010 260);
+    --faint: oklch(55% 0.012 260);
+    --accent: var(--color-brand-400);
+    --accent-soft: oklch(28% 0.045 164);
+    --accent-text: var(--color-brand-300);
+    --invert: #ffffff;
+    --on-invert: var(--color-ink-950);
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    background: var(--page);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+    /* Mavzu almashganda keskin sakramasin */
+    transition: background-color 0.2s var(--ease-soft), color 0.2s var(--ease-soft);
+}
+
+h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+    color: var(--text);
+}
+
+p {
+    text-wrap: pretty;
+}
+
+::selection {
+    background: var(--color-brand-200);
+    color: var(--color-ink-950);
+}
+
+.dark ::selection {
+    background: var(--color-brand-800);
+    color: #fff;
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+@supports (scrollbar-width: thin) {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--line) transparent;
+    }
+}
+
+}
+
+/* ==========================================================================
+   Yordamchi sinflar
+   ========================================================================== */
+
+@utility container-page {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+}
+
+@media (width >= 48rem) {
+    .container-page {
+        padding-inline: 2rem;
+    }
+}
+
+/* Nozik chiziqli to'r — fon uchun, rasm ishlatmasdan */
+@utility grid-lines {
+    background-image:
+        linear-gradient(to right, var(--line-soft) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--line-soft) 1px, transparent 1px);
+    background-size: 64px 64px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ==========================================================================
+   Ranglar tizimi — har bir kategoriya o'z ohangini oladi.
+
+   Komponent `.tone-blue` kabi sinf qo'yadi, ichkarida esa faqat
+   `bg-tone-soft`, `text-tone-text`, `border-tone-line` ishlatiladi.
+   Shuning uchun bitta karta kodi hamma rangda va ikkala rejimda ishlaydi.
+   ========================================================================== */
+
+@theme inline {
+    --color-tone: var(--tone);
+    --color-tone-soft: var(--tone-soft);
+    --color-tone-line: var(--tone-line);
+    --color-tone-text: var(--tone-text);
+    --color-ic-hue: var(--ic-hue);
+    --color-warn: var(--warn);
+    --color-warn-soft: var(--warn-soft);
+    --color-warn-text: var(--warn-text);
+}
+
+@layer base {
+
+:root {
+    --tone: var(--accent);
+    --tone-soft: var(--accent-soft);
+    --tone-line: var(--line);
+    --tone-text: var(--accent-text);
+
+    /* Rangli ikonkalar shu to'rt qiymatdan oziqlanadi */
+    --ic-ink: var(--color-ink-900);
+    --ic-paper: #ffffff;
+    --ic-hue: var(--tone);
+    --ic-tint: var(--tone-line);
+
+    /* Ogohlantirish: muddat tugayapti, joy qolmadi va shunga o'xshash holatlar */
+    --warn: oklch(58% 0.170 18);
+    --warn-soft: oklch(96.5% 0.035 18);
+    --warn-text: oklch(48% 0.150 18);
+}
+
+.dark {
+    --ic-ink: oklch(94% 0.005 260);
+    --ic-paper: var(--color-ink-950);
+
+    --warn: oklch(74% 0.150 18);
+    --warn-soft: oklch(26% 0.060 18);
+    --warn-text: oklch(83% 0.120 18);
+}
+
+.tone-emerald {
+    --tone: oklch(58% 0.130 162);
+    --tone-soft: oklch(96.8% 0.029 162);
+    --tone-line: oklch(89% 0.059 162);
+    --tone-text: oklch(46% 0.111 162);
+}
+.tone-teal {
+    --tone: oklch(58% 0.110 185);
+    --tone-soft: oklch(96.8% 0.024 185);
+    --tone-line: oklch(89% 0.050 185);
+    --tone-text: oklch(46% 0.093 185);
+}
+.tone-cyan {
+    --tone: oklch(58% 0.120 215);
+    --tone-soft: oklch(96.8% 0.026 215);
+    --tone-line: oklch(89% 0.054 215);
+    --tone-text: oklch(46% 0.102 215);
+}
+.tone-blue {
+    --tone: oklch(58% 0.150 255);
+    --tone-soft: oklch(96.8% 0.033 255);
+    --tone-line: oklch(89% 0.068 255);
+    --tone-text: oklch(46% 0.128 255);
+}
+.tone-indigo {
+    --tone: oklch(58% 0.160 275);
+    --tone-soft: oklch(96.8% 0.035 275);
+    --tone-line: oklch(89% 0.072 275);
+    --tone-text: oklch(46% 0.136 275);
+}
+.tone-violet {
+    --tone: oklch(58% 0.160 300);
+    --tone-soft: oklch(96.8% 0.035 300);
+    --tone-line: oklch(89% 0.072 300);
+    --tone-text: oklch(46% 0.136 300);
+}
+.tone-pink {
+    --tone: oklch(58% 0.150 345);
+    --tone-soft: oklch(96.8% 0.033 345);
+    --tone-line: oklch(89% 0.068 345);
+    --tone-text: oklch(46% 0.128 345);
+}
+.tone-rose {
+    --tone: oklch(58% 0.160 15);
+    --tone-soft: oklch(96.8% 0.035 15);
+    --tone-line: oklch(89% 0.072 15);
+    --tone-text: oklch(46% 0.136 15);
+}
+.tone-orange {
+    --tone: oklch(58% 0.150 50);
+    --tone-soft: oklch(96.8% 0.033 50);
+    --tone-line: oklch(89% 0.068 50);
+    --tone-text: oklch(46% 0.128 50);
+}
+.tone-amber {
+    --tone: oklch(58% 0.140 75);
+    --tone-soft: oklch(96.8% 0.031 75);
+    --tone-line: oklch(89% 0.063 75);
+    --tone-text: oklch(46% 0.119 75);
+}
+.tone-lime {
+    --tone: oklch(58% 0.140 130);
+    --tone-soft: oklch(96.8% 0.031 130);
+    --tone-line: oklch(89% 0.063 130);
+    --tone-text: oklch(46% 0.119 130);
+}
+.tone-slate {
+    --tone: oklch(58% 0.020 260);
+    --tone-soft: oklch(96.8% 0.004 260);
+    --tone-line: oklch(89% 0.009 260);
+    --tone-text: oklch(46% 0.017 260);
+}
+
+.dark .tone-emerald {
+    --tone: oklch(75% 0.130 162);
+    --tone-soft: oklch(25.5% 0.052 162);
+    --tone-line: oklch(35% 0.072 162);
+    --tone-text: oklch(84% 0.104 162);
+}
+.dark .tone-teal {
+    --tone: oklch(75% 0.110 185);
+    --tone-soft: oklch(25.5% 0.044 185);
+    --tone-line: oklch(35% 0.061 185);
+    --tone-text: oklch(84% 0.088 185);
+}
+.dark .tone-cyan {
+    --tone: oklch(75% 0.120 215);
+    --tone-soft: oklch(25.5% 0.048 215);
+    --tone-line: oklch(35% 0.066 215);
+    --tone-text: oklch(84% 0.096 215);
+}
+.dark .tone-blue {
+    --tone: oklch(75% 0.150 255);
+    --tone-soft: oklch(25.5% 0.060 255);
+    --tone-line: oklch(35% 0.083 255);
+    --tone-text: oklch(84% 0.120 255);
+}
+.dark .tone-indigo {
+    --tone: oklch(75% 0.160 275);
+    --tone-soft: oklch(25.5% 0.064 275);
+    --tone-line: oklch(35% 0.088 275);
+    --tone-text: oklch(84% 0.128 275);
+}
+.dark .tone-violet {
+    --tone: oklch(75% 0.160 300);
+    --tone-soft: oklch(25.5% 0.064 300);
+    --tone-line: oklch(35% 0.088 300);
+    --tone-text: oklch(84% 0.128 300);
+}
+.dark .tone-pink {
+    --tone: oklch(75% 0.150 345);
+    --tone-soft: oklch(25.5% 0.060 345);
+    --tone-line: oklch(35% 0.083 345);
+    --tone-text: oklch(84% 0.120 345);
+}
+.dark .tone-rose {
+    --tone: oklch(75% 0.160 15);
+    --tone-soft: oklch(25.5% 0.064 15);
+    --tone-line: oklch(35% 0.088 15);
+    --tone-text: oklch(84% 0.128 15);
+}
+.dark .tone-orange {
+    --tone: oklch(75% 0.150 50);
+    --tone-soft: oklch(25.5% 0.060 50);
+    --tone-line: oklch(35% 0.083 50);
+    --tone-text: oklch(84% 0.120 50);
+}
+.dark .tone-amber {
+    --tone: oklch(75% 0.140 75);
+    --tone-soft: oklch(25.5% 0.056 75);
+    --tone-line: oklch(35% 0.077 75);
+    --tone-text: oklch(84% 0.112 75);
+}
+.dark .tone-lime {
+    --tone: oklch(75% 0.140 130);
+    --tone-soft: oklch(25.5% 0.056 130);
+    --tone-line: oklch(35% 0.077 130);
+    --tone-text: oklch(84% 0.112 130);
+}
+.dark .tone-slate {
+    --tone: oklch(75% 0.020 260);
+    --tone-soft: oklch(25.5% 0.008 260);
+    --tone-line: oklch(35% 0.011 260);
+    --tone-text: oklch(84% 0.016 260);
+}
+}
+
+/* Sarlavha ostidagi yumshoq rangli yog'du — rasm ishlatmasdan */
+@utility aurora {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(42rem 24rem at 12% -10%, oklch(70% 0.11 162 / 0.16), transparent 62%),
+        radial-gradient(38rem 22rem at 88% 0%, oklch(65% 0.13 262 / 0.14), transparent 60%),
+        radial-gradient(30rem 20rem at 55% 110%, oklch(72% 0.12 300 / 0.10), transparent 65%);
+}
+
+.dark .aurora {
+    background:
+        radial-gradient(42rem 24rem at 12% -10%, oklch(70% 0.12 162 / 0.20), transparent 62%),
+        radial-gradient(38rem 22rem at 88% 0%, oklch(62% 0.15 262 / 0.20), transparent 60%),
+        radial-gradient(30rem 20rem at 55% 110%, oklch(70% 0.13 300 / 0.14), transparent 65%);
+}
+
+/* Kartaning rangli yuqori chizig'i */
+@utility tone-top {
+    background: linear-gradient(90deg, var(--tone), transparent 85%);
+}
+
+/* ==========================================================================
+   Tashabbuslar sahifasi — "tirik ekotizim" ko'rinishi
+
+   Shishasimon panel, sekin aylanadigan halqalar va quvvat chizig'i.
+   Hammasi CSS bilan: rasm ham, og'ir kutubxona ham yo'q.
+   ========================================================================== */
+
+@utility glass {
+    background: color-mix(in oklab, var(--raised) 72%, transparent);
+    backdrop-filter: blur(16px);
+    border: 1px solid color-mix(in oklab, var(--line) 80%, transparent);
+}
+
+/* Sahna atrofidagi sekin aylanadigan halqa */
+@utility orbit {
+    position: absolute;
+    inset: -8%;
+    border-radius: 9999px;
+    border: 1px dashed color-mix(in oklab, var(--scene, var(--accent)) 34%, transparent);
+    animation: orbit-spin 44s linear infinite;
+}
+
+@keyframes orbit-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Ovoz ulushini ko'rsatadigan yorug' chiziq */
+@utility energy {
+    position: relative;
+    overflow: hidden;
+    background: color-mix(in oklab, var(--scene, var(--accent)) 16%, transparent);
+}
+
+.energy > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(
+        90deg,
+        color-mix(in oklab, var(--scene, var(--accent)) 55%, transparent),
+        var(--scene, var(--accent))
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .orbit {
+        animation: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Yo'nalish sahnalari — ovoz qo'shilganda paydo bo'ladigan elementlar
+   -------------------------------------------------------------------------- */
+
+.scene-svg .pop {
+    transform-box: fill-box;
+    transform-origin: center;
+    /* Sekin o'sadi: kichkinadan chiqib, biroz oshib ketib, joyiga o'tiradi */
+    animation: scene-grow 1.15s cubic-bezier(0.16, 0.9, 0.24, 1.06) backwards;
+}
+
+@keyframes scene-grow {
+    0% {
+        opacity: 0;
+        transform: scale(0.05) translateY(10px);
+    }
+    45% {
+        opacity: 1;
+        transform: scale(1.18) translateY(-2px);
+    }
+    72% {
+        transform: scale(0.94);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.scene-svg .floatcoin {
+    animation: scene-float 3.2s ease-in-out infinite;
+}
+
+@keyframes scene-float {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Sahna ramkasining burchak belgilari */
+@utility scene-frame {
+    position: relative;
+    border-radius: 0.75rem;
+    background: linear-gradient(180deg, oklch(18% 0.02 260 / 0.5), oklch(12% 0.02 260 / 0.75));
+    overflow: hidden;
+}
+
+.scene-frame::before,
+.scene-frame::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid color-mix(in oklab, var(--scene, var(--accent)) 55%, transparent);
+    pointer-events: none;
+}
+
+.scene-frame::before {
+    top: 8px;
+    left: 8px;
+    border-right: 0;
+    border-bottom: 0;
+}
+
+.scene-frame::after {
+    right: 8px;
+    bottom: 8px;
+    border-left: 0;
+    border-top: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scene-svg .pop,
+    .scene-svg .floatcoin {
+        animation: none;
+    }
+}

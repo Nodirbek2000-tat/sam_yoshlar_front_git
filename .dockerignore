@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.env*
+!.env.example
+npm-debug.log*
+.DS_Store
+README.md
+.claude
+
+# Asl (siqilmagan) rasmlar — saytga chiqmaydi, obrazga kerak emas
+assets
