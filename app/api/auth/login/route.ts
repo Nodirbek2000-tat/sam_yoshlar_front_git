@@ -64,5 +64,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
         user: data.user,
         needs_profile: data.needs_profile ?? false,
+        // Qaysi qadam qolgani: "role" | "business" | "startup" | null
+        onboarding: data.onboarding ?? null,
     });
 }

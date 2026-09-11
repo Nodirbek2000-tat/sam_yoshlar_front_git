@@ -210,7 +210,6 @@ p {
     --color-tone-soft: var(--tone-soft);
     --color-tone-line: var(--tone-line);
     --color-tone-text: var(--tone-text);
-    --color-ic-hue: var(--ic-hue);
     --color-warn: var(--warn);
     --color-warn-soft: var(--warn-soft);
     --color-warn-text: var(--warn-text);
@@ -224,11 +223,10 @@ p {
     --tone-line: var(--line);
     --tone-text: var(--accent-text);
 
-    /* Rangli ikonkalar shu to'rt qiymatdan oziqlanadi */
+    /* Rangli ikonkalarning qora chizig'i va ichki bo'shlig'i.
+       Rangi esa to'g'ridan-to'g'ri `--tone` dan olinadi (color-icon.tsx). */
     --ic-ink: var(--color-ink-900);
     --ic-paper: #ffffff;
-    --ic-hue: var(--tone);
-    --ic-tint: var(--tone-line);
 
     /* Ogohlantirish: muddat tugayapti, joy qolmadi va shunga o'xshash holatlar */
     --warn: oklch(58% 0.170 18);
@@ -546,5 +544,274 @@ p {
     .scene-svg .pop,
     .scene-svg .floatcoin {
         animation: none;
+    }
+}
+
+/* ==========================================================================
+   Bosh sahifa effektlari — faqat `/` da ishlatiladi.
+
+   Harakatning asosiy qismi GSAP va Motion'da; bu yerda faqat CSS bilan
+   arzonroq qilinadigan narsalar: tovlanish, porlash, suzish, marquee.
+   `prefers-reduced-motion` da hammasi o'chadi (yuqoridagi umumiy qoida).
+   ========================================================================== */
+
+/* --- Lenis: o'zi yumshatadi, brauzerning `smooth` i xalaqit bermasin --- */
+html.lenis,
+html.lenis body {
+    height: auto;
+}
+
+html.lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+}
+
+html.lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+}
+
+html.lenis.lenis-stopped {
+    overflow: hidden;
+}
+
+/* --- Kirishdagi animatsiya: JS kelguncha yashirin, kelmasa 3 soniyada o'zi chiqadi --- */
+[data-intro] {
+    visibility: hidden;
+    animation: intro-failsafe 0s 3s forwards;
+}
+
+@keyframes intro-failsafe {
+    to {
+        visibility: visible;
+    }
+}
+
+/* --- Tovlanuvchi gradient matn --- */
+@utility text-shimmer {
+    background-image: linear-gradient(
+        100deg,
+        var(--accent) 0%,
+        var(--color-brand-300) 22%,
+        oklch(72% 0.14 250) 45%,
+        var(--accent) 65%,
+        var(--text) 100%
+    );
+    background-size: 220% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shimmer-move 7s ease-in-out infinite alternate;
+}
+
+@keyframes shimmer-move {
+    from {
+        background-position: 0% 50%;
+    }
+    to {
+        background-position: 100% 50%;
+    }
+}
+
+/* --- Aylanuvchi porlagan halqa (tugma va karta chegarasi) --- */
+@property --ring-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@utility glow-ring {
+    position: relative;
+    isolation: isolate;
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        z-index: -1;
+        border-radius: inherit;
+        background: conic-gradient(
+            from var(--ring-angle),
+            transparent 0deg,
+            var(--accent) 70deg,
+            oklch(72% 0.14 250) 140deg,
+            transparent 200deg,
+            transparent 360deg
+        );
+        animation: ring-spin 3.2s linear infinite;
+        opacity: 0.9;
+    }
+
+    &::after {
+        content: "";
+        position: absolute;
+        inset: -10px;
+        z-index: -2;
+        border-radius: inherit;
+        background: conic-gradient(
+            from var(--ring-angle),
+            transparent 0deg,
+            var(--accent) 70deg,
+            transparent 200deg
+        );
+        filter: blur(14px);
+        opacity: 0.45;
+        animation: ring-spin 3.2s linear infinite;
+    }
+}
+
+@keyframes ring-spin {
+    to {
+        --ring-angle: 360deg;
+    }
+}
+
+/* --- Suzib yuruvchi 3D rasmlar --- */
+@keyframes float-y {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+    50% {
+        transform: translate3d(0, -14px, 0) rotate(1.5deg);
+    }
+}
+
+@utility float-slow {
+    animation: float-y 7s ease-in-out infinite;
+}
+
+/* --- Hero orqasidagi siljib yuruvchi rang dog'lari --- */
+@keyframes blob-drift {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+    33% {
+        transform: translate3d(6%, -4%, 0) scale(1.08);
+    }
+    66% {
+        transform: translate3d(-5%, 5%, 0) scale(0.96);
+    }
+}
+
+@utility blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    animation: blob-drift 18s ease-in-out infinite;
+    will-change: transform;
+}
+
+/* --- Cheksiz lenta --- */
+@keyframes marquee {
+    from {
+        transform: translate3d(0, 0, 0);
+    }
+    to {
+        transform: translate3d(-50%, 0, 0);
+    }
+}
+
+@utility marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 48s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+    animation-play-state: paused;
+}
+
+/* --- Kursor ortidan yuruvchi yog'du (karta) --- */
+@utility spotlight {
+    position: relative;
+    isolation: isolate;
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background: radial-gradient(
+            420px circle at var(--mx, 50%) var(--my, 50%),
+            color-mix(in oklab, var(--tone) 18%, transparent),
+            transparent 62%
+        );
+        opacity: 0;
+        transition: opacity 0.35s var(--ease-soft);
+    }
+
+    &:hover::before {
+        opacity: 1;
+    }
+}
+
+/* Chegara ham kursor tomonda yonadi */
+@utility spotlight-border {
+    background: radial-gradient(
+            260px circle at var(--mx, 50%) var(--my, 50%),
+            var(--tone),
+            transparent 65%
+        ),
+        var(--line);
+}
+
+/* --- Pastga aylantirish belgisi --- */
+@keyframes wheel {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    70% {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+}
+
+@utility scroll-wheel {
+    animation: wheel 1.8s var(--ease-soft) infinite;
+}
+
+/* --- Reytingdagi birinchi o'rinlar yengil nafas oladi --- */
+@keyframes soft-pulse {
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 color-mix(in oklab, var(--tone) 45%, transparent);
+    }
+    50% {
+        box-shadow: 0 0 0 7px color-mix(in oklab, var(--tone) 0%, transparent);
+    }
+}
+
+@utility pulse-glow {
+    animation: soft-pulse 2.6s ease-in-out infinite;
+}
+
+/* --- Bo'lim chizig'i: chapdan o'ngga yugurib o'tuvchi nur --- */
+@keyframes sweep {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(400%);
+    }
+}
+
+@utility line-sweep {
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 25%;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        animation: sweep 5s ease-in-out infinite;
     }
 }

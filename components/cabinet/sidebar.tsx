@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { CategoryIcon } from "@/components/category-icon";
 import { MenuIcon, type MenuIconName } from "@/components/menu-icon";
 import { cn } from "@/lib/cn";
 import type { Tone } from "@/lib/tone";
@@ -11,13 +12,14 @@ import type { Tone } from "@/lib/tone";
 type Item = {
     href: string;
     label: string;
-    icon: MenuIconName;
+    /** Higgsfield menyu ikonkasi yoki kategoriya ikonkasi (`ic-briefcase`) */
+    icon: MenuIconName | `ic-${string}`;
     /** Menyu bandining rangi — ikonka va tanlangan holat shundan oladi */
     tone: Tone;
     /** Yon menyuda ko'rinadigan raqam */
     countKey?: keyof Counts;
-    /** Faqat tashkilot hisobiga ko'rinadigan band */
-    organizationOnly?: boolean;
+    /** Faqat shu rollarga ko'rinadi; berilmasa — hammaga */
+    roles?: string[];
 };
 
 export type Counts = {
@@ -31,6 +33,20 @@ export type Counts = {
 
 const ITEMS: Item[] = [
     { href: "/kabinet", label: "Profil", icon: "profile", tone: "emerald" },
+    {
+        href: "/kabinet/biznesim",
+        label: "Biznesim",
+        icon: "ic-briefcase",
+        tone: "amber",
+        roles: ["entrepreneur"],
+    },
+    {
+        href: "/kabinet/startapim",
+        label: "Startapim",
+        icon: "ic-rocket",
+        tone: "orange",
+        roles: ["startupper"],
+    },
     {
         href: "/kabinet/tashabbuslarim",
         label: "Tashabbuslarim",
@@ -50,7 +66,7 @@ const ITEMS: Item[] = [
         label: "Muammolarim",
         icon: "appeal",
         tone: "violet",
-        organizationOnly: true,
+        roles: ["organization"],
     },
     {
         href: "/kabinet/takliflarim",
@@ -75,15 +91,9 @@ const ITEMS: Item[] = [
     },
 ];
 
-export function CabinetSidebar({
-    counts,
-    isOrganization,
-}: {
-    counts: Counts;
-    isOrganization: boolean;
-}) {
+export function CabinetSidebar({ counts, role }: { counts: Counts; role: string }) {
     const pathname = usePathname();
-    const items = ITEMS.filter((item) => !item.organizationOnly || isOrganization);
+    const items = ITEMS.filter((item) => !item.roles || item.roles.includes(role));
 
     return (
         <nav className="lg:sticky lg:top-24">
@@ -120,11 +130,19 @@ export function CabinetSidebar({
                                     />
                                 )}
 
-                                <MenuIcon
-                                    name={item.icon}
-                                    size={17}
-                                    className={active ? "text-tone-text" : "text-faint transition-colors group-hover:text-tone-text"}
-                                />
+                                {item.icon.startsWith("ic-") ? (
+                                    <CategoryIcon
+                                        slug={item.icon}
+                                        size={17}
+                                        className={active ? "text-tone-text" : "text-faint transition-colors group-hover:text-tone-text"}
+                                    />
+                                ) : (
+                                    <MenuIcon
+                                        name={item.icon as MenuIconName}
+                                        size={17}
+                                        className={active ? "text-tone-text" : "text-faint transition-colors group-hover:text-tone-text"}
+                                    />
+                                )}
 
                                 <span className="flex-1">{item.label}</span>
 

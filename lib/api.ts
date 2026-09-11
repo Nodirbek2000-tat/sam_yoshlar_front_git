@@ -17,7 +17,10 @@ import type {
     Peer,
     Problem,
     Reference,
-    Startup,
+    PublicBusiness,
+    PublicBusinessDetail,
+    PublicStartup,
+    PublicStartupDetail,
 } from "./types";
 
 /**
@@ -112,7 +115,7 @@ export async function apiFetch<T>(
 export const getOverview = () =>
     apiFetch<Overview>("/overview/", {
         revalidate: 60,
-        tags: ["news", "events", "announcements", "initiatives", "peers"],
+        tags: ["news", "events", "announcements", "initiatives", "peers", "businesses", "startups"],
     });
 
 /**
@@ -208,5 +211,25 @@ export const getPeers = (query?: Query) =>
 export const getPeer = (id: number | string) =>
     apiFetch<Peer>(`/peers/${id}/`, { revalidate: 120 });
 
-export const getStartups = () =>
-    apiFetch<Paginated<Startup>>("/startups/", { revalidate: 120, tags: ["startups"] });
+export const getStartups = (query?: Query) =>
+    apiFetch<Paginated<PublicStartup>>("/startups/", {
+        query,
+        revalidate: 120,
+        tags: ["startups"],
+    });
+
+export const getStartup = (id: number | string) =>
+    apiFetch<PublicStartupDetail>(`/startups/${id}/`, { revalidate: 120, tags: ["startups"] });
+
+export const getBusinesses = (query?: Query) =>
+    apiFetch<Paginated<PublicBusiness>>("/businesses/", {
+        query,
+        revalidate: 120,
+        tags: ["businesses"],
+    });
+
+export const getBusiness = (id: number | string) =>
+    apiFetch<PublicBusinessDetail>(`/businesses/${id}/`, {
+        revalidate: 120,
+        tags: ["businesses"],
+    });

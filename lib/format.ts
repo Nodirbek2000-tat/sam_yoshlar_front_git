@@ -34,3 +34,15 @@ export function formatTime(value: string | Date) {
 export function formatNumber(value: number) {
     return new Intl.NumberFormat("uz-UZ").format(value).replace(/,/g, " ");
 }
+
+/** 150000000 -> "150 mln so'm", 1200000000 -> "1,2 mlrd so'm" */
+export function formatMoney(value: number | string | null | undefined) {
+    const amount = Number(value);
+    if (!amount) return "";
+
+    const short = (n: number) => (Math.round(n * 10) / 10).toString().replace(".", ",");
+
+    if (amount >= 1_000_000_000) return `${short(amount / 1_000_000_000)} mlrd so'm`;
+    if (amount >= 1_000_000) return `${short(amount / 1_000_000)} mln so'm`;
+    return `${formatNumber(amount)} so'm`;
+}

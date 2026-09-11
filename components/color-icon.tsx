@@ -11,11 +11,15 @@
  * `.tone-*` sinfiga qarab har xil rangda va ikkala rejimda ham to'g'ri chiqadi.
  */
 
+// `hue` va `tint` to'g'ridan-to'g'ri `--tone` ni o'qiydi. `--ic-hue: var(--tone)`
+// kabi oraliq o'zgaruvchi ishlamaydi: u `:root` da hisoblanib qoladi va
+// ichkaridagi `.tone-amber` uni o'zgartira olmaydi — hamma ikonka bir xil
+// (brend yashili) chiqib qoladi.
 const ROLE = {
     ink: "var(--ic-ink)",
     paper: "var(--ic-paper)",
-    hue: "var(--ic-hue)",
-    tint: "var(--ic-tint)",
+    hue: "var(--tone)",
+    tint: "var(--tone-line)",
 } as const;
 
 type Role = keyof typeof ROLE;

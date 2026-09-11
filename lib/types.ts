@@ -36,6 +36,57 @@ export type User = {
     telegram_username: string;
     is_verified: boolean;
     is_panel_admin: boolean;
+    /** Ro'yxatdan o'tishning qolgan qadami; hammasi tayyor bo'lsa `null` */
+    onboarding: OnboardingStep;
+};
+
+export type OnboardingStep = "role" | "business" | "startup" | null;
+
+export type GalleryImage = { id: number; url: string; caption: string };
+
+export type BusinessProfile = {
+    id: number;
+    name: string;
+    sphere: string;
+    sphere_display: string;
+    stir: string;
+    founded_year: number | null;
+    employees: number;
+    region: string;
+    region_display: string;
+    district: string;
+    address: string;
+    description: string;
+    website: string;
+    phone: string;
+    email: string;
+    telegram: string;
+    instagram: string;
+    logo_url: string | null;
+    gallery: GalleryImage[];
+    status: "pending" | "approved" | "rejected";
+    status_display: string;
+    created_at: string;
+};
+
+export type StartupProfile = {
+    id: number;
+    name: string;
+    sphere: string;
+    sphere_display: string;
+    stage: string;
+    stage_display: string;
+    about: string;
+    problem_solved: string;
+    team_size: number;
+    needed_investment: string | null;
+    website: string;
+    logo_url: string | null;
+    pitch_url: string | null;
+    status: "pending" | "approved" | "rejected";
+    status_display: string;
+    admin_note: string;
+    created_at: string;
 };
 
 export type News = {
@@ -211,6 +262,62 @@ export type Startup = {
     created_at: string;
 };
 
+/** Ochiq ro'yxatdagi tadbirkor kartasi. */
+export type PublicBusiness = {
+    id: number;
+    name: string;
+    sphere: string;
+    sphere_display: string;
+    sphere_icon: string;
+    region: string;
+    region_display: string;
+    district: string;
+    description: string;
+    employees: number;
+    founded_year: number | null;
+    logo_url: string | null;
+    /** Birinchi yuklangan rasm — kartaning muqovasi */
+    cover_url: string | null;
+    photo_count: number;
+    created_at: string;
+};
+
+export type PublicBusinessDetail = PublicBusiness & {
+    address: string;
+    website: string;
+    phone: string;
+    email: string;
+    telegram: string;
+    instagram: string;
+    gallery: GalleryImage[];
+    owner_name: string;
+};
+
+/** Ochiq ro'yxatdagi startap kartasi. */
+export type PublicStartup = {
+    id: number;
+    name: string;
+    sphere: string;
+    sphere_display: string;
+    sphere_icon: string;
+    stage: string;
+    stage_display: string;
+    about: string;
+    team_size: number;
+    needed_investment: string | null;
+    region: string;
+    region_display: string;
+    logo_url: string | null;
+    created_at: string;
+};
+
+export type PublicStartupDetail = PublicStartup & {
+    problem_solved: string;
+    website: string;
+    pitch_url: string | null;
+    full_name: string;
+};
+
 export type Overview = {
     stats: {
         initiatives: number;
@@ -219,7 +326,11 @@ export type Overview = {
         solutions: number;
         peers: number;
         events: number;
+        businesses: number;
+        startups: number;
     };
+    businesses: PublicBusiness[];
+    startups: PublicStartup[];
     top_initiatives: Initiative[];
     latest_news: News[];
     upcoming_events: Event[];

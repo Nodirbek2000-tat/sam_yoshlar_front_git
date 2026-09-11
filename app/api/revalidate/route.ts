@@ -20,6 +20,7 @@ const ALLOWED = new Set([
     "problems",
     "peers",
     "startups",
+    "businesses",
     "reference",
 ]);
 

@@ -14,6 +14,9 @@ export default async function CabinetLayout({ children }: LayoutProps<"/kabinet"
     const user = await getCurrentUser();
     if (!user) redirect("/kirish?next=/kabinet");
 
+    // Rol yoki biznes/startap anketasi to'ldirilmagan — avval o'sha
+    if (user.onboarding) redirect("/kirish/rol");
+
     const overview = await getCabinetOverview();
 
     return (
@@ -43,10 +46,7 @@ export default async function CabinetLayout({ children }: LayoutProps<"/kabinet"
 
             {/* Chapda menyu, o'ngda mazmun */}
             <div className="mt-8 grid gap-8 lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:gap-12">
-                <CabinetSidebar
-                    counts={overview.counts}
-                    isOrganization={user.role === "organization"}
-                />
+                <CabinetSidebar counts={overview.counts} role={user.role} />
                 <div className="min-w-0">{children}</div>
             </div>
         </div>

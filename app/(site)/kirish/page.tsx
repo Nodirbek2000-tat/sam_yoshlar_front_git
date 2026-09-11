@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { AuthShell } from "@/components/auth/auth-shell";
 import { LoginForm } from "@/components/auth/login-form";
 import { apiFetch } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
@@ -19,7 +20,8 @@ export default async function LoginPage({ searchParams }: PageProps<"/kirish">) 
     const nextParam = params?.next;
     const next = typeof nextParam === "string" && nextParam.startsWith("/") ? nextParam : "/kabinet";
 
-    if (user) redirect(next);
+    // Kirgan, lekin ro'yxatdan o'tishni tugatmagan — o'sha qadamga
+    if (user) redirect(user.onboarding ? "/kirish/rol" : next);
 
     let botUrl = FALLBACK_BOT;
     try {
@@ -30,13 +32,13 @@ export default async function LoginPage({ searchParams }: PageProps<"/kirish">) 
     }
 
     return (
-        <>
+        <AuthShell>
             <h1 className="text-3xl font-bold">Xush kelibsiz</h1>
-            <p className="mt-2 mb-8 text-[15px] text-ink-500">
+            <p className="mt-2 mb-8 text-[15px] text-muted">
                 Ovoz berish, taklif yozish va tadbirlarga yozilish uchun tizimga kiring.
             </p>
 
             <LoginForm botUrl={botUrl} next={next} />
-        </>
+        </AuthShell>
     );
 }

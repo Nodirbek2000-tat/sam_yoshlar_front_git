@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
+import { Suspense } from "react";
 
+import { NavProgress } from "@/components/nav-progress";
 import { ThemeProvider } from "@/components/theme/provider";
 
 import "./globals.css";
@@ -46,7 +48,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             className={`${inter.variable} ${sora.variable} h-full antialiased`}
         >
             <body className="flex min-h-full flex-col">
-                <ThemeProvider>{children}</ThemeProvider>
+                <ThemeProvider>
+                    {/* `useSearchParams` ishlatadi — Suspense ichida bo'lishi shart */}
+                    <Suspense fallback={null}>
+                        <NavProgress />
+                    </Suspense>
+                    {children}
+                </ThemeProvider>
             </body>
         </html>
     );

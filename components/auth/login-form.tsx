@@ -12,7 +12,16 @@ type Mode = "telegram" | "password";
 
 const CODE_LENGTH = 6;
 
-export function LoginForm({ botUrl, next }: { botUrl: string; next: string }) {
+export function LoginForm({
+    botUrl,
+    next,
+    telegramOnly = false,
+}: {
+    botUrl: string;
+    next: string;
+    /** Ro'yxatdan o'tish sahifasi uchun: faqat Telegram, tugmalarsiz */
+    telegramOnly?: boolean;
+}) {
     const router = useRouter();
     const [mode, setMode] = useState<Mode>("telegram");
     const [error, setError] = useState<string | null>(null);
@@ -35,8 +44,9 @@ export function LoginForm({ botUrl, next }: { botUrl: string; next: string }) {
                 return;
             }
 
-            // Rol hali tanlanmagan bo'lsa — avval shuni so'raymiz
-            router.replace(data.needs_profile ? "/kirish/rol" : next);
+            // Rol tanlanmagan yoki biznes/startap anketasi to'ldirilmagan
+            // bo'lsa — darhol o'sha qadamga
+            router.replace(data.onboarding || data.needs_profile ? "/kirish/rol" : next);
             router.refresh();
         } catch {
             setError("Tarmoqda xatolik. Qayta urinib ko'ring.");
@@ -47,7 +57,8 @@ export function LoginForm({ botUrl, next }: { botUrl: string; next: string }) {
 
     return (
         <div className="w-full">
-            {/* Rejim tanlash */}
+            {/* Rejim tanlash — ro'yxatdan o'tishda kerak emas */}
+            {!telegramOnly && (
             <div className="relative mb-8 grid grid-cols-2 gap-1 rounded-full border border-line bg-surface p-1">
                 {(
                     [
@@ -78,6 +89,7 @@ export function LoginForm({ botUrl, next }: { botUrl: string; next: string }) {
                     </button>
                 ))}
             </div>
+            )}
 
             <AnimatePresence mode="wait" initial={false}>
                 {mode === "telegram" ? (
@@ -118,13 +130,24 @@ export function LoginForm({ botUrl, next }: { botUrl: string; next: string }) {
             </AnimatePresence>
 
             <p className="mt-8 border-t border-line pt-6 text-center text-[13.5px] text-muted">
-                Hisobingiz yo&apos;qmi?{" "}
-                <Link
-                    href="/royxatdan-otish"
-                    className="font-semibold text-accent-text hover:underline"
-                >
-                    Ro&apos;yxatdan o&apos;tish
-                </Link>
+                {telegramOnly ? (
+                    <>
+                        Hisobingiz bormi?{" "}
+                        <Link href="/kirish" className="font-semibold text-accent-text hover:underline">
+                            Kirish
+                        </Link>
+                    </>
+                ) : (
+                    <>
+                        Hisobingiz yo&apos;qmi?{" "}
+                        <Link
+                            href="/royxatdan-otish"
+                            className="font-semibold text-accent-text hover:underline"
+                        >
+                            Ro&apos;yxatdan o&apos;tish
+                        </Link>
+                    </>
+                )}
             </p>
         </div>
     );
