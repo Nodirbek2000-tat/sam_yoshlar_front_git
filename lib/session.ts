@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 import { apiFetch } from "./api";
 import type { User } from "./types";
@@ -37,8 +38,12 @@ export async function getAccessToken() {
 /**
  * Joriy foydalanuvchi yoki `null`.
  * Server komponentlarda chaqiriladi — sahifa allaqachon kim kirganini biladi.
+ *
+ * `cache` — bitta so'rov ichida (sayt qobig'i + kabinet qobig'i + sahifa)
+ * Django'ga faqat bir marta boriladi. Oldin har bir sahifa ochilganda
+ * shu so'rov 2–3 marta ketardi.
  */
-export async function getCurrentUser(): Promise<User | null> {
+export const getCurrentUser = cache(async (): Promise<User | null> => {
     const token = await getAccessToken();
     if (!token) return null;
 
@@ -48,4 +53,4 @@ export async function getCurrentUser(): Promise<User | null> {
         // Token eskirgan yoki yaroqsiz — mehmon sifatida davom etamiz
         return null;
     }
-}
+});

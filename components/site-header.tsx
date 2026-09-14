@@ -2,9 +2,11 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { LogoutButton } from "@/components/auth/logout-button";
+import { BrandLogo } from "@/components/brand-logo";
 import { Icon, type IconName } from "@/components/icon";
 import { ThemeToggle } from "@/components/theme/toggle";
 import { cn } from "@/lib/cn";
@@ -22,7 +24,6 @@ const NAV: { href: string; label: string; icon: IconName }[] = [
 
 export function SiteHeader({ user }: { user: User | null }) {
     const pathname = usePathname();
-    const router = useRouter();
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
@@ -32,24 +33,13 @@ export function SiteHeader({ user }: { user: User | null }) {
         };
     }, [open]);
 
-    async function logout() {
-        await fetch("/api/auth/logout", { method: "POST" });
-        router.replace("/");
-        router.refresh();
-    }
-
     const isActive = (href: string) => pathname.startsWith(href);
 
     return (
         <header className="sticky top-0 z-50 border-b border-line bg-page/80 backdrop-blur-xl">
             <div className="container-page flex h-15 items-center gap-6">
-                <Link href="/" className="flex shrink-0 items-center gap-2.5">
-                    <span className="grid size-7 place-items-center rounded-lg bg-invert text-on-invert">
-                        <Icon name="bank" size={15} strokeWidth={1.9} />
-                    </span>
-                    <span className="text-[14.5px] font-semibold tracking-tight">
-                        sam-yosh tadbirkor
-                    </span>
+                <Link href="/" aria-label="Bosh sahifa" className="flex shrink-0 items-center">
+                    <BrandLogo height={50} priority className="transition-opacity hover:opacity-85" />
                 </Link>
 
                 <nav className="hidden items-center gap-0.5 xl:flex">
@@ -97,15 +87,10 @@ export function SiteHeader({ user }: { user: User | null }) {
                                 )}
                             </Link>
 
-                            <button
-                                type="button"
-                                onClick={logout}
-                                title="Chiqish"
-                                aria-label="Chiqish"
+                            <LogoutButton
+                                name={user.full_name}
                                 className="grid size-8 place-items-center rounded-lg text-faint transition-colors hover:bg-surface hover:text-text"
-                            >
-                                <Icon name="power" size={15} />
-                            </button>
+                            />
                         </div>
                     ) : (
                         <Link

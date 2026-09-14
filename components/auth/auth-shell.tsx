@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { BrandLogo } from "@/components/brand-logo";
 import { Icon } from "@/components/icon";
 
 /**
@@ -44,11 +45,9 @@ export function AuthShell({
                 </div>
 
                 <div className="relative flex h-full flex-col justify-between p-12 text-white">
-                    <Link href="/" className="inline-flex items-center gap-2.5 self-start">
-                        <span className="grid size-9 place-items-center rounded-xl bg-brand-600">
-                            <Icon name="bank" size={19} strokeWidth={1.8} />
-                        </span>
-                        <span className="font-semibold tracking-tight">sam-yosh tadbirkor</span>
+                    <Link href="/" aria-label="Bosh sahifa" className="inline-flex self-start">
+                        {/* Panel ikkala rejimda ham to'q — logoning kechki nusxasi */}
+                        <BrandLogo height={52} tone="dark" />
                     </Link>
 
                     <div className="max-w-sm">

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { AlreadyRegistered } from "@/components/auth/already-registered";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { LoginForm } from "@/components/auth/login-form";
 import { apiFetch } from "@/lib/api";
@@ -23,7 +24,16 @@ const FALLBACK_BOT = "https://t.me/yoshtadbirkorlarbot";
  */
 export default async function RegisterPage() {
     const user = await getCurrentUser();
-    if (user) redirect(user.onboarding ? "/kirish/rol" : "/kabinet");
+    if (user?.onboarding) redirect("/kirish/rol");
+
+    // Allaqachon hisobi bor — jimgina otib yubormaymiz, tanitib qo'yamiz
+    if (user) {
+        return (
+            <AuthShell>
+                <AlreadyRegistered user={user} />
+            </AuthShell>
+        );
+    }
 
     let botUrl = FALLBACK_BOT;
     try {

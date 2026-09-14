@@ -18,7 +18,9 @@ export type ProblemQuestion = Choice & {
     short: string;
 };
 
-export type Role = "entrepreneur" | "startupper" | "organization" | "admin";
+export type Role = "yosh" | "entrepreneur" | "startupper" | "organization" | "admin";
+
+export type Country = { value: string; label: string; short: string; color: string };
 
 export type User = {
     id: number;
@@ -38,9 +40,30 @@ export type User = {
     is_panel_admin: boolean;
     /** Ro'yxatdan o'tishning qolgan qadami; hammasi tayyor bo'lsa `null` */
     onboarding: OnboardingStep;
+    /** Botda so'raladi */
+    age: number | null;
+    study_location: "" | "uz" | "abroad";
 };
 
-export type OnboardingStep = "role" | "business" | "startup" | null;
+export type OnboardingStep = "role" | "business" | "startup" | "study" | "peer" | null;
+
+/** Chet elda o'qiydigan yoshning o'z anketasi (kabinet). */
+export type PeerProfile = {
+    id: number;
+    country: string;
+    country_name: string;
+    city: string;
+    institution: string;
+    course: number | null;
+    field: string;
+    achievements: string;
+    phone: string;
+    telegram: string;
+    email: string;
+    photo_url: string | null;
+    status: string;
+    created_at: string;
+};
 
 export type GalleryImage = { id: number; url: string; caption: string };
 
@@ -241,8 +264,14 @@ export type Peer = {
     institution: string;
     field: string;
     since_year: number | null;
+    course: number | null;
+    achievements: string;
     about: string;
     can_help: string;
+    telegram: string;
+    email: string;
+    phone: string;
+    age: number | null;
     photo: string | null;
     initials: string;
     created_at: string;
@@ -325,6 +354,8 @@ export type Overview = {
         problems: number;
         solutions: number;
         peers: number;
+        /** Saytdagi yoshlar soni (eski keshda bo'lmasligi mumkin) */
+        users?: number;
         events: number;
         businesses: number;
         startups: number;
@@ -353,7 +384,7 @@ export type Reference = {
     organization_spheres: Choice[];
     appeal_categories: Choice[];
     peer_purposes: Choice[];
-    countries: { value: string; label: string; short: string; color: string }[];
+    countries: Country[];
 };
 
 export type VoteResult = {

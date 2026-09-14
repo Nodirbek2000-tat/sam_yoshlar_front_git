@@ -50,7 +50,11 @@ export function HeroStage({ children }: { children?: ReactNode }) {
 
             const intro = gsap.utils.toArray<HTMLElement>("[data-intro]");
 
-            if (prefersReducedMotion()) {
+            // Sekin internetda skript kech keladi: matn allaqachon ko'rinib turibdi
+            // (CSS 0.9s dan keyin ochadi) — uni yashirib qayta chiqarmaymiz
+            const late = performance.now() > 1400;
+
+            if (prefersReducedMotion() || late) {
                 gsap.set(intro, { autoAlpha: 1 });
                 return;
             }

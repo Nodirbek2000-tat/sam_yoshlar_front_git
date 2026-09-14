@@ -184,9 +184,16 @@ function PeerCard({ peer }: { peer: Peer }) {
                 {peer.institution && (
                     <p className="mt-3 truncate text-[13px] text-text">{peer.institution}</p>
                 )}
+                {(peer.course || peer.field) && (
+                    <p className="mt-1 truncate text-[12.5px] text-muted">
+                        {[peer.course ? `${peer.course}-kurs` : "", peer.field]
+                            .filter(Boolean)
+                            .join(" · ")}
+                    </p>
+                )}
 
                 <p className="mt-2 line-clamp-3 flex-1 text-[13.5px] leading-relaxed text-muted">
-                    {peer.about}
+                    {peer.achievements || peer.about}
                 </p>
 
                 <span className="mt-4 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-tone-text">

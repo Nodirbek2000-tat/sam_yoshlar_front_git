@@ -38,7 +38,9 @@ export default async function CabinetLayout({ children }: LayoutProps<"/kabinet"
                     </h1>
                     <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[13px] text-faint">
                         <span className="text-muted">{user.role_display}</span>
+                        {user.age && <span>{user.age} yosh</span>}
                         {user.region_display && <span>{user.region_display}</span>}
+                        {user.study_location === "abroad" && <span>Chet elda o&apos;qiydi</span>}
                         {user.telegram_username && <span>@{user.telegram_username}</span>}
                     </p>
                 </div>
@@ -46,7 +48,11 @@ export default async function CabinetLayout({ children }: LayoutProps<"/kabinet"
 
             {/* Chapda menyu, o'ngda mazmun */}
             <div className="mt-8 grid gap-8 lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:gap-12">
-                <CabinetSidebar counts={overview.counts} role={user.role} />
+                <CabinetSidebar
+                    counts={overview.counts}
+                    role={user.role}
+                    abroad={user.study_location === "abroad"}
+                />
                 <div className="min-w-0">{children}</div>
             </div>
         </div>

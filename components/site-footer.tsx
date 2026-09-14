@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { BrandLogo } from "@/components/brand-logo";
 import { Icon, type IconName } from "@/components/icon";
 
 const SECTIONS: { title: string; links: { href: string; label: string }[] }[] = [
@@ -37,14 +38,9 @@ export function SiteFooter() {
         <footer className="mt-auto border-t border-line">
             <div className="container-page grid gap-12 py-14 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="lg:pr-10">
-                    <div className="flex items-center gap-2.5">
-                        <span className="grid size-7 place-items-center rounded-lg bg-invert text-on-invert">
-                            <Icon name="bank" size={15} strokeWidth={1.9} />
-                        </span>
-                        <span className="text-[14.5px] font-semibold tracking-tight">
-                            sam-yosh tadbirkor
-                        </span>
-                    </div>
+                    <Link href="/" aria-label="Bosh sahifa" className="inline-flex">
+                        <BrandLogo height={54} />
+                    </Link>
 
                     <p className="mt-4 max-w-xs text-[13.5px] leading-relaxed text-muted">
                         Yoshlarni birlashtiruvchi, qo&apos;llab-quvvatlovchi va rivojlantirishga

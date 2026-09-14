@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 
+import { SuccessBurst } from "@/components/auth/success-burst";
 import { Icon } from "@/components/icon";
 import { cn } from "@/lib/cn";
 
@@ -26,6 +27,7 @@ export function LoginForm({
     const [mode, setMode] = useState<Mode>("telegram");
     const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
+    const [welcome, setWelcome] = useState<{ title: string; subtitle: string } | null>(null);
 
     async function submit(payload: Record<string, string>) {
         setBusy(true);
@@ -44,10 +46,19 @@ export function LoginForm({
                 return;
             }
 
-            // Rol tanlanmagan yoki biznes/startap anketasi to'ldirilmagan
+            const firstName = String(data.user?.full_name ?? "").trim().split(/\s+/)[0];
+            const pending = Boolean(data.onboarding || data.needs_profile);
+            setWelcome({
+                title: firstName ? `Xush kelibsiz, ${firstName}!` : "Xush kelibsiz!",
+                subtitle: pending ? "Bir-ikki savol qoldi" : "Kabinetingiz ochilmoqda",
+            });
+
+            // «Xush kelibsiz» ko'rinib ulgursin; rol yoki anketa to'ldirilmagan
             // bo'lsa — darhol o'sha qadamga
-            router.replace(data.onboarding || data.needs_profile ? "/kirish/rol" : next);
-            router.refresh();
+            window.setTimeout(() => {
+                router.replace(pending ? "/kirish/rol" : next);
+                router.refresh();
+            }, 1300);
         } catch {
             setError("Tarmoqda xatolik. Qayta urinib ko'ring.");
         } finally {
@@ -57,6 +68,11 @@ export function LoginForm({
 
     return (
         <div className="w-full">
+            <SuccessBurst
+                show={welcome !== null}
+                title={welcome?.title ?? ""}
+                subtitle={welcome?.subtitle}
+            />
             {/* Rejim tanlash — ro'yxatdan o'tishda kerak emas */}
             {!telegramOnly && (
             <div className="relative mb-8 grid grid-cols-2 gap-1 rounded-full border border-line bg-surface p-1">

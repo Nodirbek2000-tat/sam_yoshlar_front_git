@@ -576,7 +576,7 @@ html.lenis.lenis-stopped {
 /* --- Kirishdagi animatsiya: JS kelguncha yashirin, kelmasa 3 soniyada o'zi chiqadi --- */
 [data-intro] {
     visibility: hidden;
-    animation: intro-failsafe 0s 3s forwards;
+    animation: intro-failsafe 0s 0.9s forwards;
 }
 
 @keyframes intro-failsafe {

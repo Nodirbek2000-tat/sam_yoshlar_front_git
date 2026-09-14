@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CategoryIcon } from "@/components/category-icon";
-import { Icon } from "@/components/icon";
+import { Icon, type IconName } from "@/components/icon";
 import { Reveal } from "@/components/motion-primitives";
 import { ApiError, getPeer } from "@/lib/api";
 import { toneClass } from "@/lib/tone";
@@ -103,17 +103,46 @@ export default async function PeerPage({ params }: PageProps<"/tengdoshlar/[id]"
 
             <div className="container-page grid gap-10 py-10 md:py-12 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-14">
                 <Reveal className="min-w-0">
-                    <h2 className="text-[12px] font-medium uppercase tracking-[0.1em] text-faint">
-                        O&apos;zi haqida
-                    </h2>
-                    <div className="mt-4 space-y-4 text-[15.5px] leading-[1.8] text-muted">
-                        {peer.about
-                            .split("\n")
-                            .filter(Boolean)
-                            .map((line, index) => (
-                                <p key={index}>{line}</p>
-                            ))}
+                    {/* Ta'lim — bir qarashda */}
+                    <div className="grid gap-3 sm:grid-cols-3">
+                        <Fact icon="bank" label="Universitet" value={peer.institution} />
+                        <Fact
+                            icon="spark"
+                            label="Kurs"
+                            value={peer.course ? `${peer.course}-kurs` : ""}
+                        />
+                        <Fact icon="doc" label="Yo'nalish" value={peer.field} />
                     </div>
+
+                    {peer.achievements && (
+                        <div className="mt-8 overflow-hidden rounded-2xl border border-line bg-raised">
+                            <div className="tone-amber flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+                                <span className="grid size-7 place-items-center rounded-lg bg-tone-soft">
+                                    <Icon name="spark" size={14} className="text-tone-text" />
+                                </span>
+                                <h2 className="text-[13px] font-semibold">Yutuqlari</h2>
+                            </div>
+                            <p className="whitespace-pre-line px-5 py-4 text-[15px] leading-[1.8] text-muted">
+                                {peer.achievements}
+                            </p>
+                        </div>
+                    )}
+
+                    {peer.about && (
+                        <>
+                            <h2 className="mt-9 text-[12px] font-medium uppercase tracking-[0.1em] text-faint">
+                                O&apos;zi haqida
+                            </h2>
+                            <div className="mt-4 space-y-4 text-[15.5px] leading-[1.8] text-muted">
+                                {peer.about
+                                    .split("\n")
+                                    .filter(Boolean)
+                                    .map((line, index) => (
+                                        <p key={index}>{line}</p>
+                                    ))}
+                            </div>
+                        </>
+                    )}
 
                     {peer.can_help && (
                         <div className="mt-9 overflow-hidden rounded-2xl border border-tone-line bg-tone-soft">
@@ -133,11 +162,39 @@ export default async function PeerPage({ params }: PageProps<"/tengdoshlar/[id]"
                 </Reveal>
 
                 <Reveal delay={0.1} className="lg:sticky lg:top-24 lg:self-start">
+                    {(peer.phone || peer.telegram || peer.email) && (
+                        <div className="mb-4 overflow-hidden rounded-2xl border border-line">
+                            <p className="border-b border-line px-5 py-3 text-[12px] font-medium uppercase tracking-[0.1em] text-faint">
+                                Bog&apos;lanish
+                            </p>
+                            <div className="grid gap-1 p-2">
+                                {peer.telegram && (
+                                    <Contact
+                                        href={`https://t.me/${peer.telegram}`}
+                                        icon="telegram"
+                                        label={`@${peer.telegram}`}
+                                    />
+                                )}
+                                {peer.phone && (
+                                    <Contact
+                                        href={`tel:${peer.phone.replace(/[^\d+]/g, "")}`}
+                                        icon="phone"
+                                        label={peer.phone}
+                                    />
+                                )}
+                                {peer.email && (
+                                    <Contact href={`mailto:${peer.email}`} icon="mail" label={peer.email} />
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                     <dl className="divide-y divide-line overflow-hidden rounded-2xl border border-line">
                         {peer.institution && (
-                            <Row label="Universitet / kompaniya" value={peer.institution} />
+                            <Row label="Universitet" value={peer.institution} />
                         )}
                         {peer.field && <Row label="Yo'nalish" value={peer.field} />}
+                        {peer.age && <Row label="Yoshi" value={`${peer.age} yosh`} />}
                         {peer.home_region_display && (
                             <Row label="Vatanidagi hudud" value={peer.home_region_display} />
                         )}
@@ -154,6 +211,40 @@ export default async function PeerPage({ params }: PageProps<"/tengdoshlar/[id]"
                 </Reveal>
             </div>
         </article>
+    );
+}
+
+function Fact({ icon, label, value }: { icon: IconName; label: string; value: string }) {
+    if (!value) return null;
+    return (
+        <div className="rounded-2xl border border-line bg-raised p-4 transition-colors hover:border-tone-line">
+            <span className="grid size-8 place-items-center rounded-lg bg-tone-soft text-tone-text">
+                <Icon name={icon} size={15} />
+            </span>
+            <p className="mt-3 text-[11.5px] text-faint">{label}</p>
+            <p className="mt-0.5 text-[14.5px] font-medium leading-snug">{value}</p>
+        </div>
+    );
+}
+
+function Contact({ href, icon, label }: { href: string; icon: IconName; label: string }) {
+    return (
+        <a
+            href={href}
+            target={href.startsWith("http") ? "_blank" : undefined}
+            rel="noreferrer"
+            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] transition-colors hover:bg-surface"
+        >
+            <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-tone-soft text-tone-text transition-transform duration-300 group-hover:scale-110">
+                <Icon name={icon} size={15} />
+            </span>
+            <span className="min-w-0 flex-1 truncate">{label}</span>
+            <Icon
+                name="arrowRight"
+                size={14}
+                className="shrink-0 text-faint transition-transform duration-300 group-hover:translate-x-0.5"
+            />
+        </a>
     );
 }
 

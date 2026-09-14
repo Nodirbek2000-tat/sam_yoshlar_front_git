@@ -24,13 +24,21 @@ const ALLOWED = new Set([
     "reference",
 ]);
 
+/**
+ * Oddiy foydalanuvchi ham tozalay oladigan yorliqlar: chet eldagi yosh
+ * anketasini saqlasa, u ro'yxatda darhol (kesh eskirishini kutmasdan) chiqadi.
+ */
+const SELF_SERVICE = new Set(["peers"]);
+
 export async function POST(request: Request) {
     const user = await getCurrentUser();
-    if (!user?.is_panel_admin) {
+    const { tag } = (await request.json().catch(() => ({}))) as { tag?: string };
+
+    const allowed = user?.is_panel_admin || (user && tag && SELF_SERVICE.has(tag));
+    if (!allowed) {
         return NextResponse.json({ detail: "Ruxsat yo'q." }, { status: 404 });
     }
 
-    const { tag } = (await request.json().catch(() => ({}))) as { tag?: string };
     if (!tag || !ALLOWED.has(tag)) {
         return NextResponse.json({ detail: "Noma'lum yorliq." }, { status: 400 });
     }

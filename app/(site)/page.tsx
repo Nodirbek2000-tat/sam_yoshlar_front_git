@@ -8,6 +8,7 @@ import {
     MapPin,
     Megaphone,
     Newspaper,
+    Plane,
     Rocket,
     Sparkles,
     type LucideIcon,
@@ -113,9 +114,14 @@ export default async function HomePage() {
                     <div className="relative border-t border-line bg-page/60 backdrop-blur">
                         <div aria-hidden className="line-sweep absolute inset-x-0 top-[-1px] h-px" />
                         <div className="container-page">
-                            <dl className="grid grid-cols-2 divide-line md:grid-cols-4 md:divide-x">
+                            <dl className="grid grid-cols-2 divide-line md:grid-cols-5 md:divide-x">
                                 {(
                                     [
+                                        {
+                                            value: stats.users ?? 0,
+                                            label: "Foydalanuvchi",
+                                            tone: "cyan",
+                                        },
                                         {
                                             value: stats.initiatives,
                                             label: "Tashabbus",
@@ -136,7 +142,7 @@ export default async function HomePage() {
                                 ).map((item, index) => (
                                     <div
                                         key={item.label}
-                                        className={`tone-${item.tone} px-1 py-8 md:px-8 ${index < 2 ? "border-b border-line md:border-b-0" : ""} ${index % 2 === 1 ? "border-l border-line md:border-l-0" : ""} ${index === 0 ? "md:pl-0" : ""}`}
+                                        className={`tone-${item.tone} px-1 py-8 md:px-5 lg:px-8 ${index < 4 ? "border-b border-line md:border-b-0" : ""} ${index % 2 === 1 ? "border-l border-line md:border-l-0" : ""} ${index === 0 ? "md:pl-0" : ""}`}
                                     >
                                         <dd className="text-[2rem] font-semibold tabular-nums tracking-tight text-tone-text md:text-[2.5rem]">
                                             <CountUp value={item.value} />
@@ -374,21 +380,20 @@ export default async function HomePage() {
                 </div>
             </section>
 
-            {/* ================= E'LONLAR + TENGDOSHLAR ================= */}
+            {/* ================= E'LONLAR ================= */}
             <section className="border-b border-line">
-                <div className="container-page grid gap-12 py-14 md:py-16 lg:grid-cols-2 lg:gap-16">
-                    <div>
-                        <div className="flex items-end justify-between gap-4">
-                            <div>
-                                <SectionLabel>E&apos;lonlar</SectionLabel>
-                                <h2 data-fx="heading" className="mt-3 text-2xl font-semibold tracking-tight">
-                                    Grant va imkoniyatlar
-                                </h2>
-                            </div>
-                            <ViewAll href="/elonlar" />
+                <div className="container-page py-14 md:py-16">
+                    <div className="flex items-end justify-between gap-4">
+                        <div>
+                            <SectionLabel>E&apos;lonlar</SectionLabel>
+                            <h2 data-fx="heading" className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
+                                Grant va imkoniyatlar
+                            </h2>
                         </div>
+                        <ViewAll href="/elonlar" />
+                    </div>
 
-                        <div data-fx="rows" className="mt-8 space-y-2.5">
+                    <div data-fx="rows" className="mt-8 grid gap-2.5 md:grid-cols-2">
                             {data?.announcements?.length ? (
                                 data.announcements.map((item) => (
                                     <div key={item.id}>
@@ -419,67 +424,72 @@ export default async function HomePage() {
                             ) : (
                                 <Empty text="Faol e'lon yo'q." />
                             )}
+                    </div>
+                </div>
+            </section>
+
+            {/* ================= CHET ELDAGI TENGDOSHLAR ================= */}
+            <section className="relative overflow-hidden border-b border-line">
+                {/* Orqada sekin suzuvchi yog'dular */}
+                <div aria-hidden className="pointer-events-none absolute inset-0">
+                    <div className="blob -right-32 top-6 size-[26rem] bg-[oklch(65%_0.14_230/0.14)]" />
+                    <div
+                        className="blob -left-40 bottom-0 size-[22rem] bg-[color-mix(in_oklab,var(--accent)_14%,transparent)]"
+                        style={{ animationDelay: "-7s" }}
+                    />
+                </div>
+
+                <div className="container-page relative py-14 md:py-20">
+                    <div className="flex items-end justify-between gap-4">
+                        <div>
+                            <SectionLabel>Chet eldagi tengdoshlar</SectionLabel>
+                            <h2 data-fx="heading" className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
+                                Dunyo universitetlarida o&apos;qiyotgan yoshlarimiz
+                            </h2>
+                            <p data-fx="rise" className="mt-3 max-w-xl text-[15px] leading-relaxed text-muted">
+                                Ular bilan bog&apos;laning, tajriba so&apos;rang — grant, qabul va hayot haqida
+                                birinchi qo&apos;ldan bilib oling.
+                            </p>
                         </div>
+                        <ViewAll href="/tengdoshlar" />
                     </div>
 
-                    <div>
-                        <div className="flex items-end justify-between gap-4">
-                            <div>
-                                <SectionLabel>Tengdoshlar</SectionLabel>
-                                <h2 data-fx="heading" className="mt-3 text-2xl font-semibold tracking-tight">
-                                    Chet elda o&apos;qiyotganlar
-                                </h2>
-                            </div>
-                            <ViewAll href="/tengdoshlar" />
+                    {data?.peers?.length ? (
+                        <div data-fx="cards" className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            {data.peers.map((peer) => (
+                                <div key={peer.id}>
+                                    <PeerTile peer={peer} />
+                                </div>
+                            ))}
                         </div>
+                    ) : (
+                        <div className="mt-10">
+                            <Empty text="Hozircha tengdosh qo'shilmagan." />
+                        </div>
+                    )}
 
-                        <div data-fx="rows" className="mt-8 space-y-2.5">
-                            {data?.peers?.length ? (
-                                data.peers.map((peer) => (
-                                    <div key={peer.id}>
-                                        <Link
-                                            href={`/tengdoshlar/${peer.id}`}
-                                            className={`${toneClass(peer.purpose)} group flex items-center gap-4 rounded-xl border border-line bg-raised p-3.5 transition-colors duration-300 hover:border-tone-line hover:bg-tone-soft`}
-                                        >
-                                            <span
-                                                className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-full text-[12.5px] font-semibold text-white"
-                                                style={{ background: peer.country_color }}
-                                            >
-                                                {peer.photo ? (
-                                                    // eslint-disable-next-line @next/next/no-img-element
-                                                    <img
-                                                        src={peer.photo}
-                                                        alt=""
-                                                        className="size-full object-cover"
-                                                        loading="lazy"
-                                                    />
-                                                ) : (
-                                                    peer.initials
-                                                )}
-                                            </span>
-                                            <span className="min-w-0 flex-1">
-                                                <span className="block truncate text-[14.5px] font-medium">
-                                                    {peer.full_name}
-                                                </span>
-                                                <span className="mt-1 flex items-center gap-2 text-[12.5px]">
-                                                    <span
-                                                        className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold text-white"
-                                                        style={{ background: peer.country_color }}
-                                                    >
-                                                        {peer.country_short}
-                                                    </span>
-                                                    <span className="truncate text-muted">
-                                                        {peer.purpose_display}
-                                                    </span>
-                                                </span>
-                                            </span>
-                                        </Link>
-                                    </div>
-                                ))
-                            ) : (
-                                <Empty text="Hozircha tengdosh qo'shilmagan." />
-                            )}
-                        </div>
+                    <div
+                        data-fx="rise"
+                        className="mt-8 flex flex-col items-start gap-4 rounded-2xl border border-line bg-raised/70 p-5 backdrop-blur sm:flex-row sm:items-center"
+                    >
+                        <span className="float-slow tone-blue grid size-12 shrink-0 place-items-center rounded-2xl border border-tone-line bg-tone-soft text-tone-text">
+                            <Plane className="size-6" strokeWidth={1.7} />
+                        </span>
+                        <p className="flex-1 text-[14.5px] leading-relaxed text-muted">
+                            <span className="font-semibold text-text">Chet elda o&apos;qiysizmi?</span>{" "}
+                            Ro&apos;yxatdan o&apos;ting — profilingiz shu yerda chiqadi va yurtdoshlaringiz
+                            siz bilan bog&apos;lana oladi.
+                        </p>
+                        <MagneticLink
+                            href="/royxatdan-otish"
+                            className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-invert px-5 py-2.5 text-[14px] font-medium text-on-invert"
+                        >
+                            Qo&apos;shilish
+                            <ArrowRight
+                                className="size-4 transition-transform duration-300 group-hover:translate-x-1"
+                                strokeWidth={2}
+                            />
+                        </MagneticLink>
                     </div>
                 </div>
             </section>
@@ -658,6 +668,73 @@ function JoinCard({
                 <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={2} />
             </span>
         </Link>
+    );
+}
+
+/** Tengdosh — rasmi katta, davlati rangida, universiteti va kursi bilan. */
+function PeerTile({ peer }: { peer: Overview["peers"][number] }) {
+    return (
+        <SpotlightCard className="h-full hover:shadow-[0_22px_50px_-26px_rgba(0,0,0,0.35)]">
+            <Link
+                href={`/tengdoshlar/${peer.id}`}
+                className="spotlight group flex h-full flex-col overflow-hidden rounded-[15px] bg-raised"
+            >
+                <span
+                    className="relative block aspect-[4/3] overflow-hidden"
+                    style={{ background: peer.country_color }}
+                >
+                    {peer.photo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            src={peer.photo}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+                        />
+                    ) : (
+                        <span className="grid size-full place-items-center text-4xl font-semibold text-white">
+                            {peer.initials}
+                        </span>
+                    )}
+                    <span className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.62),transparent_55%)]" />
+                    <span
+                        className="absolute left-3 top-3 rounded-md px-2 py-1 text-[11px] font-bold tracking-wide text-white shadow-lg"
+                        style={{ background: peer.country_color }}
+                    >
+                        {peer.country_short}
+                    </span>
+                    <span className="absolute inset-x-3 bottom-3 flex items-center gap-1.5 truncate text-[12.5px] font-medium text-white">
+                        <MapPin className="size-3.5 shrink-0" strokeWidth={2} />
+                        {peer.city ? `${peer.city}, ` : ""}
+                        {peer.country_name}
+                    </span>
+                </span>
+
+                <span className="relative flex flex-1 flex-col p-4">
+                    <span className="truncate text-[15.5px] font-semibold tracking-tight">
+                        {peer.full_name}
+                    </span>
+                    {peer.institution && (
+                        <span className="mt-1 line-clamp-2 text-[13px] leading-snug text-muted">
+                            {peer.institution}
+                        </span>
+                    )}
+                    <span className="mt-auto flex flex-wrap gap-1.5 pt-3 text-[11.5px]">
+                        {peer.course && (
+                            <span className="rounded-full bg-surface px-2.5 py-1 font-medium text-text">
+                                {peer.course}-kurs
+                            </span>
+                        )}
+                        {peer.field && (
+                            <span className="max-w-full truncate rounded-full bg-surface px-2.5 py-1 text-muted">
+                                {peer.field}
+                            </span>
+                        )}
+                    </span>
+                </span>
+            </Link>
+        </SpotlightCard>
     );
 }
 

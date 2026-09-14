@@ -2,9 +2,11 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { LogoutButton } from "@/components/auth/logout-button";
+import { BrandLogo } from "@/components/brand-logo";
 import { Icon, type IconName } from "@/components/icon";
 import { ThemeToggle } from "@/components/theme/toggle";
 import { cn } from "@/lib/cn";
@@ -49,16 +51,9 @@ const GROUPS: { title: string; items: Item[] }[] = [
 
 export function PanelSidebar({ user }: { user: User }) {
     const pathname = usePathname();
-    const router = useRouter();
     const [open, setOpen] = useState(false);
 
     useEffect(() => setOpen(false), [pathname]);
-
-    async function logout() {
-        await fetch("/api/auth/logout", { method: "POST" });
-        router.replace("/");
-        router.refresh();
-    }
 
     const isActive = (href: string) =>
         href === "/nazorat" ? pathname === "/nazorat" : pathname.startsWith(href);
@@ -69,9 +64,7 @@ export function PanelSidebar({ user }: { user: User }) {
                 href="/nazorat"
                 className="flex h-15 shrink-0 items-center gap-2.5 border-b border-line px-5"
             >
-                <span className="grid size-7 place-items-center rounded-lg bg-invert text-on-invert">
-                    <Icon name="settings" size={15} strokeWidth={1.9} />
-                </span>
+                <BrandLogo variant="mark" height={32} />
                 <span className="text-[14px] font-semibold tracking-tight">Boshqaruv</span>
             </Link>
 
@@ -143,15 +136,12 @@ export function PanelSidebar({ user }: { user: User }) {
                         </span>
                         <span className="block text-[11.5px] text-faint">Administrator</span>
                     </span>
-                    <button
-                        type="button"
-                        onClick={logout}
-                        title="Chiqish"
-                        aria-label="Chiqish"
+                    <LogoutButton
+                        name={user.full_name}
                         className="grid size-7 shrink-0 place-items-center rounded-md text-faint transition-colors hover:bg-surface hover:text-text"
                     >
                         <Icon name="power" size={14} />
-                    </button>
+                    </LogoutButton>
                 </div>
 
                 <Link

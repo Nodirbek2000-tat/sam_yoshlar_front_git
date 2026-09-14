@@ -20,6 +20,8 @@ type Item = {
     countKey?: keyof Counts;
     /** Faqat shu rollarga ko'rinadi; berilmasa — hammaga */
     roles?: string[];
+    /** Faqat chet elda o'qiydiganlarga */
+    abroadOnly?: boolean;
 };
 
 export type Counts = {
@@ -46,6 +48,14 @@ const ITEMS: Item[] = [
         icon: "ic-rocket",
         tone: "orange",
         roles: ["startupper"],
+    },
+    {
+        href: "/kabinet/tengdosh",
+        label: "Tengdosh profilim",
+        icon: "ic-graduation",
+        tone: "blue",
+        roles: ["yosh"],
+        abroadOnly: true,
     },
     {
         href: "/kabinet/tashabbuslarim",
@@ -91,9 +101,20 @@ const ITEMS: Item[] = [
     },
 ];
 
-export function CabinetSidebar({ counts, role }: { counts: Counts; role: string }) {
+export function CabinetSidebar({
+    counts,
+    role,
+    abroad = false,
+}: {
+    counts: Counts;
+    role: string;
+    abroad?: boolean;
+}) {
     const pathname = usePathname();
-    const items = ITEMS.filter((item) => !item.roles || item.roles.includes(role));
+    const items = ITEMS.filter(
+        (item) =>
+            (!item.roles || item.roles.includes(role)) && (!item.abroadOnly || abroad),
+    );
 
     return (
         <nav className="lg:sticky lg:top-24">

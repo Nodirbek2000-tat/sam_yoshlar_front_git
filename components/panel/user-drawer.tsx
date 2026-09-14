@@ -7,7 +7,7 @@ import { Icon, type IconName } from "@/components/icon";
 import { refreshPublic } from "@/components/panel/ui";
 import { cn } from "@/lib/cn";
 import { formatDate, formatNumber } from "@/lib/format";
-import type { BusinessProfile, StartupProfile } from "@/lib/types";
+import type { BusinessProfile, Peer, StartupProfile } from "@/lib/types";
 
 /**
  * Foydalanuvchi kartochkasi — panelning o'ng tomonidan chiqadi.
@@ -33,9 +33,12 @@ type Detail = {
         is_superuser: boolean;
         telegram_username: string;
         onboarding: string | null;
+        age: number | null;
+        study_location_display: string;
         created_at: string;
         last_login: string | null;
     };
+    peer: Peer | null;
     business: BusinessProfile | null;
     startups: StartupProfile[];
     activity: { initiatives: number; votes: number; solutions: number; events: number };
@@ -45,6 +48,8 @@ const ONBOARDING_LABEL: Record<string, string> = {
     role: "Rol tanlamagan",
     business: "Biznes anketasini to'ldirmagan",
     startup: "Startap anketasini to'ldirmagan",
+    study: "Qayerda o'qishini tanlamagan",
+    peer: "Tengdosh anketasini to'ldirmagan",
 };
 
 export function UserDrawer({
@@ -263,7 +268,49 @@ function DrawerBody({
                     />
                     <Info label="Email" value={data.user.email} />
                     <Info label="Ro'yxatdan o'tgan" value={formatDate(data.user.created_at)} />
+                    <Info label="Yoshi" value={data.user.age ? `${data.user.age} yosh` : ""} />
+                    <Info label="Ta'lim" value={data.user.study_location_display ?? ""} />
                 </dl>
+
+                {data.peer && (
+                    <a
+                        href={`/tengdoshlar/${data.peer.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group flex items-center gap-3.5 rounded-2xl border border-line p-4 transition-colors hover:border-accent"
+                    >
+                        <span
+                            className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl text-[13px] font-semibold text-white"
+                            style={{ background: data.peer.country_color }}
+                        >
+                            {data.peer.photo ? (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img src={data.peer.photo} alt="" className="size-full object-cover" />
+                            ) : (
+                                data.peer.initials
+                            )}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                            <span className="block text-[13.5px] font-semibold">
+                                Chet eldagi tengdosh
+                            </span>
+                            <span className="mt-0.5 block truncate text-[12.5px] text-muted">
+                                {[
+                                    data.peer.country_name,
+                                    data.peer.institution,
+                                    data.peer.course ? `${data.peer.course}-kurs` : "",
+                                ]
+                                    .filter(Boolean)
+                                    .join(" · ")}
+                            </span>
+                        </span>
+                        <Icon
+                            name="arrowRight"
+                            size={15}
+                            className="shrink-0 text-faint transition-transform group-hover:translate-x-0.5"
+                        />
+                    </a>
+                )}
 
                 <div className="grid grid-cols-4 gap-2">
                     <Stat icon="spark" value={data.activity.initiatives} label="Tashabbus" />
