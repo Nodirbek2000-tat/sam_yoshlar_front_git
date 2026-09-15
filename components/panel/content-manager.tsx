@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent, type ReactNode } from "react";
 
 import { Icon, type IconName } from "@/components/icon";
+import { DeleteAllButton } from "@/components/panel/delete-all";
 import {
     EmptyState,
     Flash,
@@ -109,14 +110,17 @@ export function ContentManager<T extends ContentRow>({
                 title={title}
                 description={description}
                 action={
-                    <button
-                        type="button"
-                        onClick={() => setEditing(editing === "new" ? null : "new")}
-                        className="inline-flex items-center gap-2 rounded-full bg-invert px-4 py-2 text-[13.5px] font-medium text-on-invert transition-opacity hover:opacity-90"
-                    >
-                        <Icon name={editing === "new" ? "close" : "plus"} size={15} />
-                        {editing === "new" ? "Bekor qilish" : addLabel}
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2.5">
+                        <DeleteAllButton resource={resource} count={items.length} onDeleted={setFlash} />
+                        <button
+                            type="button"
+                            onClick={() => setEditing(editing === "new" ? null : "new")}
+                            className="inline-flex items-center gap-2 rounded-full bg-invert px-4 py-2 text-[13.5px] font-medium text-on-invert transition-opacity hover:opacity-90"
+                        >
+                            <Icon name={editing === "new" ? "close" : "plus"} size={15} />
+                            {editing === "new" ? "Bekor qilish" : addLabel}
+                        </button>
+                    </div>
                 }
             />
 

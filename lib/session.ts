@@ -26,9 +26,12 @@ export const cookieOptions = {
     path: "/",
 };
 
-/** Django `SIMPLE_JWT` sozlamalari bilan bir xil bo'lsin. */
-export const ACCESS_MAX_AGE = 60 * 60 * 12; // 12 soat
-export const REFRESH_MAX_AGE = 60 * 60 * 24 * 30; // 30 kun
+/**
+ * Django `SIMPLE_JWT` sozlamalari bilan bir xil bo'lsin.
+ * Kirish 24 soat amal qiladi — keyin cookie o'chadi va qayta kirish so'raladi.
+ */
+export const ACCESS_MAX_AGE = 60 * 60 * 24; // 24 soat
+export const REFRESH_MAX_AGE = 60 * 60 * 24; // 24 soat
 
 export async function getAccessToken() {
     const store = await cookies();

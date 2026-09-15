@@ -180,14 +180,18 @@ function DrawerBody({
                     ? {
                           ...current,
                           business: current.business ? { ...current.business, status } : null,
-                          startups: current.startups.map((item, index) =>
-                              index === 0 ? { ...item, status, admin_note: note } : item,
-                          ),
+                          // Tekshiruv biznes va barcha startaplarga birga qo'llanadi
+                          startups: current.startups.map((item) => ({
+                              ...item,
+                              status,
+                              admin_note: note,
+                          })),
                       }
                     : current,
             );
             // Ochiq ro'yxat darhol yangilansin
-            await refreshPublic(data.business ? "businesses" : "startups");
+            if (data.business) await refreshPublic("businesses");
+            if (data.startups.length) await refreshPublic("startups");
             onChanged(status === "approved" ? "Anketa tasdiqlandi." : "Anketa qaytarildi.");
         } finally {
             setBusy(false);
@@ -321,7 +325,9 @@ function DrawerBody({
 
                 {/* Anketa */}
                 {data.business && <BusinessCard business={data.business} />}
-                {data.startups[0] && <StartupCard startup={data.startups[0]} />}
+                {data.startups.map((startup) => (
+                    <StartupCard key={startup.id} startup={startup} />
+                ))}
 
                 {profile && (
                     <div className="rounded-2xl border border-line p-4">

@@ -20,9 +20,10 @@ type Item = {
     countKey?: keyof Counts;
     /** Faqat shu rollarga ko'rinadi; berilmasa — hammaga */
     roles?: string[];
-    /** Faqat chet elda o'qiydiganlarga */
-    abroadOnly?: boolean;
 };
+
+/** Tashkilot emas — oddiy odamlar (asosiy roli qanday bo'lishidan qat'i nazar) */
+const PEOPLE = ["yosh", "entrepreneur", "startupper", "admin"];
 
 export type Counts = {
     initiatives: number;
@@ -35,27 +36,27 @@ export type Counts = {
 
 const ITEMS: Item[] = [
     { href: "/kabinet", label: "Profil", icon: "profile", tone: "emerald" },
+    // Bir odam bir nechta rolda bo'la oladi — bu uch bo'lim tashkilotdan boshqa hammaga
     {
         href: "/kabinet/biznesim",
-        label: "Biznesim",
+        label: "Tadbirkorligim",
         icon: "ic-briefcase",
         tone: "amber",
-        roles: ["entrepreneur"],
+        roles: PEOPLE,
     },
     {
         href: "/kabinet/startapim",
-        label: "Startapim",
+        label: "Startaplarim",
         icon: "ic-rocket",
         tone: "orange",
-        roles: ["startupper"],
+        roles: PEOPLE,
     },
     {
         href: "/kabinet/tengdosh",
-        label: "Tengdosh profilim",
+        label: "Ta'lim profilim",
         icon: "ic-graduation",
         tone: "blue",
-        roles: ["yosh"],
-        abroadOnly: true,
+        roles: PEOPLE,
     },
     {
         href: "/kabinet/tashabbuslarim",
@@ -101,20 +102,9 @@ const ITEMS: Item[] = [
     },
 ];
 
-export function CabinetSidebar({
-    counts,
-    role,
-    abroad = false,
-}: {
-    counts: Counts;
-    role: string;
-    abroad?: boolean;
-}) {
+export function CabinetSidebar({ counts, role }: { counts: Counts; role: string }) {
     const pathname = usePathname();
-    const items = ITEMS.filter(
-        (item) =>
-            (!item.roles || item.roles.includes(role)) && (!item.abroadOnly || abroad),
-    );
+    const items = ITEMS.filter((item) => !item.roles || item.roles.includes(role));
 
     return (
         <nav className="lg:sticky lg:top-24">

@@ -28,12 +28,15 @@ export function StartupForm({
     stages,
     initial,
     submitLabel = "Saqlash",
+    action = "/api/proxy/me/startup",
     onSaved,
 }: {
     spheres: Choice[];
     stages: Choice[];
     initial?: StartupProfile | null;
     submitLabel?: string;
+    /** Qayerga yuboriladi: ro'yxatdan o'tishda — birinchi startap, kabinetda — aniq startap */
+    action?: string;
     onSaved?: (profile: StartupProfile) => void;
 }) {
     const router = useRouter();
@@ -70,7 +73,7 @@ export function StartupForm({
         setErrors({});
 
         try {
-            const response = await fetch("/api/proxy/me/startup", {
+            const response = await fetch(action, {
                 method: "POST",
                 body: collectForm(form, ["team_size"]),
             });

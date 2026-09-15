@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
 
 import { Icon, type IconName } from "@/components/icon";
+import { DeleteAllButton } from "@/components/panel/delete-all";
 import {
     EmptyState,
     Flash,
@@ -118,12 +119,15 @@ export function ResourceList<T extends ResourceRow>({
                 title={title}
                 description={description}
                 action={
-                    pending > 0 ? (
-                        <span className="tone-amber inline-flex items-center gap-2 rounded-full bg-tone-soft px-3.5 py-1.5 text-[13px] font-medium text-tone-text">
-                            <Icon name="alert" size={14} />
-                            {pending} ta kutilmoqda
-                        </span>
-                    ) : undefined
+                    <div className="flex flex-wrap items-center gap-2.5">
+                        {pending > 0 && (
+                            <span className="tone-amber inline-flex items-center gap-2 rounded-full bg-tone-soft px-3.5 py-1.5 text-[13px] font-medium text-tone-text">
+                                <Icon name="alert" size={14} />
+                                {pending} ta kutilmoqda
+                            </span>
+                        )}
+                        <DeleteAllButton resource={resource} count={items.length} onDeleted={setFlash} />
+                    </div>
                 }
             />
 

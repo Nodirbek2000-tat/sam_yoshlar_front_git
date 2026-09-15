@@ -43,7 +43,11 @@ export type User = {
     /** Botda so'raladi */
     age: number | null;
     study_location: "" | "uz" | "abroad";
+    /** Bir odam bir nechta rolda bo'la oladi: biznesi, startaplari, tengdosh profili */
+    capabilities?: { business: boolean; startups: number; peer: boolean };
 };
+
+export type MyStartups = { limit: number; results: StartupProfile[] };
 
 export type OnboardingStep = "role" | "business" | "startup" | "study" | "peer" | null;
 

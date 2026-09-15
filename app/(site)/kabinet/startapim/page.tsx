@@ -1,36 +1,38 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { StartupEditor, StatusBanner } from "@/components/cabinet/profile-editor";
+import { StartupsManager } from "@/components/cabinet/startups-manager";
 import { PageHead } from "@/components/cabinet/ui";
 import { getReference } from "@/lib/api";
 import { meFetch } from "@/lib/me";
 import { getCurrentUser } from "@/lib/session";
-import type { StartupProfile } from "@/lib/types";
+import type { MyStartups } from "@/lib/types";
 
-export const metadata: Metadata = { title: "Startapim" };
+export const metadata: Metadata = { title: "Startaplarim" };
 
-export default async function MyStartupPage() {
+/**
+ * «Startaplarim» — asosiy roli qanday bo'lishidan qat'i nazar (yosh,
+ * tadbirkor, startupper) 3 tagacha startap kiritish mumkin.
+ */
+export default async function MyStartupsPage() {
     const user = await getCurrentUser();
-    if (user?.role !== "startupper") redirect("/kabinet");
+    if (!user || user.role === "organization") redirect("/kabinet");
 
     const [data, reference] = await Promise.all([
-        meFetch<StartupProfile | Record<string, never>>("/startup/", "/kabinet/startapim"),
+        meFetch<MyStartups>("/startups/", "/kabinet/startapim"),
         getReference(),
     ]);
-    const profile = "id" in data ? (data as StartupProfile) : null;
 
     return (
         <>
             <PageHead
-                title="Startapim"
-                subtitle="Investorlar va kengash ko'radigan startap anketangiz."
+                title="Startaplarim"
+                subtitle={`${data.limit} tagacha startap kiritishingiz mumkin. Kengash tasdiqlagach reyestrda va investorlarga ko'rinadi.`}
             />
 
-            {profile && <StatusBanner status={profile.status} note={profile.admin_note} />}
-
-            <StartupEditor
-                initial={profile}
+            <StartupsManager
+                startups={data.results}
+                limit={data.limit}
                 spheres={reference.startup_spheres}
                 stages={reference.startup_stages}
             />

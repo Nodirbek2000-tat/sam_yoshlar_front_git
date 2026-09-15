@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 
 import { Icon } from "@/components/icon";
+import { DeleteAllButton } from "@/components/panel/delete-all";
 import { cn } from "@/lib/cn";
 import { formatShortDate } from "@/lib/format";
 import { toneClass } from "@/lib/tone";
@@ -104,14 +105,17 @@ export function NewsManager({
                     </p>
                 </div>
 
-                <button
-                    type="button"
-                    onClick={() => setEditing(editing === "new" ? null : "new")}
-                    className="inline-flex items-center gap-2 rounded-full bg-invert px-4 py-2 text-[13.5px] font-medium text-on-invert transition-opacity hover:opacity-90"
-                >
-                    <Icon name={editing === "new" ? "close" : "plus"} size={15} />
-                    {editing === "new" ? "Bekor qilish" : "Yangilik qo'shish"}
-                </button>
+                <div className="flex flex-wrap items-center gap-2.5">
+                    <DeleteAllButton resource="news" count={news.length} onDeleted={setFlash} />
+                    <button
+                        type="button"
+                        onClick={() => setEditing(editing === "new" ? null : "new")}
+                        className="inline-flex items-center gap-2 rounded-full bg-invert px-4 py-2 text-[13.5px] font-medium text-on-invert transition-opacity hover:opacity-90"
+                    >
+                        <Icon name={editing === "new" ? "close" : "plus"} size={15} />
+                        {editing === "new" ? "Bekor qilish" : "Yangilik qo'shish"}
+                    </button>
+                </div>
             </div>
 
             <AnimatePresence>
