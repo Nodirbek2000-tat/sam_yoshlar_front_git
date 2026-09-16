@@ -28,7 +28,7 @@ const SECTIONS: { title: string; links: { href: string; label: string }[] }[] = 
 ];
 
 const SOCIALS: { href: string; label: string; icon: IconName }[] = [
-    { href: "https://t.me/yoshtadbirkorlarbot", label: "Telegram", icon: "telegram" },
+    { href: "https://t.me/Samstf", label: "Telegram", icon: "telegram" },
     { href: "#", label: "Instagram", icon: "instagram" },
     { href: "#", label: "YouTube", icon: "youtube" },
 ];
@@ -47,7 +47,7 @@ export function SiteFooter() {
                         xizmat qiluvchi yagona axborot platformasi.
                     </p>
 
-                    <div className="mt-6 flex gap-1.5">
+                    <div className="mt-6 flex gap-2.5">
                         {SOCIALS.map((item) => (
                             <a
                                 key={item.label}
@@ -55,9 +55,9 @@ export function SiteFooter() {
                                 aria-label={item.label}
                                 target={item.href.startsWith("http") ? "_blank" : undefined}
                                 rel="noreferrer"
-                                className="grid size-8 place-items-center rounded-lg text-faint transition-colors hover:bg-surface hover:text-text"
+                                className="grid size-11 place-items-center rounded-xl border border-line text-muted transition-colors hover:border-accent hover:bg-surface hover:text-accent"
                             >
-                                <Icon name={item.icon} size={16} />
+                                <Icon name={item.icon} size={22} />
                             </a>
                         ))}
                     </div>
@@ -89,7 +89,14 @@ export function SiteFooter() {
                     </h3>
                     <ul className="mt-4 space-y-2.5 text-[13.5px] text-muted">
                         <li>Samarqand shahri</li>
-                        <li>+998 71 123 45 67</li>
+                        <li>
+                            <a
+                                href="tel:+998940449442"
+                                className="transition-colors hover:text-text"
+                            >
+                                +998 94 044 94 42
+                            </a>
+                        </li>
                         <li>info@mentadbirkor.uz</li>
                         <li>Du–Ju: 9:00 — 18:00</li>
                     </ul>

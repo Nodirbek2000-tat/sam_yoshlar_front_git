@@ -21,6 +21,39 @@ export type PanelAnnouncement = {
     visible: boolean;
 };
 
+/** Matn qanday yozilsa, saytda qanday chiqadi. */
+const MARKUP = [
+    { code: "# Matn", text: "Katta sarlavha" },
+    { code: "## Matn", text: "Kichik sarlavha" },
+    { code: "**Matn**", text: "Qalin" },
+    { code: "*Matn*", text: "Qiya" },
+    { code: "- Matn", text: "Ro'yxat qatori" },
+    { code: "[Matn](https://sayt.uz)", text: "Havola — bosilsa saytga o'tadi" },
+    { code: ">> Matn", text: "O'ng tomonda" },
+    { code: "---", text: "Ajratuvchi chiziq" },
+];
+
+function MarkupHelp() {
+    return (
+        <div className="mt-3 rounded-xl border border-line bg-surface p-3.5">
+            <p className="text-[12px] font-medium">Matnni bezash belgilari</p>
+            <dl className="mt-2.5 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+                {MARKUP.map((row) => (
+                    <div key={row.code} className="flex items-baseline gap-2 text-[12px]">
+                        <dt className="shrink-0 rounded bg-page px-1.5 py-0.5 font-mono text-[11.5px] text-text">
+                            {row.code}
+                        </dt>
+                        <dd className="text-muted">{row.text}</dd>
+                    </div>
+                ))}
+            </dl>
+            <p className="mt-2.5 text-[11.5px] text-faint">
+                Bo&apos;sh qator — yangi xatboshi. Belgisiz yozsangiz oddiy matn bo&apos;lib chiqadi.
+            </p>
+        </div>
+    );
+}
+
 /** `date` maydoni uchun: `2026-09-09`. */
 function toDateInput(value: string | null) {
     if (!value) return "";
@@ -134,11 +167,12 @@ export function AnnouncementsPanel({
                             <textarea
                                 name="body"
                                 required
-                                rows={7}
+                                rows={10}
                                 defaultValue={item?.body}
-                                placeholder="Shartlar, talablar, murojaat tartibi"
-                                className={`${INPUT} resize-y leading-relaxed`}
+                                placeholder={"# Katta sarlavha\n## Kichik sarlavha\nOddiy matn, ichida **qalin** so'z.\n- ro'yxat qatori\n[Havola matni](https://sayt.uz)\n>> o'ng tomonda"}
+                                className={`${INPUT} resize-y font-mono text-[13px] leading-relaxed`}
                             />
+                            <MarkupHelp />
                         </Field>
                     </div>
 

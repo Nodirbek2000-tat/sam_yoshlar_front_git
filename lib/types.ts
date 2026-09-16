@@ -49,6 +49,30 @@ export type User = {
 
 export type MyStartups = { limit: number; results: StartupProfile[] };
 
+/** Ommaviy profil — taklif yozgan yoshning ismiga bosilganda ochiladi. */
+export type PublicProfile = {
+    id: number;
+    full_name: string;
+    initials: string;
+    avatar: string | null;
+    role: Role;
+    role_display: string;
+    /** «Yosh», «Tadbirkor», «Startupper» — bir nechta bo'lishi mumkin */
+    roles: string[];
+    region_display: string;
+    district: string;
+    age: number | null;
+    study_location: "" | "uz" | "abroad";
+    study_location_display: string;
+    bio: string;
+    telegram_username: string;
+    joined: string;
+    business: PublicBusiness | null;
+    startups: PublicStartup[];
+    peer: Peer | null;
+    stats: { initiatives: number; solutions: number; votes: number };
+};
+
 export type OnboardingStep = "role" | "business" | "startup" | "study" | "peer" | null;
 
 /** Chet elda o'qiydigan yoshning o'z anketasi (kabinet). */
@@ -187,6 +211,8 @@ export type Direction = {
 
 export type InitiativeComment = {
     id: number;
+    /** Muallif ro'yxatdan o'tgan bo'lsa — profiliga havola uchun */
+    author_id: number | null;
     author_name: string;
     author_label: string;
     initials: string;
@@ -228,6 +254,8 @@ export type Organization = {
 
 export type Solution = {
     id: number;
+    /** Muallif ro'yxatdan o'tgan bo'lsa — profiliga havola uchun */
+    author_id: number | null;
     author_name: string;
     title: string;
     description: string;

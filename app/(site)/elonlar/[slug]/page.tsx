@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { CategoryTile } from "@/components/category-tile";
 import { Icon } from "@/components/icon";
 import { Reveal } from "@/components/motion-primitives";
+import { RichText } from "@/components/rich-text";
 import { ApiError, getAnnouncement } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { toneClass } from "@/lib/tone";
@@ -106,13 +107,11 @@ export default async function AnnouncementPage({ params }: PageProps<"/elonlar/[
             </header>
 
             <div className="container-page grid gap-10 py-10 md:py-12 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-14">
-                <Reveal className="max-w-2xl space-y-4 text-[15.5px] leading-[1.8] text-muted">
-                    {item.body
-                        .split("\n")
-                        .filter(Boolean)
-                        .map((line, index) => (
-                            <p key={index}>{line}</p>
-                        ))}
+                <Reveal className="min-w-0">
+                    <RichText
+                        text={item.body}
+                        className="max-w-2xl text-[15.5px] leading-[1.8] text-muted"
+                    />
                 </Reveal>
 
                 <Reveal delay={0.1} className="lg:sticky lg:top-24 lg:self-start">

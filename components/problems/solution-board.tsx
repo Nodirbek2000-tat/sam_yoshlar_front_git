@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import Link from "next/link";
 import { useState } from "react";
 
 import { Icon } from "@/components/icon";
@@ -100,7 +101,17 @@ export function SolutionBoard({
                                                         {solution.title}
                                                     </h3>
                                                     <p className="mt-0.5 flex flex-wrap items-center gap-x-3 text-[12.5px] text-muted">
-                                                        <span>{solution.author_name}</span>
+                                                        {/* Muallif ro'yxatdan o'tgan bo'lsa — profiliga o'tiladi */}
+                                                        {solution.author_id ? (
+                                                            <Link
+                                                                href={`/insonlar/${solution.author_id}`}
+                                                                className="font-medium text-accent-text transition-opacity hover:opacity-80"
+                                                            >
+                                                                {solution.author_name}
+                                                            </Link>
+                                                        ) : (
+                                                            <span>{solution.author_name}</span>
+                                                        )}
                                                         <span className="text-faint">
                                                             {formatDate(solution.created_at)}
                                                         </span>

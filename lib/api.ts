@@ -16,6 +16,7 @@ import type {
     Paginated,
     Peer,
     Problem,
+    PublicProfile,
     Reference,
     PublicBusiness,
     PublicBusinessDetail,
@@ -204,6 +205,10 @@ export const getProblems = () =>
 
 export const getProblem = (id: number | string) =>
     apiFetch<Problem>(`/problems/${id}/`, { revalidate: 30 });
+
+/** Ommaviy profil: kim ekani, anketalari va aloqasi. */
+export const getPublicProfile = (id: number | string) =>
+    apiFetch<PublicProfile>(`/foydalanuvchilar/${id}/`, { revalidate: 60 });
 
 export const getPeers = (query?: Query) =>
     apiFetch<Paginated<Peer>>("/peers/", { query, revalidate: 120, tags: ["peers"] });

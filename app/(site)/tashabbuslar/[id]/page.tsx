@@ -180,9 +180,19 @@ export default async function InitiativePage({
                                         </span>
                                         <div className="min-w-0 flex-1">
                                             <div className="flex flex-wrap items-baseline gap-x-3">
-                                                <span className="text-[13.5px] font-medium">
-                                                    {comment.author_label}
-                                                </span>
+                                                {/* Muallif ro'yxatdan o'tgan bo'lsa — profiliga o'tiladi */}
+                                                {comment.author_id ? (
+                                                    <Link
+                                                        href={`/insonlar/${comment.author_id}`}
+                                                        className="text-[13.5px] font-medium text-accent-text transition-opacity hover:opacity-80"
+                                                    >
+                                                        {comment.author_label}
+                                                    </Link>
+                                                ) : (
+                                                    <span className="text-[13.5px] font-medium">
+                                                        {comment.author_label}
+                                                    </span>
+                                                )}
                                                 <span className="text-[12px] text-faint">
                                                     {formatDate(comment.created_at)}
                                                 </span>

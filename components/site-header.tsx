@@ -68,9 +68,10 @@ export function SiteHeader({ user }: { user: User | null }) {
                                 <Link
                                     href="/nazorat"
                                     title="Boshqaruv paneli"
-                                    className="hidden size-8 place-items-center rounded-lg text-muted transition-colors hover:bg-surface hover:text-text sm:grid"
+                                    aria-label="Boshqaruv paneli"
+                                    className="grid size-9 place-items-center rounded-lg border border-line text-muted transition-colors hover:border-accent hover:text-accent"
                                 >
-                                    <Icon name="settings" size={16} />
+                                    <Icon name="settings" size={17} />
                                 </Link>
                             )}
 
@@ -140,6 +141,17 @@ export function SiteHeader({ user }: { user: User | null }) {
                                     {item.label}
                                 </Link>
                             ))}
+
+                            {user?.is_panel_admin && (
+                                <Link
+                                    href="/nazorat"
+                                    onClick={() => setOpen(false)}
+                                    className="mt-1 flex items-center gap-3 rounded-lg border border-line px-3 py-2.5 text-[15px] font-medium text-text"
+                                >
+                                    <Icon name="settings" size={17} className="text-accent" />
+                                    Boshqaruv paneli
+                                </Link>
+                            )}
 
                             <div className="mt-2 flex items-center justify-between border-t border-line pt-3">
                                 <ThemeToggle />

@@ -81,6 +81,40 @@ const SECTIONS: Section[] = [
         ],
     },
     {
+        key: "announcements",
+        label: "E'lonlar",
+        icon: "megaphone",
+        tone: "tone-pink",
+        endpoint: "/api/proxy/panel/import/announcements",
+        tag: "announcements",
+        title: "E'lonlar importi",
+        description: "Grant, trening va tanlovlarni matni va muddati bilan yuklash.",
+        fileHint: "elonlar.json",
+        stats: [
+            { key: "created", label: "Qo'shildi", tone: "pink" },
+            { key: "skipped", label: "O'tkazildi", tone: "slate" },
+        ],
+        sample: `{
+  "announcements": [
+    {
+      "title": "Yosh tadbirkorlarga grant",
+      "type": "grant",
+      "posted_at": "2026-09-16",
+      "deadline": "2026-10-20",
+      "is_active": true,
+      "body": "# Grant haqida\\n18-30 yoshli tadbirkorlarga **qaytarilmaydigan** grant.\\n\\n## Kimlar qatnashadi\\n- Yoshi 18 dan 30 gacha\\n- Biznesi 6 oy ishlagan\\n\\n---\\n\\n[Ariza shakli](https://mentadbirkor.uz)\\n\\n>> Savollar: +998 94 044 94 42"
+    }
+  ]
+}`,
+        notes: [
+            "**title**, **body** majburiy; **type** berilmasa «Boshqa» bo'ladi.",
+            "**body** ichida: **#** katta sarlavha, **##** kichik sarlavha, `**qalin**`, `- ro'yxat`, `[matn](havola)`, `>>` o'ngga, `---` chiziq.",
+            "Matnda yangi qator `\\n` bilan yoziladi.",
+            "**deadline** — muddat; berilmasa e'lon muddatsiz bo'ladi.",
+            "Shu sarlavhali e'lon bor bo'lsa o'tkazib yuboriladi.",
+        ],
+    },
+    {
         key: "organizations",
         label: "Tashkilotlar",
         icon: "building",

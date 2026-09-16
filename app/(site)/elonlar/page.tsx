@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CategoryTile } from "@/components/category-tile";
-import { FilterChip, FilterRow } from "@/components/filter-chip";
 import { Icon } from "@/components/icon";
 import { PageHero } from "@/components/page-hero";
 import { Stagger, StaggerItem } from "@/components/motion-primitives";
@@ -23,35 +22,10 @@ function daysLeft(deadline: string | null) {
     return Math.ceil(ms / 86_400_000);
 }
 
-export default async function AnnouncementsPage({ searchParams }: PageProps<"/elonlar">) {
-    const params = await searchParams;
-    const turi = typeof params.turi === "string" ? params.turi : undefined;
-
-    // Filtr qatori uchun barcha turlar kerak, shuning uchun ikki so'rov:
-    // biri filtrlangan ro'yxat, ikkinchisi to'liq ro'yxat.
-    const [page, all] = await Promise.all([
-        getAnnouncements({ turi }).catch(() => null),
-        turi ? getAnnouncements({}).catch(() => null) : Promise.resolve(null),
-    ]);
-
+/** E'lonlar oddiy ketma-ketlikda turadi — kategoriya bo'yicha ajratilmaydi. */
+export default async function AnnouncementsPage() {
+    const page = await getAnnouncements().catch(() => null);
     const items = page?.results ?? [];
-    const source = all?.results ?? items;
-
-    const types = Array.from(
-        source
-            .reduce((map, item) => {
-                const found = map.get(item.type);
-                map.set(item.type, {
-                    label: item.type_display,
-                    icon: item.icon,
-                    count: (found?.count ?? 0) + 1,
-                });
-                return map;
-            }, new Map<string, { label: string; icon: string; count: number }>())
-            .entries(),
-    );
-
-    const openCount = source.filter((item) => !item.is_expired).length;
 
     return (
         <>
@@ -68,29 +42,6 @@ export default async function AnnouncementsPage({ searchParams }: PageProps<"/el
             />
 
             <section className="container-page py-8 md:py-10">
-                {types.length > 0 && (
-                    <div className="pb-6">
-                        <FilterRow>
-                            <FilterChip
-                                href="/elonlar"
-                                active={!turi}
-                                label="Barchasi"
-                                count={source.length}
-                            />
-                            {types.map(([value, info]) => (
-                                <FilterChip
-                                    key={value}
-                                    href={`/elonlar?turi=${value}`}
-                                    active={turi === value}
-                                    label={info.label}
-                                    tone={info.icon}
-                                    count={info.count}
-                                />
-                            ))}
-                        </FilterRow>
-                    </div>
-                )}
-
                 {items.length ? (
                     <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {items.map((item) => (
