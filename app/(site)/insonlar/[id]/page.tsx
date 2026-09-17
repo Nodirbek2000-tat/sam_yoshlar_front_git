@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { BusinessCard, StartupCard } from "@/components/directory/cards";
 import { Icon } from "@/components/icon";
+import { PhotoZoom } from "@/components/photo-zoom";
 import { Reveal } from "@/components/motion-primitives";
 import { ApiError, getPublicProfile } from "@/lib/api";
 import { formatDate } from "@/lib/format";
@@ -58,14 +59,12 @@ export default async function PersonPage({ params }: PageProps<"/insonlar/[id]">
 
                 <div className="container-page relative py-9 md:py-12">
                     <Reveal className="flex flex-col gap-6 sm:flex-row sm:items-center">
-                        <span className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-full bg-invert text-2xl font-semibold text-on-invert sm:size-28">
-                            {person.avatar ? (
-                                /* eslint-disable-next-line @next/next/no-img-element */
-                                <img src={person.avatar} alt="" className="size-full object-cover" />
-                            ) : (
-                                person.initials
-                            )}
-                        </span>
+                        <PhotoZoom
+                            src={person.avatar}
+                            alt={person.full_name}
+                            fallback={person.initials}
+                            className="size-24 rounded-full bg-invert text-on-invert sm:size-28"
+                        />
 
                         <div className="min-w-0 flex-1">
                             <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">

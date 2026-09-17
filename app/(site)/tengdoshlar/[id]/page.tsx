@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { CategoryIcon } from "@/components/category-icon";
 import { Icon, type IconName } from "@/components/icon";
+import { PhotoZoom } from "@/components/photo-zoom";
 import { Reveal } from "@/components/motion-primitives";
 import { ApiError, getPeer } from "@/lib/api";
 import { toneClass } from "@/lib/tone";
@@ -58,17 +59,13 @@ export default async function PeerPage({ params }: PageProps<"/tengdoshlar/[id]"
                     </Link>
 
                     <Reveal className="mt-8 flex flex-col gap-6 sm:flex-row sm:items-center">
-                        <span
-                            className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-2xl text-2xl font-semibold text-white sm:size-28"
-                            style={{ background: peer.country_color }}
-                        >
-                            {peer.photo ? (
-                                /* eslint-disable-next-line @next/next/no-img-element */
-                                <img src={peer.photo} alt="" className="size-full object-cover" />
-                            ) : (
-                                peer.initials
-                            )}
-                        </span>
+                        <PhotoZoom
+                            src={peer.photo}
+                            alt={peer.full_name}
+                            fallback={peer.initials}
+                            color={peer.country_color}
+                            className="size-24 rounded-2xl sm:size-28"
+                        />
 
                         <div className="min-w-0">
                             <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">

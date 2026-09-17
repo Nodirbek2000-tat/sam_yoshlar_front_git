@@ -23,6 +23,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
             { href: "/nazorat/foydalanuvchilar", label: "Foydalanuvchilar", icon: "users" },
             { href: "/nazorat/korxonalar", label: "Korxonalar", icon: "building" },
             { href: "/nazorat/import", label: "Import", icon: "package" },
+            { href: "/nazorat/bot", label: "Botga yuborish", icon: "send" },
         ],
     },
     {

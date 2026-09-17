@@ -22,17 +22,17 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
-    metadataBase: new URL("https://mentadbirkor.uz"),
+    metadataBase: new URL("https://samarqandyoshlari.uz"),
     title: {
-        default: "sam-yosh tadbirkor.uz — Yosh Tadbirkorlar Kengashi",
-        template: "%s — sam-yosh tadbirkor.uz",
+        default: "Samarqand yoshlari — Yosh Tadbirkorlar Kengashi",
+        template: "%s — Samarqand yoshlari",
     },
     description:
-        "Yoshlarni birlashtiruvchi, qo'llab-quvvatlovchi va rivojlantirishga xizmat qiluvchi yagona axborot platformasi.",
+        "Samarqand yoshlari uchun yagona platforma: yangiliklar, tadbirlar, grantlar, startaplar va tadbirkorlar. G'oyangizni bildiring, ovoz bering, imkoniyatdan foydalaning.",
     openGraph: {
         type: "website",
         locale: "uz_UZ",
-        siteName: "sam-yosh tadbirkor.uz",
+        siteName: "Samarqand yoshlari",
     },
 };
 

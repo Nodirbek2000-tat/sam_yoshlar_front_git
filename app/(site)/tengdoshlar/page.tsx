@@ -11,6 +11,7 @@ import { toneClass } from "@/lib/tone";
 import type { Peer } from "@/lib/types";
 
 export const metadata: Metadata = {
+    alternates: { canonical: "/tengdoshlar" },
     title: "Chet eldagi tengdoshim",
     description:
         "Chet elda o'qiyotgan va ishlayotgan tengdoshlar bilan tanishing, tajriba almashing.",

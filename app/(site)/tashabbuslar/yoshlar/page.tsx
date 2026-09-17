@@ -13,6 +13,7 @@ import { getCurrentUser } from "@/lib/session";
 import type { Direction, Initiative } from "@/lib/types";
 
 export const metadata: Metadata = {
+    alternates: { canonical: "/tashabbuslar/yoshlar" },
     title: "Yoshlar tashabbuslari",
     description:
         "14 yo'nalish, tirik ekotizim. G'oyangizni bildiring va ovoz bering — har bir ovoz sahnani o'stiradi.",

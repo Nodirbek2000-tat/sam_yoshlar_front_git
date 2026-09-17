@@ -10,6 +10,7 @@ import { getBusinesses } from "@/lib/api";
 import type { PublicBusiness } from "@/lib/types";
 
 export const metadata: Metadata = {
+    alternates: { canonical: "/tadbirkorlar" },
     title: "Tadbirkorlar",
     description: "Kengash a'zosi bo'lgan yosh tadbirkorlar: biznesi, rasmlari va aloqasi.",
 };

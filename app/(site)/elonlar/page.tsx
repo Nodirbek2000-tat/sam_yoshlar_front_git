@@ -11,6 +11,7 @@ import { toneClass } from "@/lib/tone";
 import type { Announcement } from "@/lib/types";
 
 export const metadata: Metadata = {
+    alternates: { canonical: "/elonlar" },
     title: "E'lonlar",
     description: "Grant, kredit, tanlov, trening va vakansiyalar.",
 };
@@ -94,11 +95,7 @@ function AnnouncementCard({ item }: { item: Announcement }) {
                 )}
             </div>
 
-            <span className="mt-4 text-[11.5px] font-medium uppercase tracking-[0.08em] text-tone-text">
-                {item.type_display}
-            </span>
-
-            <h2 className="mt-1.5 text-[16px] font-semibold leading-snug">{item.title}</h2>
+            <h2 className="mt-4 text-[16px] font-semibold leading-snug">{item.title}</h2>
 
             <p className="mt-2 line-clamp-2 flex-1 text-[13.5px] leading-relaxed text-muted">
                 {item.body}

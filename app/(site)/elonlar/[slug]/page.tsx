@@ -65,11 +65,7 @@ export default async function AnnouncementPage({ params }: PageProps<"/elonlar/[
                         <CategoryTile slug={item.icon} size="xl" />
 
                         <div className="min-w-0 flex-1">
-                            <span className="text-[12px] font-medium uppercase tracking-[0.1em] text-tone-text">
-                                {item.type_display}
-                            </span>
-
-                            <h1 className="mt-2 max-w-2xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+                            <h1 className="max-w-2xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
                                 {item.title}
                             </h1>
 

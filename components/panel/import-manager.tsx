@@ -102,7 +102,7 @@ const SECTIONS: Section[] = [
       "posted_at": "2026-09-16",
       "deadline": "2026-10-20",
       "is_active": true,
-      "body": "# Grant haqida\\n18-30 yoshli tadbirkorlarga **qaytarilmaydigan** grant.\\n\\n## Kimlar qatnashadi\\n- Yoshi 18 dan 30 gacha\\n- Biznesi 6 oy ishlagan\\n\\n---\\n\\n[Ariza shakli](https://mentadbirkor.uz)\\n\\n>> Savollar: +998 94 044 94 42"
+      "body": "# Grant haqida\\n18-30 yoshli tadbirkorlarga **qaytarilmaydigan** grant.\\n\\n## Kimlar qatnashadi\\n- Yoshi 18 dan 30 gacha\\n- Biznesi 6 oy ishlagan\\n\\n---\\n\\n[Ariza shakli](https://samarqandyoshlari.uz)\\n\\n>> Savollar: +998 94 044 94 42"
     }
   ]
 }`,

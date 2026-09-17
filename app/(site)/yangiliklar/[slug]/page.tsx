@@ -61,9 +61,6 @@ export default async function NewsDetailPage({ params }: PageProps<"/yangiliklar
 
                     <Reveal className="mt-7 max-w-3xl">
                         <div className="flex flex-wrap items-center gap-2.5">
-                            <span className="rounded-full bg-tone-soft px-3 py-1.5 text-[12px] font-medium text-tone-text">
-                                {item.category_display}
-                            </span>
                             <span className="text-[13px] text-muted">
                                 {formatDate(item.published_at)}
                             </span>

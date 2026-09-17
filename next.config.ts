@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
     images: {
         // Rasmlar Django tomonidan beriladi (media fayllar)
         remotePatterns: [
-            { protocol: "https", hostname: "mentadbirkor.uz" },
+            { protocol: "https", hostname: "samarqandyoshlari.uz" },
             { protocol: "http", hostname: "127.0.0.1", port: "8000" },
             { protocol: "http", hostname: "localhost", port: "8000" },
             { protocol: "http", hostname: "web", port: "8000" },

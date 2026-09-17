@@ -10,6 +10,7 @@ import { toneClass } from "@/lib/tone";
 import type { Event } from "@/lib/types";
 
 export const metadata: Metadata = {
+    alternates: { canonical: "/tadbirlar" },
     title: "Tadbirlar",
     description: "Trening, forum va uchrashuvlar. Bir bosishda ro'yxatdan o'ting.",
 };

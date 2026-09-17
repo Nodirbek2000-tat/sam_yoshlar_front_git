@@ -97,7 +97,7 @@ export function SiteFooter() {
                                 +998 94 044 94 42
                             </a>
                         </li>
-                        <li>info@mentadbirkor.uz</li>
+                        <li>info@samarqandyoshlari.uz</li>
                         <li>Du–Ju: 9:00 — 18:00</li>
                     </ul>
                 </div>
@@ -105,7 +105,7 @@ export function SiteFooter() {
 
             <div className="border-t border-line">
                 <div className="container-page flex flex-col gap-2 py-5 text-[12.5px] text-faint sm:flex-row sm:items-center sm:justify-between">
-                    <span>© {new Date().getFullYear()} sam-yosh tadbirkor.uz</span>
+                    <span>© {new Date().getFullYear()} samarqandyoshlari.uz</span>
                     <span>O&apos;zbekiston Respublikasi</span>
                 </div>
             </div>

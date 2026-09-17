@@ -6,6 +6,7 @@ import { CountUp, Reveal, Stagger, StaggerItem } from "@/components/motion-primi
 import { getDirections, getProblems } from "@/lib/api";
 
 export const metadata: Metadata = {
+    alternates: { canonical: "/tashabbuslar" },
     title: "Tashabbuslar",
     description:
         "Yoshlar tashabbuslari va tashkilotlar muammolari — ikki yo'nalish, bitta maqsad.",

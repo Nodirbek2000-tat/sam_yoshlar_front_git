@@ -305,7 +305,7 @@ function PasswordPanel({
                     onChange={(event) => setEmail(event.target.value)}
                     autoComplete="username"
                     required
-                    placeholder="tashkilot@mentadbirkor.uz"
+                    placeholder="tashkilot@samarqandyoshlari.uz"
                     className="h-12 w-full rounded-xl border border-line bg-page px-4 text-[15px] text-text transition-colors duration-200 placeholder:text-faint focus:border-accent focus:outline-none"
                 />
             </Field>

@@ -12,6 +12,7 @@ import { toneClass } from "@/lib/tone";
 import type { Problem } from "@/lib/types";
 
 export const metadata: Metadata = {
+    alternates: { canonical: "/tashabbuslar/muammolar" },
     title: "Tashkilotlar muammolari",
     description:
         "Tashkilotlar real muammolarini yozadi, yoshlar esa ularga yechim taklif etadi.",

@@ -11,6 +11,7 @@ import { cn } from "@/lib/cn";
 import type { PublicStartup } from "@/lib/types";
 
 export const metadata: Metadata = {
+    alternates: { canonical: "/startaplar" },
     title: "Startaplar",
     description: "Yosh startupperlarning loyihalari: bosqichi, jamoasi va kerakli investitsiya.",
 };

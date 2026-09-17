@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { FilterChip, FilterRow } from "@/components/filter-chip";
 import { Icon } from "@/components/icon";
 import { PageHero } from "@/components/page-hero";
 import { Stagger, StaggerItem } from "@/components/motion-primitives";
@@ -11,34 +10,15 @@ import { toneClass } from "@/lib/tone";
 import type { News } from "@/lib/types";
 
 export const metadata: Metadata = {
+    alternates: { canonical: "/yangiliklar" },
     title: "Yangiliklar",
     description: "Kengash faoliyati, qarorlar va yosh tadbirkorlar hayotidan xabarlar.",
 };
 
-export default async function NewsPage({ searchParams }: PageProps<"/yangiliklar">) {
-    const params = await searchParams;
-    const kategoriya = typeof params.kategoriya === "string" ? params.kategoriya : undefined;
-
-    const [page, all] = await Promise.all([
-        getNewsList({ kategoriya }).catch(() => null),
-        kategoriya ? getNewsList({}).catch(() => null) : Promise.resolve(null),
-    ]);
-
+/** Xabarlar oddiy ketma-ketlikda turadi — kategoriya bo'yicha ajratilmaydi. */
+export default async function NewsPage() {
+    const page = await getNewsList().catch(() => null);
     const items = page?.results ?? [];
-    const source = all?.results ?? items;
-
-    const categories = Array.from(
-        source
-            .reduce((map, item) => {
-                const found = map.get(item.category);
-                map.set(item.category, {
-                    label: item.category_display,
-                    count: (found?.count ?? 0) + 1,
-                });
-                return map;
-            }, new Map<string, { label: string; count: number }>())
-            .entries(),
-    );
 
     // Birinchi xabar katta karta bo'lib chiqadi
     const [lead, ...rest] = items;
@@ -56,29 +36,6 @@ export default async function NewsPage({ searchParams }: PageProps<"/yangiliklar
             />
 
             <section className="container-page py-8 md:py-10">
-                {categories.length > 0 && (
-                    <div className="pb-6">
-                        <FilterRow>
-                            <FilterChip
-                                href="/yangiliklar"
-                                active={!kategoriya}
-                                label="Barchasi"
-                                count={source.length}
-                            />
-                            {categories.map(([value, info]) => (
-                                <FilterChip
-                                    key={value}
-                                    href={`/yangiliklar?kategoriya=${value}`}
-                                    active={kategoriya === value}
-                                    label={info.label}
-                                    tone={value}
-                                    count={info.count}
-                                />
-                            ))}
-                        </FilterRow>
-                    </div>
-                )}
-
                 {items.length ? (
                     <>
                         {lead && <LeadCard item={lead} />}
@@ -131,12 +88,7 @@ function LeadCard({ item }: { item: News }) {
             </span>
 
             <span className="flex flex-col justify-center p-6 md:p-9">
-                <span className="flex flex-wrap items-center gap-2.5">
-                    <span className="rounded-full bg-tone-soft px-2.5 py-1 text-[11.5px] font-medium text-tone-text">
-                        {item.category_display}
-                    </span>
-                    <span className="text-[12.5px] text-muted">{formatDate(item.published_at)}</span>
-                </span>
+                <span className="text-[12.5px] text-muted">{formatDate(item.published_at)}</span>
 
                 <span className="mt-4 block text-2xl font-semibold leading-tight tracking-tight md:text-3xl">
                     {item.title}
@@ -179,10 +131,6 @@ function NewsCard({ item }: { item: News }) {
                         <Icon name="news" size={26} className="text-tone-text opacity-45" strokeWidth={1.3} />
                     </span>
                 )}
-
-                <span className="absolute left-3 top-3 rounded-full bg-page/90 px-2.5 py-1 text-[11px] font-medium text-tone-text backdrop-blur">
-                    {item.category_display}
-                </span>
             </span>
 
             <span className="flex flex-1 flex-col p-5">
