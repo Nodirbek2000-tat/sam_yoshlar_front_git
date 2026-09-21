@@ -47,7 +47,8 @@ export default async function PersonPage({ params }: PageProps<"/insonlar/[id]">
     }
 
     const facts = [
-        person.region_display,
+        // Tuman aniqroq: «Urgut tumani» bo'lsa viloyat nomi takrorlanmaydi
+        person.district || person.region_display,
         person.age ? `${person.age} yosh` : "",
         person.study_location === "abroad" ? "Chet elda o'qiydi" : person.study_location_display,
     ].filter(Boolean);
