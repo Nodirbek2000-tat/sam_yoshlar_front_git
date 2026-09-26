@@ -8,16 +8,18 @@ import { PhotoZoom } from "@/components/photo-zoom";
 import { Reveal } from "@/components/motion-primitives";
 import { ApiError, getPeer } from "@/lib/api";
 import { toneClass } from "@/lib/tone";
+import { shareMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
     params,
 }: PageProps<"/tengdoshlar/[id]">): Promise<Metadata> {
     try {
         const peer = await getPeer((await params).id);
-        return {
+        return shareMetadata({
             title: `${peer.full_name} — ${peer.country_name}`,
-            description: peer.about.slice(0, 150),
-        };
+            description: peer.about,
+            image: peer.photo,
+        });
     } catch {
         return { title: "Tengdosh" };
     }

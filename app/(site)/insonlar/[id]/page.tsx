@@ -8,6 +8,7 @@ import { PhotoZoom } from "@/components/photo-zoom";
 import { Reveal } from "@/components/motion-primitives";
 import { ApiError, getPublicProfile } from "@/lib/api";
 import { formatDate } from "@/lib/format";
+import { shareMetadata } from "@/lib/seo";
 
 /**
  * Ommaviy profil — Instagramdagidek: rasm, ism, rollar va nimalari bor.
@@ -26,10 +27,12 @@ const ROLE_TONE: Record<string, string> = {
 export async function generateMetadata({ params }: PageProps<"/insonlar/[id]">): Promise<Metadata> {
     try {
         const person = await getPublicProfile((await params).id);
-        return {
+        const place = person.district || person.region_display;
+        return shareMetadata({
             title: person.full_name,
-            description: `${person.roles.join(", ")}${person.region_display ? ` · ${person.region_display}` : ""}`,
-        };
+            description: `${person.roles.join(", ")}${place ? ` · ${place}` : ""}`,
+            image: person.avatar,
+        });
     } catch {
         return { title: "Profil" };
     }

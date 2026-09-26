@@ -10,6 +10,7 @@ import { ApiError, apiFetch, getProblem } from "@/lib/api";
 import { getAccessToken, getCurrentUser } from "@/lib/session";
 import { toneClass } from "@/lib/tone";
 import type { Problem } from "@/lib/types";
+import { shareMetadata } from "@/lib/seo";
 
 /** Token bilan olamiz — `liked` bayrog'i shunda to'g'ri keladi. */
 async function loadProblem(id: string) {
@@ -22,10 +23,10 @@ export async function generateMetadata({
 }: PageProps<"/tashabbuslar/muammolar/[id]">): Promise<Metadata> {
     try {
         const problem = await getProblem((await params).id);
-        return {
+        return shareMetadata({
             title: `${problem.organization.name} — muammo`,
-            description: problem.description.slice(0, 150),
-        };
+            description: problem.description,
+        });
     } catch {
         return { title: "Muammo" };
     }

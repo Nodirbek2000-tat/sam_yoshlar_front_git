@@ -10,6 +10,7 @@ import { ApiError, getBusiness } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { toneClass } from "@/lib/tone";
 import type { PublicBusinessDetail } from "@/lib/types";
+import { shareMetadata } from "@/lib/seo";
 
 async function load(id: string) {
     try {
@@ -25,11 +26,11 @@ export async function generateMetadata({
 }: PageProps<"/tadbirkorlar/[id]">): Promise<Metadata> {
     const business = await load((await params).id);
     if (!business) return { title: "Tadbirkor" };
-    return {
+    return shareMetadata({
         title: business.name,
-        description: business.description.slice(0, 150),
-        openGraph: business.cover_url ? { images: [business.cover_url] } : undefined,
-    };
+        description: business.description,
+        image: business.cover_url ?? business.logo_url,
+    });
 }
 
 export default async function BusinessPage({ params }: PageProps<"/tadbirkorlar/[id]">) {

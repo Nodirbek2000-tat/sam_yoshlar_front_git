@@ -10,6 +10,7 @@ import { ApiError, getStartup } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { formatMoney } from "@/lib/format";
 import { toneClass } from "@/lib/tone";
+import { shareMetadata } from "@/lib/seo";
 
 async function load(id: string) {
     try {
@@ -25,7 +26,11 @@ export async function generateMetadata({
 }: PageProps<"/startaplar/[id]">): Promise<Metadata> {
     const startup = await load((await params).id);
     if (!startup) return { title: "Startap" };
-    return { title: startup.name, description: startup.about.slice(0, 150) };
+    return shareMetadata({
+        title: startup.name,
+        description: startup.about,
+        image: startup.logo_url,
+    });
 }
 
 /** Bosqichlar yo'li — startap qayerda turganini ko'rsatadi. */

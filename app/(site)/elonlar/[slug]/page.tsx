@@ -8,19 +8,16 @@ import { Reveal } from "@/components/motion-primitives";
 import { PhotoZoom } from "@/components/photo-zoom";
 import { RichText } from "@/components/rich-text";
 import { ApiError, getAnnouncement } from "@/lib/api";
-import { daysUntil, formatDate, plainText } from "@/lib/format";
+import { daysUntil, formatDate } from "@/lib/format";
 import { toneClass } from "@/lib/tone";
+import { shareMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
     params,
 }: PageProps<"/elonlar/[slug]">): Promise<Metadata> {
     try {
         const item = await getAnnouncement((await params).slug);
-        return {
-            title: item.title,
-            description: plainText(item.body).slice(0, 150),
-            ...(item.image ? { openGraph: { images: [item.image] } } : {}),
-        };
+        return shareMetadata({ title: item.title, description: item.body, image: item.image });
     } catch {
         return { title: "E'lon" };
     }

@@ -10,16 +10,17 @@ import { Reveal } from "@/components/motion-primitives";
 import { ApiError, getInitiative } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { getCurrentUser } from "@/lib/session";
+import { shareMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
     params,
 }: PageProps<"/tashabbuslar/[id]">): Promise<Metadata> {
     try {
         const idea = await getInitiative((await params).id);
-        return {
+        return shareMetadata({
             title: idea.title,
-            description: idea.summary || idea.description.slice(0, 150),
-        };
+            description: idea.summary || idea.description,
+        });
     } catch {
         return { title: "Tashabbus" };
     }

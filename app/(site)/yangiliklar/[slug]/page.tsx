@@ -7,13 +7,19 @@ import { Reveal, Stagger, StaggerItem } from "@/components/motion-primitives";
 import { ApiError, getNews, getNewsList } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { toneClass } from "@/lib/tone";
+import { shareMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
     params,
 }: PageProps<"/yangiliklar/[slug]">): Promise<Metadata> {
     try {
         const item = await getNews((await params).slug);
-        return { title: item.title, description: item.excerpt.slice(0, 150) };
+        return shareMetadata({
+            title: item.title,
+            description: item.excerpt,
+            image: item.image,
+            article: { publishedTime: item.published_at },
+        });
     } catch {
         return { title: "Yangilik" };
     }

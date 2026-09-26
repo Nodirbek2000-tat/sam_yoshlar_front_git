@@ -10,6 +10,7 @@ import { formatDate, formatTime } from "@/lib/format";
 import { getAccessToken, getCurrentUser } from "@/lib/session";
 import { toneClass } from "@/lib/tone";
 import type { Event } from "@/lib/types";
+import { shareMetadata } from "@/lib/seo";
 
 /** Tafsilotni token bilan olamiz — `is_registered` shunda to'g'ri keladi. */
 async function loadEvent(slug: string) {
@@ -22,7 +23,11 @@ export async function generateMetadata({
 }: PageProps<"/tadbirlar/[slug]">): Promise<Metadata> {
     try {
         const event = await loadEvent((await params).slug);
-        return { title: event.title, description: event.description?.slice(0, 150) };
+        return shareMetadata({
+            title: event.title,
+            description: event.description,
+            image: event.image,
+        });
     } catch {
         return { title: "Tadbir" };
     }
