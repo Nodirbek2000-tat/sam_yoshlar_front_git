@@ -9,8 +9,8 @@ import { VoteButton } from "@/components/initiatives/vote-button";
 import { Reveal } from "@/components/motion-primitives";
 import { ApiError, getInitiative } from "@/lib/api";
 import { formatDate } from "@/lib/format";
-import { getCurrentUser } from "@/lib/session";
 import { shareMetadata } from "@/lib/seo";
+import { getCurrentUser } from "@/lib/session";
 
 export async function generateMetadata({
     params,

@@ -4,10 +4,11 @@ import { notFound } from "next/navigation";
 
 import { Icon } from "@/components/icon";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion-primitives";
+import { JsonLd } from "@/components/seo/json-ld";
 import { ApiError, getNews, getNewsList } from "@/lib/api";
 import { formatDate } from "@/lib/format";
+import { newsArticleSchema, shareMetadata } from "@/lib/seo";
 import { toneClass } from "@/lib/tone";
-import { shareMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
     params,
@@ -43,6 +44,7 @@ export default async function NewsDetailPage({ params }: PageProps<"/yangiliklar
 
     return (
         <article className={toneClass(item.category)}>
+            <JsonLd data={newsArticleSchema(item)} />
             <header className="relative overflow-hidden border-b border-line">
                 <div
                     className="pointer-events-none absolute inset-0 opacity-[0.15]"

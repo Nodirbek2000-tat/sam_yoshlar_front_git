@@ -7,10 +7,10 @@ import { Icon } from "@/components/icon";
 import { Reveal } from "@/components/motion-primitives";
 import { SolutionBoard } from "@/components/problems/solution-board";
 import { ApiError, apiFetch, getProblem } from "@/lib/api";
+import { shareMetadata } from "@/lib/seo";
 import { getAccessToken, getCurrentUser } from "@/lib/session";
 import { toneClass } from "@/lib/tone";
 import type { Problem } from "@/lib/types";
-import { shareMetadata } from "@/lib/seo";
 
 /** Token bilan olamiz — `liked` bayrog'i shunda to'g'ri keladi. */
 async function loadProblem(id: string) {

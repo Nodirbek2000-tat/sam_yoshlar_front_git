@@ -22,8 +22,10 @@ import { HeroStage } from "@/components/home/hero-stage";
 import { HomeFx } from "@/components/home/home-fx";
 import { MagneticLink, SpotlightCard } from "@/components/home/interactive";
 import { CountUp } from "@/components/motion-primitives";
+import { JsonLd } from "@/components/seo/json-ld";
 import { getDirections, getOverview } from "@/lib/api";
 import { dayAndMonth, formatShortDate } from "@/lib/format";
+import { organizationSchema, websiteSchema } from "@/lib/seo";
 import { toneClass, type Tone } from "@/lib/tone";
 import type { Overview } from "@/lib/types";
 
@@ -107,6 +109,10 @@ export default async function HomePage() {
 
     return (
         <HomeFx>
+            {/* Google uchun: kim ekanimiz va sayt nomi */}
+            <JsonLd data={organizationSchema()} />
+            <JsonLd data={websiteSchema()} />
+
             {/* ================= HERO ================= */}
             <HeroStage>
                 {/* Raqamlar — har biri o'z rangida */}

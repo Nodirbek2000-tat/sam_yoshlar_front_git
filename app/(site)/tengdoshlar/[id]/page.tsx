@@ -4,11 +4,11 @@ import { notFound } from "next/navigation";
 
 import { CategoryIcon } from "@/components/category-icon";
 import { Icon, type IconName } from "@/components/icon";
-import { PhotoZoom } from "@/components/photo-zoom";
 import { Reveal } from "@/components/motion-primitives";
+import { PhotoZoom } from "@/components/photo-zoom";
 import { ApiError, getPeer } from "@/lib/api";
-import { toneClass } from "@/lib/tone";
 import { shareMetadata } from "@/lib/seo";
+import { toneClass } from "@/lib/tone";
 
 export async function generateMetadata({
     params,

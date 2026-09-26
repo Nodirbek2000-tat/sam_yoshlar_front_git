@@ -5,12 +5,13 @@ import { notFound } from "next/navigation";
 import { RegisterButton } from "@/components/events/register-button";
 import { Icon, type IconName } from "@/components/icon";
 import { Reveal } from "@/components/motion-primitives";
+import { JsonLd } from "@/components/seo/json-ld";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDate, formatTime } from "@/lib/format";
+import { eventSchema, shareMetadata } from "@/lib/seo";
 import { getAccessToken, getCurrentUser } from "@/lib/session";
 import { toneClass } from "@/lib/tone";
 import type { Event } from "@/lib/types";
-import { shareMetadata } from "@/lib/seo";
 
 /** Tafsilotni token bilan olamiz — `is_registered` shunda to'g'ri keladi. */
 async function loadEvent(slug: string) {
@@ -48,6 +49,7 @@ export default async function EventPage({ params }: PageProps<"/tadbirlar/[slug]
 
     return (
         <article className={toneClass(event.slug)}>
+            <JsonLd data={eventSchema(event)} />
             <header className="relative overflow-hidden border-b border-line">
                 <div
                     className="pointer-events-none absolute inset-0 opacity-[0.16]"

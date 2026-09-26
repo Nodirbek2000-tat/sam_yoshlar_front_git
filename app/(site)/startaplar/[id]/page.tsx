@@ -9,8 +9,8 @@ import { Reveal } from "@/components/motion-primitives";
 import { ApiError, getStartup } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { formatMoney } from "@/lib/format";
-import { toneClass } from "@/lib/tone";
 import { shareMetadata } from "@/lib/seo";
+import { toneClass } from "@/lib/tone";
 
 async function load(id: string) {
     try {

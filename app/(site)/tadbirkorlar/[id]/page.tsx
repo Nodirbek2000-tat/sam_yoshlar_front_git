@@ -8,9 +8,9 @@ import { Icon, type IconName } from "@/components/icon";
 import { Reveal } from "@/components/motion-primitives";
 import { ApiError, getBusiness } from "@/lib/api";
 import { cn } from "@/lib/cn";
+import { shareMetadata } from "@/lib/seo";
 import { toneClass } from "@/lib/tone";
 import type { PublicBusinessDetail } from "@/lib/types";
-import { shareMetadata } from "@/lib/seo";
 
 async function load(id: string) {
     try {

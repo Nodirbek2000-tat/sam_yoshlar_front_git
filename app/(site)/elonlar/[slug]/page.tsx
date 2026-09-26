@@ -9,8 +9,8 @@ import { PhotoZoom } from "@/components/photo-zoom";
 import { RichText } from "@/components/rich-text";
 import { ApiError, getAnnouncement } from "@/lib/api";
 import { daysUntil, formatDate } from "@/lib/format";
-import { toneClass } from "@/lib/tone";
 import { shareMetadata } from "@/lib/seo";
+import { toneClass } from "@/lib/tone";
 
 export async function generateMetadata({
     params,

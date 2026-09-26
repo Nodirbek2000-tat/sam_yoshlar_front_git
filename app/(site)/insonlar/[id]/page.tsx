@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 
 import { BusinessCard, StartupCard } from "@/components/directory/cards";
 import { Icon } from "@/components/icon";
-import { PhotoZoom } from "@/components/photo-zoom";
 import { Reveal } from "@/components/motion-primitives";
+import { PhotoZoom } from "@/components/photo-zoom";
 import { ApiError, getPublicProfile } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { shareMetadata } from "@/lib/seo";
