@@ -10,6 +10,7 @@ import { getCurrentUser } from "@/lib/session";
 import type { Direction } from "@/lib/types";
 
 export const metadata: Metadata = {
+    alternates: { canonical: "/tashabbuslar/bildirish" },
     title: "Tashabbus bildirish",
     description: "G'oya, muammo, taklif yoki startap fikringizni yozing.",
 };

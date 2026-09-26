@@ -32,6 +32,7 @@ export async function generateMetadata({ params }: PageProps<"/insonlar/[id]">):
             title: person.full_name,
             description: `${person.roles.join(", ")}${place ? ` · ${place}` : ""}`,
             image: person.avatar,
+            path: `/insonlar/${person.id}`,
         });
     } catch {
         return { title: "Profil" };

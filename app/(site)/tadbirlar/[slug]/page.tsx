@@ -28,6 +28,7 @@ export async function generateMetadata({
             title: event.title,
             description: event.description,
             image: event.image,
+            path: `/tadbirlar/${event.slug}`,
         });
     } catch {
         return { title: "Tadbir" };

@@ -13,6 +13,7 @@ import {
     Sparkles,
     type LucideIcon,
 } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CategoryTile } from "@/components/category-tile";
@@ -98,6 +99,11 @@ const SECTIONS: {
 
 /** Reyting o'rinlari uchun rang — birinchi uchtasi ajralib tursin. */
 const RANK_TONES = ["amber", "slate", "orange"] as const;
+
+/** Bosh sahifaning asosiy manzili — `?utm=...` bilan ochilsa ham bitta sahifa. */
+export const metadata: Metadata = {
+    alternates: { canonical: "/" },
+};
 
 export default async function HomePage() {
     const [data, directions] = await Promise.all([

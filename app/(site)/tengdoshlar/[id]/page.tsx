@@ -19,6 +19,7 @@ export async function generateMetadata({
             title: `${peer.full_name} — ${peer.country_name}`,
             description: peer.about,
             image: peer.photo,
+            path: `/tengdoshlar/${peer.id}`,
         });
     } catch {
         return { title: "Tengdosh" };

@@ -30,6 +30,7 @@ export async function generateMetadata({
         title: business.name,
         description: business.description,
         image: business.cover_url ?? business.logo_url,
+        path: `/tadbirkorlar/${business.id}`,
     });
 }
 

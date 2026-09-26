@@ -17,7 +17,12 @@ export async function generateMetadata({
 }: PageProps<"/elonlar/[slug]">): Promise<Metadata> {
     try {
         const item = await getAnnouncement((await params).slug);
-        return shareMetadata({ title: item.title, description: item.body, image: item.image });
+        return shareMetadata({
+            title: item.title,
+            description: item.body,
+            image: item.image,
+            path: `/elonlar/${item.slug}`,
+        });
     } catch {
         return { title: "E'lon" };
     }

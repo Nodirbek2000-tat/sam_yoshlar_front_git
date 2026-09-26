@@ -20,6 +20,7 @@ export async function generateMetadata({
         return shareMetadata({
             title: idea.title,
             description: idea.summary || idea.description,
+            path: `/tashabbuslar/${idea.id}`,
         });
     } catch {
         return { title: "Tashabbus" };

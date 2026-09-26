@@ -54,32 +54,42 @@ export function shareText(text: string | null | undefined, limit = 160) {
 }
 
 /**
- * Bitta sahifaning ulashish ma'lumoti: sarlavha, tavsif va **o'z rasmi**.
+ * Bitta sahifaning ulashish ma'lumoti: sarlavha, tavsif, **o'z rasmi** va
+ * asosiy (canonical) manzili.
  *
  * Sahifa `openGraph` bersa, Next ildiz qobiqdagisini butunlay almashtiradi —
  * shuning uchun sayt nomi va til ham shu yerda qayta beriladi, aks holda
  * Telegram'da «Samarqand yoshlari» yozuvi yo'qolib qoladi.
+ *
+ * `path` — sahifaning yagona to'g'ri manzili. Bir sahifa `?utm=...`, katta
+ * harf yoki boshqa ko'rinishda ochilsa ham Google hammasini shu manzilga
+ * birlashtiradi va «dublikat» deb reytingni bo'lib yubormaydi.
  */
 export function shareMetadata({
     title,
     description,
     image,
+    path,
     article,
 }: {
     title: string;
     description?: string | null;
     /** Yangilik, tadbir, e'lon... rasmi (to'liq manzil) */
     image?: string | null;
+    /** Sahifaning asosiy manzili: `/yangiliklar/slug` */
+    path: string;
     /** Yangilik bo'lsa — chop etilgan vaqti */
     article?: { publishedTime: string };
 }): Metadata {
     const text = shareText(description) || undefined;
     const images = image ? [{ url: image, alt: title }] : [DEFAULT_SHARE_IMAGE];
-    const common = { title, description: text, siteName: SITE_NAME, locale: "uz_UZ", images };
+    const url = absoluteUrl(path);
+    const common = { title, description: text, url, siteName: SITE_NAME, locale: "uz_UZ", images };
 
     return {
         title,
         description: text,
+        alternates: { canonical: url },
         openGraph: article
             ? { ...common, type: "article", publishedTime: article.publishedTime }
             : { ...common, type: "website" },
@@ -157,6 +167,7 @@ export function eventSchema(event: Event) {
         },
         image: [event.image ?? DEFAULT_IMAGE_URL],
         organizer: PUBLISHER,
+        performer: PUBLISHER,
         isAccessibleForFree: true,
         maximumAttendeeCapacity: event.capacity,
         remainingAttendeeCapacity: Math.max(0, event.seats_left),

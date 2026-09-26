@@ -10,6 +10,7 @@ import { getReference } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 
 export const metadata: Metadata = {
+    alternates: { canonical: "/tashabbuslar/muammolar/yozish" },
     title: "Muammo yozish",
     description: "Tashkilot o'z muammosini yozadi, yoshlar unga yechim taklif qiladi.",
 };

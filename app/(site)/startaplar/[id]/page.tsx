@@ -30,6 +30,7 @@ export async function generateMetadata({
         title: startup.name,
         description: startup.about,
         image: startup.logo_url,
+        path: `/startaplar/${startup.id}`,
     });
 }
 

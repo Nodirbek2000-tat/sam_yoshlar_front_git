@@ -19,6 +19,7 @@ export async function generateMetadata({
             title: item.title,
             description: item.excerpt,
             image: item.image,
+            path: `/yangiliklar/${item.slug}`,
             article: { publishedTime: item.published_at },
         });
     } catch {

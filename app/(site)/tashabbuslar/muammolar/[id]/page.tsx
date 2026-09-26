@@ -26,6 +26,7 @@ export async function generateMetadata({
         return shareMetadata({
             title: `${problem.organization.name} — muammo`,
             description: problem.description,
+            path: `/tashabbuslar/muammolar/${problem.id}`,
         });
     } catch {
         return { title: "Muammo" };
