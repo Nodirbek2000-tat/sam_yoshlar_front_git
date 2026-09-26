@@ -24,6 +24,17 @@ const ROLE_TONE: Record<string, string> = {
     Tashkilot: "violet",
 };
 
+/**
+ * Sahifa birinchi ochilganda tayyorlanib, keyin keshdan beriladi — har safar
+ * noldan chizilmaydi. Panelda o'zgartirilsa yorliq (tag) bo'yicha darhol
+ * yangilanadi, aks holda 1 daqiqa dan keyin fonda yangilanadi.
+ */
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+    return [];
+}
+
 export async function generateMetadata({ params }: PageProps<"/insonlar/[id]">): Promise<Metadata> {
     try {
         const person = await getPublicProfile((await params).id);

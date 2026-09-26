@@ -10,6 +10,7 @@ import { SuccessBurst } from "@/components/auth/success-burst";
 import { Icon } from "@/components/icon";
 import { cn } from "@/lib/cn";
 import type { User } from "@/lib/types";
+import { notifySessionChanged } from "@/lib/use-session-user";
 
 type Mode = "telegram" | "password";
 
@@ -38,6 +39,7 @@ export function LoginForm({
 
         // «Xush kelibsiz» ko'rinib ulgursin; rol yoki anketa to'ldirilmagan
         // bo'lsa — darhol o'sha qadamga
+        notifySessionChanged();
         window.setTimeout(() => {
             router.replace(pending ? "/kirish/rol" : next);
             router.refresh();

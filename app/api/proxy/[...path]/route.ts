@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { API_BASE } from "@/lib/api";
-import { getAccessToken } from "@/lib/session";
+import { forwardedFor, getAccessToken } from "@/lib/session";
 
 /**
  * Django API ga autentifikatsiyalangan proksi.
@@ -37,6 +37,8 @@ async function forward(request: Request, path: string[], method: string) {
                 Accept: "application/json",
                 ...(hasBody ? { "Content-Type": contentType } : {}),
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                // Foydalanuvchining haqiqiy manzili — Django cheklovlari shunga qaraydi
+                ...forwardedFor(request),
             },
             body,
             cache: "no-store",

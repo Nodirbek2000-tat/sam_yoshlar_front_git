@@ -179,8 +179,9 @@ export const getInitiative = (id: number | string) =>
 export const getNewsList = (query?: Query) =>
     apiFetch<Paginated<News>>("/news/", { query, revalidate: 120, tags: ["news"] });
 
+/** Yangilik keshlanadi — ko'rishlar soni brauzerdan alohida yuboriladi (`ViewCounter`). */
 export const getNews = (slug: string) =>
-    apiFetch<News>(`/news/${slug}/`, { revalidate: 0 });
+    apiFetch<News>(`/news/${slug}/`, { revalidate: 300, tags: ["news"] });
 
 export const getEvents = (query?: Query) =>
     apiFetch<Paginated<Event>>("/events/", { query, revalidate: 60, tags: ["events"] });
@@ -209,13 +210,16 @@ export const getProblem = (id: number | string) =>
 
 /** Ommaviy profil: kim ekani, anketalari va aloqasi. */
 export const getPublicProfile = (id: number | string) =>
-    apiFetch<PublicProfile>(`/foydalanuvchilar/${id}/`, { revalidate: 60 });
+    apiFetch<PublicProfile>(`/foydalanuvchilar/${id}/`, {
+        revalidate: 60,
+        tags: ["peers", "startups", "businesses"],
+    });
 
 export const getPeers = (query?: Query) =>
     apiFetch<Paginated<Peer>>("/peers/", { query, revalidate: 120, tags: ["peers"] });
 
 export const getPeer = (id: number | string) =>
-    apiFetch<Peer>(`/peers/${id}/`, { revalidate: 120 });
+    apiFetch<Peer>(`/peers/${id}/`, { revalidate: 120, tags: ["peers"] });
 
 export const getStartups = (query?: Query) =>
     apiFetch<Paginated<PublicStartup>>("/startups/", {

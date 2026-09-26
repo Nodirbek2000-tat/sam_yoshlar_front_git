@@ -11,7 +11,7 @@ import { Icon, type IconName } from "@/components/icon";
 import { Img } from "@/components/img";
 import { ThemeToggle } from "@/components/theme/toggle";
 import { cn } from "@/lib/cn";
-import type { User } from "@/lib/types";
+import { useSessionUser } from "@/lib/use-session-user";
 
 const NAV: { href: string; label: string; icon: IconName }[] = [
     { href: "/yangiliklar", label: "Yangiliklar", icon: "news" },
@@ -23,9 +23,14 @@ const NAV: { href: string; label: string; icon: IconName }[] = [
     { href: "/tengdoshlar", label: "Tengdoshlar", icon: "globe" },
 ];
 
-export function SiteHeader({ user }: { user: User | null }) {
+/**
+ * Sayt sarlavhasi. Kim kirgani brauzerda olinadi (`useSessionUser`) —
+ * shunda sahifalarning o'zi hamma uchun bir xil bo'lib keshlanadi.
+ */
+export function SiteHeader() {
     const pathname = usePathname();
     const [open, setOpen] = useState(false);
+    const { user, ready } = useSessionUser();
 
     useEffect(() => {
         document.body.style.overflow = open ? "hidden" : "";
@@ -63,7 +68,10 @@ export function SiteHeader({ user }: { user: User | null }) {
                 <div className="ml-auto flex items-center gap-2">
                     <ThemeToggle className="hidden sm:flex" />
 
-                    {user ? (
+                    {!ready ? (
+                        // Kim kirgani hali aniq emas — tugma o'rnida bo'sh joy (miltillamasin)
+                        <span aria-hidden className="hidden h-8 w-20 animate-pulse rounded-full bg-surface sm:block" />
+                    ) : user ? (
                         <div className="flex items-center gap-1.5">
                             {user.is_panel_admin && (
                                 <Link
@@ -155,7 +163,7 @@ export function SiteHeader({ user }: { user: User | null }) {
 
                             <div className="mt-2 flex items-center justify-between border-t border-line pt-3">
                                 <ThemeToggle />
-                                {!user && (
+                                {ready && !user && (
                                     <Link
                                         href="/kirish"
                                         onClick={() => setOpen(false)}

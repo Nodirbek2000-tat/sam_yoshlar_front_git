@@ -12,6 +12,17 @@ import { daysUntil, formatDate } from "@/lib/format";
 import { shareMetadata } from "@/lib/seo";
 import { toneClass } from "@/lib/tone";
 
+/**
+ * Sahifa birinchi ochilganda tayyorlanib, keyin keshdan beriladi — har safar
+ * noldan chizilmaydi. Panelda o'zgartirilsa yorliq (tag) bo'yicha darhol
+ * yangilanadi, aks holda 2 daqiqa dan keyin fonda yangilanadi.
+ */
+export const revalidate = 120;
+
+export async function generateStaticParams() {
+    return [];
+}
+
 export async function generateMetadata({
     params,
 }: PageProps<"/elonlar/[slug]">): Promise<Metadata> {

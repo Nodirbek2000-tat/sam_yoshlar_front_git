@@ -22,6 +22,17 @@ async function load(id: string) {
     }
 }
 
+/**
+ * Sahifa birinchi ochilganda tayyorlanib, keyin keshdan beriladi — har safar
+ * noldan chizilmaydi. Panelda o'zgartirilsa yorliq (tag) bo'yicha darhol
+ * yangilanadi, aks holda 2 daqiqa dan keyin fonda yangilanadi.
+ */
+export const revalidate = 120;
+
+export async function generateStaticParams() {
+    return [];
+}
+
 export async function generateMetadata({
     params,
 }: PageProps<"/startaplar/[id]">): Promise<Metadata> {

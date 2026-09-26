@@ -5,12 +5,24 @@ import { notFound } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { Img } from "@/components/img";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion-primitives";
+import { ViewCounter } from "@/components/news/view-counter";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ApiError, getNews, getNewsList } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { IMAGE_SIZES } from "@/lib/image";
 import { newsArticleSchema, shareMetadata } from "@/lib/seo";
 import { toneClass } from "@/lib/tone";
+
+/**
+ * Sahifa birinchi ochilganda tayyorlanib, keyin keshdan beriladi — har safar
+ * noldan chizilmaydi. Panelda o'zgartirilsa yorliq (tag) bo'yicha darhol
+ * yangilanadi, aks holda 5 daqiqa dan keyin fonda yangilanadi.
+ */
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+    return [];
+}
 
 export async function generateMetadata({
     params,
@@ -75,10 +87,7 @@ export default async function NewsDetailPage({ params }: PageProps<"/yangiliklar
                             <span className="text-[13px] text-muted">
                                 {formatDate(item.published_at)}
                             </span>
-                            <span className="inline-flex items-center gap-1.5 text-[13px] text-faint">
-                                <Icon name="eye" size={13} />
-                                {item.views}
-                            </span>
+                            <ViewCounter slug={item.slug} views={item.views} />
                         </div>
 
                         <h1 className="mt-5 text-3xl font-semibold leading-[1.15] tracking-tight sm:text-4xl md:text-5xl">

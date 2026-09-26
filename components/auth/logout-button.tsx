@@ -7,6 +7,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 import { Icon } from "@/components/icon";
+import { notifySessionChanged } from "@/lib/use-session-user";
 
 /**
  * Chiqish tugmasi — bosilganda so'raydi, tasdiqlansa «Xayr» deb qo'l
@@ -49,6 +50,7 @@ export function LogoutButton({
             // Qo'l silkitish ko'rinib ulgursin
             new Promise((resolve) => setTimeout(resolve, 1200)),
         ]);
+        notifySessionChanged();
         router.replace(redirectTo as "/");
         router.refresh();
         setOpen(false);
