@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
 import { Suspense } from "react";
 
+import { FxScript } from "@/components/fx-script";
 import { NavProgress } from "@/components/nav-progress";
 import { ThemeProvider } from "@/components/theme/provider";
 
@@ -47,6 +48,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             suppressHydrationWarning
             className={`${inter.variable} ${sora.variable} h-full antialiased`}
         >
+            <head>
+                {/* Chiqish animatsiyalari — React'dan oldin, sahifa o'qilayotganda ishlaydi */}
+                <FxScript />
+            </head>
             <body className="flex min-h-full flex-col">
                 <ThemeProvider>
                     {/* `useSearchParams` ishlatadi — Suspense ichida bo'lishi shart */}

@@ -14,6 +14,7 @@ import {
     type LucideIcon,
 } from "lucide-react";
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 
 import { CategoryTile } from "@/components/category-tile";
@@ -25,6 +26,7 @@ import { MagneticLink, SpotlightCard } from "@/components/home/interactive";
 import { Img } from "@/components/img";
 import { CountUp } from "@/components/motion-primitives";
 import { JsonLd } from "@/components/seo/json-ld";
+import { Words } from "@/components/words";
 import { getDirections, getOverview } from "@/lib/api";
 import { dayAndMonth, formatShortDate } from "@/lib/format";
 import { IMAGE_SIZES } from "@/lib/image";
@@ -181,7 +183,7 @@ export default async function HomePage() {
                     <div>
                         <SectionLabel>Bo&apos;limlar</SectionLabel>
                         <h2 data-fx="heading" className="mt-3 max-w-lg text-3xl font-semibold tracking-tight sm:text-4xl">
-                            Nima qila olasiz
+                            <Words text="Nima qila olasiz" />
                         </h2>
                     </div>
 
@@ -227,7 +229,7 @@ export default async function HomePage() {
                             <div>
                                 <SectionLabel>Reyting</SectionLabel>
                                 <h2 data-fx="heading" className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-                                    Eng ko&apos;p ovoz olganlar
+                                    <Words text="Eng ko'p ovoz olganlar" />
                                 </h2>
                             </div>
                             <ViewAll href="/tashabbuslar/yoshlar" />
@@ -298,7 +300,7 @@ export default async function HomePage() {
                             <div>
                                 <SectionLabel>Yangiliklar</SectionLabel>
                                 <h2 data-fx="heading" className="mt-3 text-2xl font-semibold tracking-tight">
-                                    So&apos;nggi xabarlar
+                                    <Words text="So'nggi xabarlar" />
                                 </h2>
                             </div>
                             <ViewAll href="/yangiliklar" />
@@ -347,7 +349,7 @@ export default async function HomePage() {
                             <div>
                                 <SectionLabel>Tadbirlar</SectionLabel>
                                 <h2 data-fx="heading" className="mt-3 text-2xl font-semibold tracking-tight">
-                                    Yaqin kunlarda
+                                    <Words text="Yaqin kunlarda" />
                                 </h2>
                             </div>
                             <ViewAll href="/tadbirlar" />
@@ -401,7 +403,7 @@ export default async function HomePage() {
                         <div>
                             <SectionLabel>E&apos;lonlar</SectionLabel>
                             <h2 data-fx="heading" className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
-                                Grant va imkoniyatlar
+                                <Words text="Grant va imkoniyatlar" />
                             </h2>
                         </div>
                         <ViewAll href="/elonlar" />
@@ -468,7 +470,7 @@ export default async function HomePage() {
                         <div>
                             <SectionLabel>Chet eldagi tengdoshlar</SectionLabel>
                             <h2 data-fx="heading" className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
-                                Dunyo universitetlarida o&apos;qiyotgan yoshlarimiz
+                                <Words text="Dunyo universitetlarida o'qiyotgan yoshlarimiz" />
                             </h2>
                             <p data-fx="rise" className="mt-3 max-w-xl text-[15px] leading-relaxed text-muted">
                                 Ular bilan bog&apos;laning, tajriba so&apos;rang — grant, qabul va hayot haqida
@@ -525,7 +527,7 @@ export default async function HomePage() {
                         <div>
                             <SectionLabel>Tadbirkorlar</SectionLabel>
                             <h2 data-fx="heading" className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
-                                Kengash a&apos;zolarining bizneslari
+                                <Words text="Kengash a'zolarining bizneslari" />
                             </h2>
                         </div>
                         <ViewAll href="/tadbirkorlar" />
@@ -558,7 +560,7 @@ export default async function HomePage() {
                         <div>
                             <SectionLabel>Startaplar</SectionLabel>
                             <h2 data-fx="heading" className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
-                                G&apos;oyadan bozorgacha
+                                <Words text="G'oyadan bozorgacha" />
                             </h2>
                         </div>
                         <ViewAll href="/startaplar" />
@@ -591,6 +593,7 @@ export default async function HomePage() {
                 <div
                     aria-hidden
                     data-speed="0.6"
+                    style={{ "--speed": 0.6 } as CSSProperties}
                     className="pointer-events-none absolute left-1/2 top-1/2 size-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--accent)_22%,transparent),transparent_65%)] blur-2xl"
                 />
 
@@ -600,16 +603,14 @@ export default async function HomePage() {
                             data-fx="heading"
                             className="text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl"
                         >
-                            Ovoz berish uchun qo&apos;shiling
+                            <Words text="Ovoz berish uchun qo'shiling" />
                         </h2>
                         {/* O'qilgan sari so'zlar to'ladi */}
                         <p
                             data-fx="fill"
                             className="mx-auto mt-6 max-w-xl text-[17px] leading-relaxed text-text md:text-[19px]"
                         >
-                            Sahifalarni ko&apos;rish hamma uchun ochiq. Ovoz berish va taklif
-                            yozish uchun Telegram bot orqali bir daqiqada ro&apos;yxatdan
-                            o&apos;ting.
+                            <Words text="Sahifalarni ko'rish hamma uchun ochiq. Ovoz berish va taklif yozish uchun Telegram bot orqali bir daqiqada ro'yxatdan o'ting." mask={false} />
                         </p>
                         <div data-fx="rise" className="mt-10">
                             <MagneticLink

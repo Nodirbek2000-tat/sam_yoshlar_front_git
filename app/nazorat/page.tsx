@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Icon, type IconName } from "@/components/icon";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion-primitives";
-import { formatShortDate } from "@/lib/format";
+import { formatNumber, formatShortDate } from "@/lib/format";
 import { panelFetch } from "@/lib/panel";
 import type { Event, Initiative } from "@/lib/types";
 
@@ -81,7 +81,7 @@ export default async function PanelDashboard() {
                             strokeWidth={1.6}
                         />
                         <div className="mt-3 text-[1.75rem] font-semibold tabular-nums tracking-tight">
-                            {stat.value.toLocaleString("uz-UZ").replace(/,/g, " ")}
+                            {formatNumber(stat.value)}
                         </div>
                         <div className="mt-0.5 text-[12.5px] text-faint">{stat.label}</div>
                     </StaggerItem>

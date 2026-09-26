@@ -1,11 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { Icon } from "@/components/icon";
 import { LiveScene } from "@/components/initiatives/live-scene";
-import { isMuted, playChime, setMuted } from "@/lib/chime";
+import { isMuted, playChime, setMuted, subscribeMuted } from "@/lib/chime";
 import type { Direction } from "@/lib/types";
 
 /**
@@ -20,14 +20,11 @@ import type { Direction } from "@/lib/types";
  */
 export function HeroOrbit({ direction }: { direction: Direction }) {
     const [broken, setBroken] = useState<Record<string, boolean>>({});
-    const [quiet, setQuiet] = useState(true);
+    // Serverda — jim; brauzerda — saqlangan tanlov (effektsiz, qayta chizishsiz)
+    const quiet = useSyncExternalStore(subscribeMuted, isMuted, () => true);
 
     // Birinchi chizishda ovoz bo'lmasin — faqat almashganda
     const previous = useRef<string | null>(null);
-
-    useEffect(() => {
-        setQuiet(isMuted());
-    }, []);
 
     useEffect(() => {
         if (previous.current !== null && previous.current !== direction.id) {
@@ -98,8 +95,8 @@ export function HeroOrbit({ direction }: { direction: Direction }) {
                 type="button"
                 onClick={() => {
                     const next = !quiet;
-                    setQuiet(next);
                     setMuted(next);
+                    // Yoqilganda — namuna uchun bir marta chalinadi
                     if (!next) playChime(direction.id);
                 }}
                 title={quiet ? "Ovozni yoqish" : "Ovozni o'chirish"}

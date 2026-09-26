@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 import { BrandLogo } from "@/components/brand-logo";
@@ -53,9 +53,14 @@ const GROUPS: { title: string; items: Item[] }[] = [
 
 export function PanelSidebar({ user }: { user: User }) {
     const pathname = usePathname();
-    const [open, setOpen] = useState(false);
-
-    useEffect(() => setOpen(false), [pathname]);
+    // Menyu qaysi sahifada ochilgan bo'lsa, faqat o'sha sahifada ochiq —
+    // boshqa sahifaga o'tilsa o'zi yopiladi (effektsiz)
+    const [openAt, setOpenAt] = useState<string | null>(null);
+    const open = openAt === pathname;
+    const setOpen = (value: boolean | ((current: boolean) => boolean)) => {
+        const next = typeof value === "function" ? value(open) : value;
+        setOpenAt(next ? pathname : null);
+    };
 
     const isActive = (href: string) =>
         href === "/nazorat" ? pathname === "/nazorat" : pathname.startsWith(href);

@@ -28,10 +28,6 @@ export default async function EventsPage({ searchParams }: PageProps<"/tadbirlar
     const page = await getEvents({ holat: holat || undefined }).catch(() => null);
     const events = page?.results ?? [];
 
-    const seats = events
-        .filter((event) => !event.is_past)
-        .reduce((total, event) => total + event.seats_left, 0);
-
     return (
         <>
             <PageHero

@@ -1,14 +1,20 @@
-"use client";
-
-import { animate, motion, useInView, useMotionValue, useTransform } from "motion/react";
-import { useEffect, useRef, type ReactNode } from "react";
-
-import { formatNumber } from "@/lib/format";
+import type { CSSProperties, ReactNode } from "react";
 
 /**
- * Ekranga kirganda yumshoq chiqadigan blok.
- * Bir marta ishlaydi — qayta aylantirilganda takrorlanmaydi.
+ * Chiqish animatsiyalari — kutubxonasiz.
+ *
+ * Bular server komponentlar: brauzerga hech qanday JS yubormaydi. Harakatni
+ * CSS (`globals.css` → «Chiqish animatsiyalari») va sahifa boshidagi kichik
+ * skript (`FxScript`) bajaradi. Kontent serverdan ko'rinib turgan holda
+ * keladi — skript ishlamasa ham hech narsa yashirin qolmaydi.
+ *
+ * `suppressHydrationWarning` — skript React yuklanishidan oldin `data-shown`
+ * qo'yadi; bu kutilgan farq, xato emas.
  */
+
+type Vars = CSSProperties & Record<`--${string}`, string | number>;
+
+/** Ekranga kirganda yumshoq chiqadigan blok. Bir marta ishlaydi. */
 export function Reveal({
     children,
     delay = 0,
@@ -20,20 +26,18 @@ export function Reveal({
     y?: number;
     className?: string;
 }) {
+    const style: Vars = {};
+    if (delay) style["--reveal-delay"] = `${delay}s`;
+    if (y !== 16) style["--reveal-y"] = `${y}px`;
+
     return (
-        <motion.div
-            className={className}
-            initial={{ opacity: 0, y }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-64px" }}
-            transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
-        >
+        <div data-reveal className={className} style={style} suppressHydrationWarning>
             {children}
-        </motion.div>
+        </div>
     );
 }
 
-/** Bolalarini ketma-ket chiqaradi. */
+/** Bolalarini ketma-ket chiqaradi (har biri `StaggerItem`). */
 export function Stagger({
     children,
     className,
@@ -43,70 +47,17 @@ export function Stagger({
     className?: string;
     step?: number;
 }) {
+    const style: Vars = step !== 0.07 ? { "--stagger-step": `${step}s` } : {};
+
     return (
-        <motion.div
-            className={className}
-            initial="hidden"
-            whileInView="shown"
-            viewport={{ once: true, margin: "-64px" }}
-            variants={{ shown: { transition: { staggerChildren: step } } }}
-        >
+        <div data-stagger className={className} style={style} suppressHydrationWarning>
             {children}
-        </motion.div>
+        </div>
     );
 }
 
-export function StaggerItem({
-    children,
-    className,
-}: {
-    children: ReactNode;
-    className?: string;
-}) {
-    return (
-        <motion.div
-            className={className}
-            variants={{
-                hidden: { opacity: 0, y: 18 },
-                shown: {
-                    opacity: 1,
-                    y: 0,
-                    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
-                },
-            }}
-        >
-            {children}
-        </motion.div>
-    );
+export function StaggerItem({ children, className }: { children: ReactNode; className?: string }) {
+    return <div className={className}>{children}</div>;
 }
 
-/** Ko'ringanda 0 dan `value` gacha sanaydigan raqam. */
-export function CountUp({
-    value,
-    duration = 1.4,
-    className,
-}: {
-    value: number;
-    duration?: number;
-    className?: string;
-}) {
-    const ref = useRef<HTMLSpanElement>(null);
-    const inView = useInView(ref, { once: true, margin: "-40px" });
-    const count = useMotionValue(0);
-    const text = useTransform(count, (latest) => formatNumber(Math.round(latest)));
-
-    useEffect(() => {
-        if (!inView) return;
-        const controls = animate(count, value, {
-            duration,
-            ease: [0.22, 1, 0.36, 1],
-        });
-        return () => controls.stop();
-    }, [inView, value, duration, count]);
-
-    return (
-        <motion.span ref={ref} className={className}>
-            {text}
-        </motion.span>
-    );
-}
+export { CountUp } from "./count-up";

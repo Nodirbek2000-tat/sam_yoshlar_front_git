@@ -109,9 +109,17 @@ export function plainText(text: string) {
         .trim();
 }
 
-/** 12345 -> "12 345" */
+/**
+ * 12345 -> "12 345" (ajratuvchi — uzilmaydigan bo'sh joy).
+ *
+ * `Intl` ishlatilmaydi: Node `1 234` (U+00A0), Chrome esa o'zbek tili
+ * ma'lumotisiz `1,234` beradi — server va brauzer matni farq qilib, React
+ * sahifani «jonlantirishda» xato berardi. Qo'lda yozilgani hamma joyda bir xil.
+ */
 export function formatNumber(value: number) {
-    return new Intl.NumberFormat("uz-UZ").format(value).replace(/,/g, " ");
+    const [whole, fraction] = String(Math.abs(value)).split(".");
+    const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    return `${value < 0 ? "-" : ""}${grouped}${fraction ? `,${fraction}` : ""}`;
 }
 
 /** 150000000 -> "150 mln so'm", 1200000000 -> "1,2 mlrd so'm" */

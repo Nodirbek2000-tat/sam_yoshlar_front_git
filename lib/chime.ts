@@ -22,6 +22,18 @@ function noteOf(seed: string) {
     return SCALE[total % SCALE.length];
 }
 
+/** Ovoz yoqilgan/o'chirilganda — komponentlar yangilansin */
+const MUTE_EVENT = "sy:mute";
+
+export function subscribeMuted(callback: () => void) {
+    window.addEventListener(MUTE_EVENT, callback);
+    window.addEventListener("storage", callback);
+    return () => {
+        window.removeEventListener(MUTE_EVENT, callback);
+        window.removeEventListener("storage", callback);
+    };
+}
+
 export function isMuted() {
     try {
         return localStorage.getItem(MUTE_KEY) === "1";
@@ -36,6 +48,7 @@ export function setMuted(value: boolean) {
     } catch {
         // Xotira yopiq bo'lsa ovoz shu sessiyada ishlayveradi
     }
+    window.dispatchEvent(new Event(MUTE_EVENT));
 }
 
 /**

@@ -1,17 +1,25 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { LogoutButton } from "@/components/auth/logout-button";
 import { BrandLogo } from "@/components/brand-logo";
 import { Icon, type IconName } from "@/components/icon";
 import { Img } from "@/components/img";
 import { ThemeToggle } from "@/components/theme/toggle";
 import { cn } from "@/lib/cn";
 import { useSessionUser } from "@/lib/use-session-user";
+
+/**
+ * Chiqish tugmasi animatsiya kutubxonasini ishlatadi — uni faqat kirgan
+ * foydalanuvchiga, kerak bo'lganda yuklaymiz. Mehmon sahifasi yengil qoladi.
+ */
+const LogoutButton = dynamic(
+    () => import("@/components/auth/logout-button").then((module) => module.LogoutButton),
+    { ssr: false, loading: () => <span className="size-8" aria-hidden /> },
+);
 
 const NAV: { href: string; label: string; icon: IconName }[] = [
     { href: "/yangiliklar", label: "Yangiliklar", icon: "news" },
@@ -122,61 +130,61 @@ export function SiteHeader() {
                 </div>
             </div>
 
-            <AnimatePresence>
-                {open && (
-                    <motion.nav
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                        className="overflow-hidden border-t border-line bg-page xl:hidden"
-                    >
-                        <div className="container-page grid gap-0.5 py-3">
-                            {NAV.map((item) => (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    // Sahifaga o'tilganda menyu yopiladi
-                                    onClick={() => setOpen(false)}
-                                    className={cn(
-                                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors",
-                                        isActive(item.href)
-                                            ? "bg-surface font-medium text-text"
-                                            : "text-muted",
-                                    )}
-                                >
-                                    <Icon name={item.icon} size={17} className="text-faint" />
-                                    {item.label}
-                                </Link>
-                            ))}
+            {/* Telefon menyusi — CSS bilan ochiladi (balandlik 0fr -> 1fr) */}
+            <nav
+                aria-hidden={!open}
+                inert={!open}
+                className={cn(
+                    "grid bg-page transition-[grid-template-rows,opacity] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] xl:hidden",
+                    open ? "grid-rows-[1fr] border-t border-line opacity-100" : "grid-rows-[0fr] opacity-0",
+                )}
+            >
+                <div className="min-h-0 overflow-hidden">
+                    <div className="container-page grid gap-0.5 py-3">
+                        {NAV.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                // Sahifaga o'tilganda menyu yopiladi
+                                onClick={() => setOpen(false)}
+                                className={cn(
+                                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors",
+                                    isActive(item.href)
+                                        ? "bg-surface font-medium text-text"
+                                        : "text-muted",
+                                )}
+                            >
+                                <Icon name={item.icon} size={17} className="text-faint" />
+                                {item.label}
+                            </Link>
+                        ))}
 
-                            {user?.is_panel_admin && (
+                        {user?.is_panel_admin && (
+                            <Link
+                                href="/nazorat"
+                                onClick={() => setOpen(false)}
+                                className="mt-1 flex items-center gap-3 rounded-lg border border-line px-3 py-2.5 text-[15px] font-medium text-text"
+                            >
+                                <Icon name="settings" size={17} className="text-accent" />
+                                Boshqaruv paneli
+                            </Link>
+                        )}
+
+                        <div className="mt-2 flex items-center justify-between border-t border-line pt-3">
+                            <ThemeToggle />
+                            {ready && !user && (
                                 <Link
-                                    href="/nazorat"
+                                    href="/kirish"
                                     onClick={() => setOpen(false)}
-                                    className="mt-1 flex items-center gap-3 rounded-lg border border-line px-3 py-2.5 text-[15px] font-medium text-text"
+                                    className="rounded-full bg-invert px-5 py-2 text-[14px] font-medium text-on-invert"
                                 >
-                                    <Icon name="settings" size={17} className="text-accent" />
-                                    Boshqaruv paneli
+                                    Kirish
                                 </Link>
                             )}
-
-                            <div className="mt-2 flex items-center justify-between border-t border-line pt-3">
-                                <ThemeToggle />
-                                {ready && !user && (
-                                    <Link
-                                        href="/kirish"
-                                        onClick={() => setOpen(false)}
-                                        className="rounded-full bg-invert px-5 py-2 text-[14px] font-medium text-on-invert"
-                                    >
-                                        Kirish
-                                    </Link>
-                                )}
-                            </div>
                         </div>
-                    </motion.nav>
-                )}
-            </AnimatePresence>
+                    </div>
+                </div>
+            </nav>
         </header>
     );
 }

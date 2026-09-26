@@ -1,8 +1,7 @@
 "use client";
 
-import { motion } from "motion/react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -14,15 +13,28 @@ const OPTIONS: Option[] = [
     { value: "system", label: "Tizim" },
 ];
 
+const noop = () => () => {};
+
+/**
+ * Brauzerda `true`, serverda `false` — effekt ichida holat o'zgartirmasdan
+ * (ortiqcha qayta chizishsiz) «sahifa ochildimi» ni bilish usuli.
+ */
+function useMounted() {
+    return useSyncExternalStore(
+        noop,
+        () => true,
+        () => false,
+    );
+}
+
 /** Uchta holatli almashtirgich: kunduzgi / kechki / tizim. */
 export function ThemeToggle({ className }: { className?: string }) {
     const { theme, setTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
-
     // Server tomonda tanlov noma'lum — hydration mos kelishi uchun kutamiz
-    useEffect(() => setMounted(true), []);
+    const mounted = useMounted();
 
     const current = mounted ? (theme ?? "system") : "system";
+    const index = Math.max(0, OPTIONS.findIndex((option) => option.value === current));
 
     return (
         <div
@@ -33,6 +45,14 @@ export function ThemeToggle({ className }: { className?: string }) {
                 className,
             )}
         >
+            {/* Tanlangan tugma ostidagi fon — CSS bilan sirpanadi (tugma 28px + oraliq 2px) */}
+            {mounted && (
+                <span
+                    aria-hidden
+                    className="absolute left-0.5 top-0.5 size-7 rounded-full bg-surface transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                    style={{ transform: `translateX(${index * 30}px)` }}
+                />
+            )}
             {OPTIONS.map((option) => {
                 const active = current === option.value;
                 return (
@@ -48,13 +68,6 @@ export function ThemeToggle({ className }: { className?: string }) {
                             active ? "text-text" : "text-faint hover:text-muted",
                         )}
                     >
-                        {active && mounted && (
-                            <motion.span
-                                layoutId="theme-pill"
-                                className="absolute inset-0 rounded-full bg-surface"
-                                transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                            />
-                        )}
                         <span className="relative">
                             <ThemeIcon kind={option.value} />
                         </span>

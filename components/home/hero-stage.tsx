@@ -1,10 +1,9 @@
 "use client";
 
 import { ArrowRight, ChevronDown } from "lucide-react";
-import { useRef, type ReactNode } from "react";
+import { Fragment, useRef, type CSSProperties, type PointerEvent, type ReactNode } from "react";
 
 import { MagneticLink } from "@/components/home/interactive";
-import { gsap, prefersReducedMotion, SplitText, useGSAP } from "@/lib/gsap";
 
 /**
  * Bosh sahifaning ochilish sahnasi.
@@ -14,9 +13,34 @@ import { gsap, prefersReducedMotion, SplitText, useGSAP } from "@/lib/gsap";
  * Kursor yurganda rasmlar har xil chuqurlikda siljiydi, orqada yog'du
  * kursor ortidan yuradi. Pastga aylantirilganda sahna tarqalib ketadi.
  *
- * Har bir rasm to'rt qatlamli — har bir harakat o'z qatlamida, bir-birini
- * bosmasin:  aylantirish > sichqoncha > kirish > CSS suzish.
+ * Hammasi CSS'da (`globals.css` → «Bosh sahifaning ochilishi»): animatsiya
+ * JS kutmasdan birinchi kadrdan boshlanadi — sekin telefonda ham sarlavha
+ * darhol chiqadi. Bu yerdagi JS faqat sichqoncha harakatini uzatadi.
+ *
+ * Har bir rasm uch qatlamli — har bir harakat o'z qatlamida, bir-birini
+ * bosmasin:  aylantirish > sichqoncha > kirish (+ CSS suzish).
  */
+
+type Vars = CSSProperties & Record<`--${string}`, string | number>;
+
+/** Sarlavhani harflarga bo'ladi: har bir so'z niqob ichida, harflar navbat bilan chiqadi. */
+function SplitChars({ text }: { text: string }) {
+    let index = 0;
+    const words = text.split(" ");
+
+    return words.map((word, wordIndex) => (
+        <Fragment key={wordIndex}>
+            <span className="fx-mask">
+                {Array.from(word).map((char) => (
+                    <span key={index} className="hero-char" style={{ "--c": index++ } as Vars}>
+                        {char}
+                    </span>
+                ))}
+            </span>
+            {wordIndex < words.length - 1 && " "}
+        </Fragment>
+    ));
+}
 
 type Floater = {
     id: string;
@@ -41,111 +65,37 @@ const FLOATERS: Floater[] = [
 const MOBILE = ["ai", "eco", "fintech", "startup"];
 
 export function HeroStage({ children }: { children?: ReactNode }) {
-    const root = useRef<HTMLElement>(null);
+    // Sichqoncha: rasmlar chuqurlik bo'yicha siljiydi, yog'du kursor ortidan yuradi.
+    // Kadrga bir marta — React qayta chizilmaydi, faqat CSS o'zgaruvchilari.
+    const frame = useRef(0);
 
-    useGSAP(
-        () => {
-            const section = root.current;
-            if (!section) return;
+    function onPointerMove(event: PointerEvent<HTMLElement>) {
+        if (event.pointerType !== "mouse") return;
+        const section = event.currentTarget;
+        const { clientX, clientY } = event;
 
-            const intro = gsap.utils.toArray<HTMLElement>("[data-intro]");
+        cancelAnimationFrame(frame.current);
+        frame.current = requestAnimationFrame(() => {
+            const rect = section.getBoundingClientRect();
+            const nx = (clientX - rect.left) / rect.width - 0.5;
+            const ny = (clientY - rect.top) / rect.height - 0.5;
 
-            // Sekin internetda skript kech keladi: matn allaqachon ko'rinib turibdi
-            // (CSS 0.9s dan keyin ochadi) — uni yashirib qayta chiqarmaymiz
-            const late = performance.now() > 1400;
+            section.style.setProperty("--mx", `${clientX - rect.left}px`);
+            section.style.setProperty("--my", `${clientY - rect.top}px`);
 
-            if (prefersReducedMotion() || late) {
-                gsap.set(intro, { autoAlpha: 1 });
-                return;
+            for (const element of section.querySelectorAll<HTMLElement>("[data-mouse]")) {
+                const depth = Number(element.dataset.mouse) || 1;
+                element.style.setProperty("--mouse-x", `${nx * 56 * depth}px`);
+                element.style.setProperty("--mouse-y", `${ny * 40 * depth}px`);
             }
-
-            // --- Kirish
-            const split = SplitText.create("[data-split]", { type: "words,chars", mask: "words" });
-
-            // Faqat ko'rinish ochiladi: opacity'ni quyidagi from() tweenlar boshqaradi,
-            // autoAlpha bilan aralashsa ular 0 da qotib qoladi
-            gsap.set(intro, { visibility: "visible" });
-
-            const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
-            tl.from(split.chars, { yPercent: 120, rotate: 8, duration: 1.1, stagger: 0.024 }, 0.15)
-                .from("[data-gradient]", { yPercent: 115, duration: 1.2 }, "-=0.8")
-                .from(
-                    "[data-intro='lead']",
-                    { y: 26, opacity: 0, filter: "blur(8px)", duration: 1, stagger: 0.12 },
-                    "-=0.75",
-                )
-                .from(
-                    "[data-intro='actions'] > *",
-                    { y: 22, opacity: 0, scale: 0.92, duration: 0.9, stagger: 0.1 },
-                    "-=0.7",
-                )
-                .from(
-                    "[data-pop]",
-                    {
-                        scale: 0.35,
-                        opacity: 0,
-                        filter: "blur(14px)",
-                        duration: 1.5,
-                        ease: "expo.out",
-                        stagger: 0.09,
-                    },
-                    0.35,
-                )
-                .from("[data-intro='cue']", { y: -12, opacity: 0, duration: 0.7 }, "-=0.6");
-
-            // --- Aylantirganda sahna tarqaladi
-            gsap.to("[data-hero-content]", {
-                yPercent: 22,
-                opacity: 0.1,
-                ease: "none",
-                scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: true },
-            });
-
-            gsap.utils.toArray<HTMLElement>("[data-floater]").forEach((element) => {
-                const depth = Number(element.dataset.depth) || 1;
-                gsap.to(element, {
-                    y: -190 * depth,
-                    x: (depth - 1) * 60,
-                    rotate: (depth - 1) * 16,
-                    opacity: 0,
-                    ease: "none",
-                    scrollTrigger: {
-                        trigger: section,
-                        start: "top top",
-                        end: "bottom top",
-                        scrub: 0.8,
-                    },
-                });
-            });
-
-            // --- Sichqoncha: rasmlar chuqurlik bo'yicha, yog'du kursor ortidan
-            const movers = gsap.utils.toArray<HTMLElement>("[data-mouse]").map((element) => ({
-                depth: Number(element.dataset.mouse) || 1,
-                x: gsap.quickTo(element, "x", { duration: 1, ease: "power3" }),
-                y: gsap.quickTo(element, "y", { duration: 1, ease: "power3" }),
-            }));
-
-            const onMove = (event: PointerEvent) => {
-                const rect = section.getBoundingClientRect();
-                const nx = (event.clientX - rect.left) / rect.width - 0.5;
-                const ny = (event.clientY - rect.top) / rect.height - 0.5;
-
-                for (const mover of movers) {
-                    mover.x(nx * 56 * mover.depth);
-                    mover.y(ny * 40 * mover.depth);
-                }
-                section.style.setProperty("--mx", `${event.clientX - rect.left}px`);
-                section.style.setProperty("--my", `${event.clientY - rect.top}px`);
-            };
-
-            section.addEventListener("pointermove", onMove);
-            return () => section.removeEventListener("pointermove", onMove);
-        },
-        { scope: root },
-    );
+        });
+    }
 
     return (
-        <section ref={root} className="relative overflow-hidden border-b border-line">
+        <section
+            onPointerMove={onPointerMove}
+            className="relative overflow-hidden border-b border-line"
+        >
             {/* ---------- Fon ---------- */}
             <div aria-hidden className="pointer-events-none absolute inset-0">
                 <div className="aurora" />
@@ -173,16 +123,23 @@ export function HeroStage({ children }: { children?: ReactNode }) {
                     <div className="size-full animate-[spin_40s_linear_infinite] rounded-full bg-[conic-gradient(from_0deg,transparent,color-mix(in_oklab,var(--accent)_35%,transparent),transparent_40%,oklch(65%_0.14_255/0.3),transparent_75%)] opacity-60 blur-2xl" />
                 </div>
 
-                {FLOATERS.map((item) => (
+                {FLOATERS.map((item, index) => (
                     <div
                         key={item.id}
                         data-floater
-                        data-depth={item.depth}
                         className="absolute"
-                        style={{ top: item.top, left: item.left, width: item.size, height: item.size }}
+                        style={
+                            {
+                                top: item.top,
+                                left: item.left,
+                                width: item.size,
+                                height: item.size,
+                                "--depth": item.depth,
+                            } as Vars
+                        }
                     >
                         <div data-mouse={item.depth} className="size-full">
-                            <div data-pop className="size-full">
+                            <div data-pop className="size-full" style={{ "--i": index } as Vars}>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={`/yonalish/sm/${item.id}.webp`}
@@ -203,8 +160,8 @@ export function HeroStage({ children }: { children?: ReactNode }) {
                 <div data-hero-content className="max-w-3xl">
                     {/* Rasmlar o'ng tomonda turgan ekranlarda shrift biroz kichrayadi — sarlavha 2 qatorda qolsin */}
                     <h1 className="text-[2.75rem] font-semibold leading-[1.05] tracking-[-0.03em] sm:text-6xl md:text-7xl lg:text-[3.5rem] xl:text-[4rem]">
-                        <span data-intro data-split className="block">
-                            Yoshlar tashabbusi
+                        <span data-intro className="block">
+                            <SplitChars text="Yoshlar tashabbusi" />
                         </span>
                         {/* Gradient qator bo'linmaydi — butunligicha niqob ichidan chiqadi */}
                         <span data-intro className="block overflow-hidden pb-2">
@@ -217,6 +174,7 @@ export function HeroStage({ children }: { children?: ReactNode }) {
                     <p
                         data-intro="lead"
                         className="mt-7 max-w-xl text-[17px] leading-relaxed text-text"
+                        style={{ "--d": "1.28s" } as Vars}
                     >
                         Yoshlarni birlashtiruvchi, qo&apos;llab-quvvatlovchi va rivojlantirishga
                         xizmat qiluvchi yagona axborot platformasi.
@@ -225,6 +183,7 @@ export function HeroStage({ children }: { children?: ReactNode }) {
                     <p
                         data-intro="lead"
                         className="mt-3 max-w-lg text-[15px] leading-relaxed text-muted"
+                        style={{ "--d": "1.4s" } as Vars}
                     >
                         Muammoni ayting, g&apos;oyani bildiring, ovoz bering. Har bir ovoz
                         yo&apos;nalishning tirik ekotizimini bir qadam o&apos;stiradi.
@@ -251,7 +210,12 @@ export function HeroStage({ children }: { children?: ReactNode }) {
                     </div>
 
                     {/* Telefonda — rasmlar sarlavha ostida */}
-                    <div data-intro="lead" className="mt-10 flex gap-3 xl:hidden" aria-hidden>
+                    <div
+                        data-intro="lead"
+                        className="mt-10 flex gap-3 xl:hidden"
+                        style={{ "--d": "1.52s" } as Vars}
+                        aria-hidden
+                    >
                         {MOBILE.map((id, index) => (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
