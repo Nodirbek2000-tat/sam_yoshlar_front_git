@@ -22,10 +22,12 @@ import { DirectionMarquee } from "@/components/home/direction-marquee";
 import { HeroStage } from "@/components/home/hero-stage";
 import { HomeFx } from "@/components/home/home-fx";
 import { MagneticLink, SpotlightCard } from "@/components/home/interactive";
+import { Img } from "@/components/img";
 import { CountUp } from "@/components/motion-primitives";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getDirections, getOverview } from "@/lib/api";
 import { dayAndMonth, formatShortDate } from "@/lib/format";
+import { IMAGE_SIZES } from "@/lib/image";
 import { organizationSchema, websiteSchema } from "@/lib/seo";
 import { toneClass, type Tone } from "@/lib/tone";
 import type { Overview } from "@/lib/types";
@@ -312,12 +314,12 @@ export default async function HomePage() {
                                         >
                                             <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-lg border border-tone-line bg-tone-soft text-tone-text">
                                                 {item.image ? (
-                                                    // eslint-disable-next-line @next/next/no-img-element
-                                                    <img
+                                                     
+                                                    <Img
                                                         src={item.image}
-                                                        alt=""
+                                                        sizes="56px"
+                                                        maxWidth={256}
                                                         className="size-full object-cover"
-                                                        loading="lazy"
                                                     />
                                                 ) : (
                                                     <Newspaper className="size-[19px]" strokeWidth={1.8} />
@@ -414,11 +416,11 @@ export default async function HomePage() {
                                             className={`${toneClass(item.icon)} group flex items-center gap-4 rounded-xl border border-line bg-raised p-3.5 transition-colors duration-300 hover:border-tone-line hover:bg-tone-soft`}
                                         >
                                             {item.image ? (
-                                                // eslint-disable-next-line @next/next/no-img-element
-                                                <img
+                                                 
+                                                <Img
                                                     src={item.image}
-                                                    alt=""
-                                                    loading="lazy"
+                                                    sizes="56px"
+                                                    maxWidth={256}
                                                     className="size-14 shrink-0 rounded-2xl border border-line object-cover"
                                                 />
                                             ) : (
@@ -706,12 +708,11 @@ function PeerTile({ peer }: { peer: Overview["peers"][number] }) {
                     style={{ background: peer.country_color }}
                 >
                     {peer.photo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                         
+                        <Img
                             src={peer.photo}
-                            alt=""
-                            loading="lazy"
-                            decoding="async"
+                            sizes={IMAGE_SIZES.smallCard}
+                            maxWidth={640}
                             className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
                         />
                     ) : (

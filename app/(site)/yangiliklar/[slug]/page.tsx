@@ -3,10 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { Icon } from "@/components/icon";
+import { Img } from "@/components/img";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion-primitives";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ApiError, getNews, getNewsList } from "@/lib/api";
 import { formatDate } from "@/lib/format";
+import { IMAGE_SIZES } from "@/lib/image";
 import { newsArticleSchema, shareMetadata } from "@/lib/seo";
 import { toneClass } from "@/lib/tone";
 
@@ -102,10 +104,12 @@ export default async function NewsDetailPage({ params }: PageProps<"/yangiliklar
             {item.image && (
                 <div className="container-page -mt-px">
                     <Reveal className="overflow-hidden rounded-b-2xl border-x border-b border-line">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        { }
+                        <Img
                             src={item.image}
-                            alt=""
+                            alt={item.title}
+                            sizes={IMAGE_SIZES.full}
+                            priority
                             className="max-h-[28rem] w-full object-cover"
                         />
                     </Reveal>

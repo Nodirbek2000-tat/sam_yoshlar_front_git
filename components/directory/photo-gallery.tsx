@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useState } from "react";
 
 import { Icon } from "@/components/icon";
+import { Img } from "@/components/img";
+import { fullImage } from "@/lib/image";
 import type { GalleryImage } from "@/lib/types";
 
 /**
@@ -50,10 +52,11 @@ export function PhotoGallery({ photos, name }: { photos: GalleryImage[]; name: s
                         onClick={() => setOpen(index)}
                         className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-line bg-surface"
                     >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <Img
                             src={photo.url}
                             alt={photo.caption || `${name} — ${index + 1}-rasm`}
+                            sizes="(min-width: 1024px) 250px, (min-width: 640px) 33vw, 50vw"
+                            maxWidth={640}
                             className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                         />
                         <span className="absolute inset-0 grid place-items-center bg-black/0 text-white opacity-0 transition-all duration-300 group-hover:bg-black/25 group-hover:opacity-100">
@@ -76,7 +79,7 @@ export function PhotoGallery({ photos, name }: { photos: GalleryImage[]; name: s
                     >
                         <motion.img
                             key={photos[open].id}
-                            src={photos[open].url}
+                            {...fullImage(photos[open].url)}
                             alt={photos[open].caption || name}
                             initial={{ opacity: 0, scale: 0.96 }}
                             animate={{ opacity: 1, scale: 1 }}

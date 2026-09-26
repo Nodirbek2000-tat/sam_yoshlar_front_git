@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { Icon, type IconName } from "@/components/icon";
+import { Img } from "@/components/img";
 import { cn } from "@/lib/cn";
 import type { GalleryImage } from "@/lib/types";
 
@@ -144,8 +145,7 @@ export function LogoPicker({
                 )}
             >
                 {preview ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src={preview} alt="" className="size-full object-cover" />
+                    <Img src={preview} sizes="96px" maxWidth={256} className="size-full object-cover" />
                 ) : (
                     <Icon name={icon} size={26} strokeWidth={1.5} />
                 )}
@@ -224,8 +224,7 @@ export function GalleryPicker({
                             removing === image.id && "opacity-50",
                         )}
                     >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={image.url} alt="" className="size-full object-cover" />
+                        <Img src={image.url} sizes="120px" maxWidth={256} className="size-full object-cover" />
                         {onDelete && (
                             <button
                                 type="button"

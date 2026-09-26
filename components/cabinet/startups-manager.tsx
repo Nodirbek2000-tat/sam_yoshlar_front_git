@@ -7,6 +7,7 @@ import { useState } from "react";
 
 import { StatusBanner } from "@/components/cabinet/profile-editor";
 import { Icon } from "@/components/icon";
+import { Img } from "@/components/img";
 import { StartupForm } from "@/components/onboarding/startup-form";
 import { cn } from "@/lib/cn";
 import type { Choice, StartupProfile } from "@/lib/types";
@@ -120,8 +121,7 @@ export function StartupsManager({
                             <div className="flex flex-wrap items-center gap-4 p-4 sm:p-5">
                                 <span className="tone-violet grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl border border-tone-line bg-tone-soft text-tone-text">
                                     {item.logo_url ? (
-                                        /* eslint-disable-next-line @next/next/no-img-element */
-                                        <img src={item.logo_url} alt="" className="size-full object-cover" />
+                                        <Img src={item.logo_url} sizes="56px" maxWidth={256} className="size-full object-cover" />
                                     ) : (
                                         <Icon name="rocket" size={22} />
                                     )}

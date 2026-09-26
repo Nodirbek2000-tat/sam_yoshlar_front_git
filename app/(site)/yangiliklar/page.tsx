@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Icon } from "@/components/icon";
+import { Img } from "@/components/img";
 import { PageHero } from "@/components/page-hero";
 import { Stagger, StaggerItem } from "@/components/motion-primitives";
 import { getNewsList } from "@/lib/api";
 import { formatDate } from "@/lib/format";
+import { IMAGE_SIZES } from "@/lib/image";
 import { toneClass } from "@/lib/tone";
 import type { News } from "@/lib/types";
 
@@ -74,10 +76,12 @@ function LeadCard({ item }: { item: News }) {
         >
             <span className="relative block aspect-[16/10] overflow-hidden bg-tone-soft md:aspect-auto md:min-h-64">
                 {item.image ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
+                     
+                    <Img
                         src={item.image}
-                        alt=""
+                        sizes={IMAGE_SIZES.half}
+                        maxWidth={1200}
+                        priority
                         className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                 ) : (
@@ -119,12 +123,12 @@ function NewsCard({ item }: { item: News }) {
         >
             <span className="relative block aspect-[16/9] overflow-hidden bg-tone-soft">
                 {item.image ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
+                     
+                    <Img
                         src={item.image}
-                        alt=""
+                        sizes={IMAGE_SIZES.card}
+                        maxWidth={828}
                         className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        loading="lazy"
                     />
                 ) : (
                     <span className="grid size-full place-items-center">

@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 
 import { Icon } from "@/components/icon";
+import { Img } from "@/components/img";
+import { fullImage } from "@/lib/image";
 
 /**
  * Profil rasmi — bosilganda to'liq ekranda kattalashadi.
@@ -59,8 +61,7 @@ export function PhotoZoom({
                 className={`group relative ${box}`}
                 style={{ background: color }}
             >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt={alt} className="size-full object-cover" />
+                <Img src={src} alt={alt} sizes="144px" maxWidth={384} className="size-full object-cover" />
                 <span className="absolute inset-0 grid place-items-center bg-black/0 text-white opacity-0 transition-all duration-300 group-hover:bg-black/30 group-hover:opacity-100">
                     <Icon name="search" size={20} />
                 </span>
@@ -76,7 +77,7 @@ export function PhotoZoom({
                         className="fixed inset-0 z-[80] grid place-items-center bg-black/85 p-5 backdrop-blur-sm"
                     >
                         <motion.img
-                            src={src}
+                            {...fullImage(src)}
                             alt={alt}
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}

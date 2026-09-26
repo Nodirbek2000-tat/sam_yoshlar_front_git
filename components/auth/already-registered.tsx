@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Icon } from "@/components/icon";
+import { Img } from "@/components/img";
 import type { User } from "@/lib/types";
 
 /**
@@ -41,8 +42,7 @@ export function AlreadyRegistered({
                     className="relative grid size-24 place-items-center overflow-hidden rounded-full bg-invert text-2xl font-semibold text-on-invert ring-4 ring-page"
                 >
                     {user.avatar ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img src={user.avatar} alt="" className="size-full object-cover" />
+                        <Img src={user.avatar} sizes="96px" maxWidth={256} className="size-full object-cover" />
                     ) : (
                         user.initials
                     )}

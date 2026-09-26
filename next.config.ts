@@ -6,6 +6,12 @@ const nextConfig: NextConfig = {
     output: "standalone",
 
     images: {
+        // Tayyorlangan o'lcham 30 kun keshda turadi. Yangi yuklangan rasm yangi
+        // nom oladi, shuning uchun eskisi «qotib qolmaydi».
+        minimumCacheTTL: 60 * 60 * 24 * 30,
+        // Lokalda rasmlar 127.0.0.1 dan keladi — Next 16 buni standart holatda
+        // taqiqlaydi (SSRF himoyasi). Serverda o'chiq qoladi.
+        dangerouslyAllowLocalIP: process.env.NODE_ENV !== "production",
         // Rasmlar Django tomonidan beriladi (media fayllar)
         remotePatterns: [
             { protocol: "https", hostname: "samarqandyoshlari.uz" },

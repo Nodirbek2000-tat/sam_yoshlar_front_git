@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 
 import { Icon } from "@/components/icon";
+import { Img } from "@/components/img";
 import { DeleteAllButton } from "@/components/panel/delete-all";
 import { cn } from "@/lib/cn";
 import { formatShortDate, toTashkentInput } from "@/lib/format";
@@ -172,10 +173,10 @@ export function NewsManager({
                             >
                                 <span className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl border border-tone-line bg-tone-soft text-tone-text">
                                     {item.image_url ? (
-                                        /* eslint-disable-next-line @next/next/no-img-element */
-                                        <img
+                                        <Img
                                             src={item.image_url}
-                                            alt=""
+                                            sizes="64px"
+                                            maxWidth={256}
                                             className="size-full object-cover"
                                         />
                                     ) : (

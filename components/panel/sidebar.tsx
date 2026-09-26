@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { BrandLogo } from "@/components/brand-logo";
 import { Icon, type IconName } from "@/components/icon";
+import { Img } from "@/components/img";
 import { ThemeToggle } from "@/components/theme/toggle";
 import { cn } from "@/lib/cn";
 import { toneClass } from "@/lib/tone";
@@ -125,8 +126,7 @@ export function PanelSidebar({ user }: { user: User }) {
                 <div className="flex items-center gap-2.5 rounded-lg px-2 py-2">
                     <span className="grid size-8 shrink-0 place-items-center overflow-hidden rounded-full bg-invert text-[11px] font-semibold text-on-invert">
                         {user.avatar ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={user.avatar} alt="" className="size-full object-cover" />
+                            <Img src={user.avatar} sizes="32px" maxWidth={128} className="size-full object-cover" />
                         ) : (
                             user.initials
                         )}

@@ -5,9 +5,11 @@ import { notFound } from "next/navigation";
 import { CategoryIcon } from "@/components/category-icon";
 import { PhotoGallery } from "@/components/directory/photo-gallery";
 import { Icon, type IconName } from "@/components/icon";
+import { Img } from "@/components/img";
 import { Reveal } from "@/components/motion-primitives";
 import { ApiError, getBusiness } from "@/lib/api";
 import { cn } from "@/lib/cn";
+import { IMAGE_SIZES } from "@/lib/image";
 import { shareMetadata } from "@/lib/seo";
 import { toneClass } from "@/lib/tone";
 import type { PublicBusinessDetail } from "@/lib/types";
@@ -58,8 +60,12 @@ export default async function BusinessPage({ params }: PageProps<"/tadbirkorlar/
 
                 <div className="relative mt-5 h-52 overflow-hidden rounded-3xl border border-tone-line bg-tone-soft sm:h-64 md:h-72">
                     {business.cover_url ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img src={business.cover_url} alt="" className="size-full object-cover" />
+                        <Img
+                            src={business.cover_url}
+                            sizes={IMAGE_SIZES.full}
+                            priority
+                            className="size-full object-cover"
+                        />
                     ) : (
                         <div className="grid-lines size-full opacity-60" />
                     )}
@@ -72,8 +78,13 @@ export default async function BusinessPage({ params }: PageProps<"/tadbirkorlar/
                 <Reveal className="relative flex flex-wrap items-start gap-x-5 gap-y-3 px-2 sm:px-6">
                     <span className="-mt-12 grid size-24 shrink-0 place-items-center overflow-hidden rounded-3xl border-4 border-page bg-page text-tone-text shadow-lg sm:-mt-14 sm:size-28">
                         {business.logo_url ? (
-                            /* eslint-disable-next-line @next/next/no-img-element */
-                            <img src={business.logo_url} alt={business.name} className="size-full object-cover" />
+                            <Img
+                                src={business.logo_url}
+                                alt={business.name}
+                                sizes="112px"
+                                maxWidth={384}
+                                className="size-full object-cover"
+                            />
                         ) : (
                             <CategoryIcon slug={business.sphere_icon} size={40} />
                         )}

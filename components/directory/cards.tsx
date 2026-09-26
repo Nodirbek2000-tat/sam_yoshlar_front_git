@@ -3,8 +3,10 @@ import Link from "next/link";
 import { CategoryIcon } from "@/components/category-icon";
 import { CategoryTile } from "@/components/category-tile";
 import { Icon } from "@/components/icon";
+import { Img } from "@/components/img";
 import { cn } from "@/lib/cn";
 import { formatMoney } from "@/lib/format";
+import { IMAGE_SIZES } from "@/lib/image";
 import { toneClass } from "@/lib/tone";
 import type { PublicBusiness, PublicStartup } from "@/lib/types";
 
@@ -43,8 +45,7 @@ function Logo({
             )}
         >
             {url ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={url} alt={name} className="size-full object-cover" />
+                <Img src={url} alt={name} sizes="96px" maxWidth={256} className="size-full object-cover" />
             ) : (
                 <CategoryIcon slug={icon} size={22} />
             )}
@@ -64,10 +65,11 @@ export function BusinessCard({ business }: { business: PublicBusiness }) {
             {/* Muqova */}
             <div className="relative aspect-[16/10] overflow-hidden bg-tone-soft">
                 {business.cover_url ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
+                     
+                    <Img
                         src={business.cover_url}
-                        alt=""
+                        sizes={IMAGE_SIZES.card}
+                        maxWidth={828}
                         className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                     />
                 ) : (

@@ -4,10 +4,12 @@ import { notFound } from "next/navigation";
 
 import { RegisterButton } from "@/components/events/register-button";
 import { Icon, type IconName } from "@/components/icon";
+import { Img } from "@/components/img";
 import { Reveal } from "@/components/motion-primitives";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDate, formatTime } from "@/lib/format";
+import { IMAGE_SIZES } from "@/lib/image";
 import { eventSchema, shareMetadata } from "@/lib/seo";
 import { getAccessToken, getCurrentUser } from "@/lib/session";
 import { toneClass } from "@/lib/tone";
@@ -117,10 +119,13 @@ export default async function EventPage({ params }: PageProps<"/tadbirlar/[slug]
                         <div className="lg:w-80">
                             {event.image && (
                                 <div className="mb-5 overflow-hidden rounded-2xl border border-line">
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
+                                    { }
+                                    <Img
                                         src={event.image}
-                                        alt=""
+                                        alt={event.title}
+                                        sizes={IMAGE_SIZES.side}
+                                        maxWidth={1080}
+                                        priority
                                         className="aspect-[4/3] w-full object-cover"
                                     />
                                 </div>

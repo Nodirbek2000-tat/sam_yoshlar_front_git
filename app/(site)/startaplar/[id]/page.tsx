@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { CategoryIcon } from "@/components/category-icon";
 import { STAGE_TONE } from "@/components/directory/cards";
 import { Icon } from "@/components/icon";
+import { Img } from "@/components/img";
 import { Reveal } from "@/components/motion-primitives";
 import { ApiError, getStartup } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -69,8 +70,14 @@ export default async function StartupPage({ params }: PageProps<"/startaplar/[id
                     <Reveal className="mt-7 flex flex-wrap items-center gap-5">
                         <span className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-3xl border border-tone-line bg-page text-tone-text shadow-sm">
                             {startup.logo_url ? (
-                                /* eslint-disable-next-line @next/next/no-img-element */
-                                <img src={startup.logo_url} alt={startup.name} className="size-full object-cover" />
+                                <Img
+                                    src={startup.logo_url}
+                                    alt={startup.name}
+                                    sizes="96px"
+                                    maxWidth={384}
+                                    priority
+                                    className="size-full object-cover"
+                                />
                             ) : (
                                 <CategoryIcon slug={startup.sphere_icon} size={38} />
                             )}

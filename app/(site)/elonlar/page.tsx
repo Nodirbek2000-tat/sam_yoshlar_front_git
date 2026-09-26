@@ -3,10 +3,12 @@ import Link from "next/link";
 
 import { CategoryTile } from "@/components/category-tile";
 import { Icon } from "@/components/icon";
+import { Img } from "@/components/img";
 import { PageHero } from "@/components/page-hero";
 import { Stagger, StaggerItem } from "@/components/motion-primitives";
 import { getAnnouncements } from "@/lib/api";
 import { daysUntil, formatShortDate, plainText } from "@/lib/format";
+import { IMAGE_SIZES } from "@/lib/image";
 import { toneClass } from "@/lib/tone";
 import type { Announcement } from "@/lib/types";
 
@@ -70,11 +72,10 @@ function AnnouncementCard({ item }: { item: Announcement }) {
             {/* Rasm yuklangan bo'lsa — ikonka o'rniga muqova */}
             {item.image && (
                 <div className="-mx-5 -mt-5 mb-5 aspect-[16/9] overflow-hidden border-b border-line bg-surface">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Img
                         src={item.image}
-                        alt=""
-                        loading="lazy"
+                        sizes={IMAGE_SIZES.card}
+                        maxWidth={828}
                         className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                     />
                 </div>

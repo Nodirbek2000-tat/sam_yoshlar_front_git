@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { CabinetSidebar } from "@/components/cabinet/sidebar";
+import { Img } from "@/components/img";
 import { getCabinetOverview } from "@/lib/me";
 import { getCurrentUser } from "@/lib/session";
 import type { User } from "@/lib/types";
@@ -42,8 +43,7 @@ export default async function CabinetLayout({ children }: LayoutProps<"/kabinet"
             <header className="flex flex-wrap items-center gap-4 border-b border-line pb-8">
                 <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-full bg-surface text-[15px] font-semibold text-muted">
                     {user.avatar ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img src={user.avatar} alt="" className="size-full object-cover" />
+                        <Img src={user.avatar} sizes="56px" maxWidth={256} className="size-full object-cover" />
                     ) : (
                         user.initials
                     )}

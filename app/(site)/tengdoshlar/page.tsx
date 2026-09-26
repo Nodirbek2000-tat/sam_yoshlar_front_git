@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CategoryIcon } from "@/components/category-icon";
 import { FilterChip, FilterRow } from "@/components/filter-chip";
 import { Icon } from "@/components/icon";
+import { Img } from "@/components/img";
 import { PageHero } from "@/components/page-hero";
 import { Stagger, StaggerItem } from "@/components/motion-primitives";
 import { getPeers, getReference } from "@/lib/api";
@@ -150,8 +151,7 @@ function PeerCard({ peer }: { peer: Peer }) {
             <div className="flex items-center gap-3.5 p-5 pb-4">
                 <span className="relative grid size-13 shrink-0 place-items-center overflow-hidden rounded-full bg-tone-soft text-[14px] font-semibold text-tone-text">
                     {peer.photo ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img src={peer.photo} alt="" className="size-full object-cover" />
+                        <Img src={peer.photo} sizes="52px" maxWidth={256} className="size-full object-cover" />
                     ) : (
                         peer.initials
                     )}

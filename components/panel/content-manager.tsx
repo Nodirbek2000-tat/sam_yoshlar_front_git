@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent, type ReactNode } from "react";
 
 import { Icon, type IconName } from "@/components/icon";
+import { Img } from "@/components/img";
 import { DeleteAllButton } from "@/components/panel/delete-all";
 import {
     EmptyState,
@@ -175,10 +176,10 @@ export function ContentManager<T extends ContentRow>({
                                 >
                                     <span className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl border border-tone-line bg-tone-soft text-tone-text">
                                         {view.image ? (
-                                            /* eslint-disable-next-line @next/next/no-img-element */
-                                            <img
+                                            <Img
                                                 src={view.image}
-                                                alt=""
+                                                sizes="64px"
+                                                maxWidth={256}
                                                 className="size-full object-cover"
                                             />
                                         ) : (

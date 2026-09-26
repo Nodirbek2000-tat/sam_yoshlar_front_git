@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 
 import { Icon, type IconName } from "@/components/icon";
+import { Img } from "@/components/img";
 import { refreshPublic } from "@/components/panel/ui";
 import { cn } from "@/lib/cn";
 import { formatDate, formatNumber } from "@/lib/format";
@@ -288,8 +289,7 @@ function DrawerBody({
                             style={{ background: data.peer.country_color }}
                         >
                             {data.peer.photo ? (
-                                /* eslint-disable-next-line @next/next/no-img-element */
-                                <img src={data.peer.photo} alt="" className="size-full object-cover" />
+                                <Img src={data.peer.photo} sizes="48px" maxWidth={128} className="size-full object-cover" />
                             ) : (
                                 data.peer.initials
                             )}
@@ -445,8 +445,7 @@ function BusinessCard({ business }: { business: BusinessProfile }) {
                                 rel="noreferrer"
                                 className="aspect-square overflow-hidden rounded-lg border border-line"
                             >
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={image.url} alt="" className="size-full object-cover" />
+                                <Img src={image.url} sizes="120px" maxWidth={256} className="size-full object-cover" />
                             </a>
                         ))}
                     </div>
@@ -502,8 +501,7 @@ function Logo({ url, icon }: { url: string | null; icon: IconName }) {
     return (
         <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl border border-tone-line bg-page text-tone-text">
             {url ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={url} alt="" className="size-full object-cover" />
+                <Img src={url} sizes="48px" maxWidth={128} className="size-full object-cover" />
             ) : (
                 <Icon name={icon} size={20} />
             )}

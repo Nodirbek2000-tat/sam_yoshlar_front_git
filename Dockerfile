@@ -44,6 +44,10 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Rasm optimizatori keshi — docker-compose shu yerga volume ulaydi.
+# Papka oldindan nextjs'niki bo'lishi kerak, aks holda yozib bo'lmaydi.
+RUN mkdir -p .next/cache/images && chown -R nextjs:nodejs .next/cache
+
 USER nextjs
 EXPOSE 3000
 
