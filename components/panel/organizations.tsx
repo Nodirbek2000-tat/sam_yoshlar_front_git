@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 import { Icon } from "@/components/icon";
+import { refreshPublic } from "@/components/panel/ui";
 import { formatShortDate } from "@/lib/format";
 import type { Choice } from "@/lib/types";
 
@@ -307,6 +308,36 @@ function OrganizationRow({
     const router = useRouter();
     const [busy, setBusy] = useState(false);
 
+    async function remove() {
+        const problems = organization.problem_count;
+        if (
+            !confirm(
+                `«${organization.name}» o'chirilsinmi?\n\n` +
+                    (problems ? `${problems} ta muammosi va ularga yozilgan takliflar ham o'chadi.\n` : "") +
+                    (organization.account_email ? "Kirish hisobi ham o'chadi — endi tizimga kira olmaydi.\n" : "") +
+                    "\nBuni qaytarib bo'lmaydi.",
+            )
+        ) {
+            return;
+        }
+
+        setBusy(true);
+        try {
+            const response = await fetch(`/api/proxy/panel/organizations/${organization.id}`, {
+                method: "DELETE",
+            });
+            if (response.ok) {
+                // Ochiq «Tashkilot muammolari» sahifasi ham darhol yangilansin
+                await refreshPublic("problems");
+                router.refresh();
+            } else {
+                alert("O'chirib bo'lmadi. Qayta urinib ko'ring.");
+            }
+        } finally {
+            setBusy(false);
+        }
+    }
+
     async function unlinkTelegram() {
         if (
             !confirm(
@@ -400,6 +431,17 @@ function OrganizationRow({
                     {busy ? "…" : "Yangi parol"}
                 </button>
             )}
+
+            <button
+                type="button"
+                onClick={remove}
+                disabled={busy}
+                title="Tashkilotni o'chirish"
+                aria-label={`${organization.name} — o'chirish`}
+                className="grid size-8 shrink-0 place-items-center rounded-full border border-line text-muted transition-colors hover:border-warn-text hover:bg-warn-soft hover:text-warn-text disabled:opacity-40"
+            >
+                <Icon name="trash" size={14} />
+            </button>
         </div>
     );
 }
