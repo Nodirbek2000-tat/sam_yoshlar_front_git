@@ -2,7 +2,7 @@
 
 import { ContentManager } from "@/components/panel/content-manager";
 import { Field, INPUT, Toggle } from "@/components/panel/ui";
-import { formatShortDate, formatTime } from "@/lib/format";
+import { formatShortDate, formatTime, toTashkentInput } from "@/lib/format";
 import type { Choice } from "@/lib/types";
 
 export type PanelEvent = {
@@ -23,13 +23,8 @@ export type PanelEvent = {
     visible: boolean;
 };
 
-/** `datetime-local` maydoni uchun ISO sanani mahalliy ko'rinishga o'tkazish. */
-function toLocalInput(value: string | null) {
-    if (!value) return "";
-    const date = new Date(value);
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
+/** `datetime-local` maydoni uchun — har doim Toshkent vaqti. */
+const toLocalInput = (value: string | null) => toTashkentInput(value);
 
 export function EventsPanel({
     events,

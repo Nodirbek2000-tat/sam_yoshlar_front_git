@@ -8,7 +8,7 @@ import { useRef, useState, type FormEvent } from "react";
 import { Icon } from "@/components/icon";
 import { DeleteAllButton } from "@/components/panel/delete-all";
 import { cn } from "@/lib/cn";
-import { formatShortDate } from "@/lib/format";
+import { formatShortDate, toTashkentInput } from "@/lib/format";
 import { toneClass } from "@/lib/tone";
 import type { Choice } from "@/lib/types";
 
@@ -29,12 +29,8 @@ export type PanelNews = {
     views: number;
 };
 
-/** Sana maydoni uchun: ISO -> `2026-09-09T14:30`. */
-function toLocalInput(value: string) {
-    const date = new Date(value);
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
+/** Sana maydoni uchun: ISO -> `2026-09-09T14:30` (Toshkent vaqti). */
+const toLocalInput = (value: string) => toTashkentInput(value);
 
 
 /** Ochiq sahifalar keshini tozalash — o'zgarish saytda darhol ko'rinsin. */

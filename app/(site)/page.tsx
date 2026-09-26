@@ -401,7 +401,17 @@ export default async function HomePage() {
                                             href={`/elonlar/${item.slug}`}
                                             className={`${toneClass(item.icon)} group flex items-center gap-4 rounded-xl border border-line bg-raised p-3.5 transition-colors duration-300 hover:border-tone-line hover:bg-tone-soft`}
                                         >
-                                            <CategoryTile slug={item.icon} size="lg" />
+                                            {item.image ? (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img
+                                                    src={item.image}
+                                                    alt=""
+                                                    loading="lazy"
+                                                    className="size-14 shrink-0 rounded-2xl border border-line object-cover"
+                                                />
+                                            ) : (
+                                                <CategoryTile slug={item.icon} size="lg" />
+                                            )}
 
                                             <span className="min-w-0 flex-1">
                                                 <span className="line-clamp-2 block text-[14.5px] font-medium leading-snug">
@@ -409,7 +419,7 @@ export default async function HomePage() {
                                                 </span>
                                                 <span className="mt-1.5 flex flex-wrap items-center gap-x-3 text-[12.5px]">
                                                     <span className="font-medium text-tone-text">
-                                                        {item.type_display}
+                                                        {formatShortDate(item.posted_at)}
                                                     </span>
                                                     {item.deadline && !item.is_expired && (
                                                         <span className="text-muted">

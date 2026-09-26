@@ -5,9 +5,10 @@ import { notFound } from "next/navigation";
 import { CategoryTile } from "@/components/category-tile";
 import { Icon } from "@/components/icon";
 import { Reveal } from "@/components/motion-primitives";
+import { PhotoZoom } from "@/components/photo-zoom";
 import { RichText } from "@/components/rich-text";
 import { ApiError, getAnnouncement } from "@/lib/api";
-import { formatDate } from "@/lib/format";
+import { daysUntil, formatDate, plainText } from "@/lib/format";
 import { toneClass } from "@/lib/tone";
 
 export async function generateMetadata({
@@ -15,7 +16,11 @@ export async function generateMetadata({
 }: PageProps<"/elonlar/[slug]">): Promise<Metadata> {
     try {
         const item = await getAnnouncement((await params).slug);
-        return { title: item.title, description: item.body.slice(0, 150) };
+        return {
+            title: item.title,
+            description: plainText(item.body).slice(0, 150),
+            ...(item.image ? { openGraph: { images: [item.image] } } : {}),
+        };
     } catch {
         return { title: "E'lon" };
     }
@@ -32,9 +37,8 @@ export default async function AnnouncementPage({ params }: PageProps<"/elonlar/[
         throw error;
     }
 
-    const left = item.deadline
-        ? Math.ceil((new Date(item.deadline).getTime() - Date.now()) / 86_400_000)
-        : null;
+    // Toshkent kalendari bo'yicha: 0 — bugun oxirgi kun
+    const left = daysUntil(item.deadline);
 
     return (
         <article className={toneClass(item.icon)}>
@@ -62,7 +66,16 @@ export default async function AnnouncementPage({ params }: PageProps<"/elonlar/[
                     </Link>
 
                     <Reveal className="mt-7 flex flex-col gap-6 sm:flex-row sm:items-start">
-                        <CategoryTile slug={item.icon} size="xl" />
+                        {item.image ? (
+                            <PhotoZoom
+                                src={item.image}
+                                alt={item.title}
+                                fallback=""
+                                className="size-28 shrink-0 rounded-2xl border border-line bg-surface sm:size-36"
+                            />
+                        ) : (
+                            <CategoryTile slug={item.icon} size="xl" />
+                        )}
 
                         <div className="min-w-0 flex-1">
                             <h1 className="max-w-2xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
@@ -110,38 +123,54 @@ export default async function AnnouncementPage({ params }: PageProps<"/elonlar/[
                     />
                 </Reveal>
 
+                {(item.apply_url || item.file) && (
                 <Reveal delay={0.1} className="lg:sticky lg:top-24 lg:self-start">
                     <div className="rounded-2xl border border-tone-line bg-tone-soft p-5">
                         <h2 className="text-[13px] font-semibold text-tone-text">
                             Ishtirok etmoqchimisiz?
                         </h2>
                         <p className="mt-2 text-[13px] leading-relaxed text-muted">
-                            Hujjat va shartlar bilan tanishing. Savol bo&apos;lsa, kabinetdagi
-                            murojaat bo&apos;limi orqali yozing — javob bildirishnoma bo&apos;lib
-                            keladi.
+                            {item.apply_url
+                                ? "Shartlar bilan tanishing va «Murojaat qilish» tugmasi orqali ariza yuboring."
+                                : "Hujjat va shartlar bilan tanishing."}
                         </p>
+
+                        {item.apply_url && !item.is_expired && (
+                            <a
+                                href={item.apply_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-invert px-5 py-2.5 text-[13.5px] font-medium text-on-invert transition-opacity hover:opacity-90"
+                            >
+                                <Icon name="send" size={15} />
+                                Murojaat qilish
+                            </a>
+                        )}
+
+                        {item.apply_url && item.is_expired && (
+                            <p className="mt-4 rounded-full bg-surface px-4 py-2.5 text-center text-[13px] text-faint">
+                                Qabul muddati tugagan
+                            </p>
+                        )}
 
                         {item.file && (
                             <a
                                 href={item.file}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-invert px-5 py-2.5 text-[13.5px] font-medium text-on-invert transition-opacity hover:opacity-90"
+                                className={
+                                    item.apply_url
+                                        ? "mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full border border-tone-line px-5 py-2.5 text-[13.5px] font-medium text-tone-text transition-colors hover:bg-page/60"
+                                        : "mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-invert px-5 py-2.5 text-[13.5px] font-medium text-on-invert transition-opacity hover:opacity-90"
+                                }
                             >
                                 <Icon name="doc" size={15} />
                                 Hujjatni ochish
                             </a>
                         )}
-
-                        <Link
-                            href="/kabinet/murojaatlarim"
-                            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full border border-tone-line px-5 py-2.5 text-[13.5px] font-medium text-tone-text transition-colors hover:bg-page/60"
-                        >
-                            <Icon name="chat" size={15} />
-                            Savol berish
-                        </Link>
                     </div>
                 </Reveal>
+                )}
             </div>
         </article>
     );

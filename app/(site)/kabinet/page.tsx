@@ -1,7 +1,9 @@
 import Link from "next/link";
 
+import { DistrictPicker } from "@/components/cabinet/district-picker";
 import { Icon, type IconName } from "@/components/icon";
 import { CountUp, Reveal, Stagger, StaggerItem } from "@/components/motion-primitives";
+import { getReference } from "@/lib/api";
 import { getCabinetOverview } from "@/lib/me";
 import { getCurrentUser } from "@/lib/session";
 
@@ -27,8 +29,45 @@ const SHORTCUTS: { href: string; label: string; text: string; icon: IconName }[]
 ];
 
 export default async function CabinetPage() {
-    const [user, overview] = await Promise.all([getCurrentUser(), getCabinetOverview()]);
+    const [user, overview, reference] = await Promise.all([
+        getCurrentUser(),
+        getCabinetOverview(),
+        getReference(),
+    ]);
     const counts = overview.counts;
+    const isOrganization = user?.role === "organization";
+
+    // Telegram: username bo'lmasa ham ulanganini ko'rsatamiz
+    const telegram = user?.telegram_username
+        ? `@${user.telegram_username}`
+        : user?.telegram_linked
+          ? "Ulangan"
+          : "Ulanmagan";
+
+    const account: { label: string; value: React.ReactNode }[] = [
+        ...(isOrganization && user?.organization_name
+            ? [{ label: "Tashkilot", value: user.organization_name }]
+            : []),
+        { label: isOrganization ? "Mas'ul shaxs" : "F.I.O.", value: user?.full_name },
+        { label: "Rol", value: user?.role_display },
+        { label: "Telefon", value: user?.phone || "—" },
+        { label: "Viloyat", value: user?.region_display || "—" },
+        // Tuman botda so'raladi (tashkilotdan so'ralmaydi) — shu yerda o'zgartirsa bo'ladi
+        ...(isOrganization
+            ? []
+            : [
+                  {
+                      label: "Tuman / shahar",
+                      value: (
+                          <DistrictPicker
+                              value={user?.district ?? ""}
+                              options={reference.districts}
+                          />
+                      ),
+                  },
+              ]),
+        { label: "Telegram", value: telegram },
+    ];
 
     return (
         <>
@@ -96,19 +135,8 @@ export default async function CabinetPage() {
                 </h2>
 
                 <dl className="mt-5 divide-y divide-line border-y border-line text-[13.5px]">
-                    {(
-                        [
-                            ["F.I.O.", user?.full_name],
-                            ["Rol", user?.role_display],
-                            ["Telefon", user?.phone || "—"],
-                            ["Hudud", user?.region_display || "—"],
-                            [
-                                "Telegram",
-                                user?.telegram_username ? `@${user.telegram_username}` : "—",
-                            ],
-                        ] as const
-                    ).map(([label, value]) => (
-                        <div key={label} className="flex flex-wrap gap-x-6 gap-y-1 py-3.5">
+                    {account.map(({ label, value }) => (
+                        <div key={label} className="flex flex-wrap items-center gap-x-6 gap-y-1 py-3.5">
                             <dt className="w-28 shrink-0 text-faint">{label}</dt>
                             <dd className="min-w-0 flex-1">{value}</dd>
                         </div>

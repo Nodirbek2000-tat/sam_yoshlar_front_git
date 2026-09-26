@@ -51,7 +51,8 @@ export default async function CabinetLayout({ children }: LayoutProps<"/kabinet"
 
                 <div className="min-w-0">
                     <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
-                        {user.full_name}
+                        {/* Tashkilot hisobida — tashkilotning nomi */}
+                        {user.organization_name || user.full_name}
                     </h1>
                     <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[13px] text-faint">
                         {/* Bir odam bir nechta rolda bo'la oladi — hammasi belgi bo'lib chiqadi */}
@@ -64,7 +65,10 @@ export default async function CabinetLayout({ children }: LayoutProps<"/kabinet"
                             </span>
                         ))}
                         {user.age && <span>{user.age} yosh</span>}
-                        {user.region_display && <span>{user.region_display}</span>}
+                        {/* Tuman aniqroq: «Urgut tumani» — Samarqand viloyati ekani ayon */}
+                        {(user.district || user.region_display) && (
+                            <span>{user.district || user.region_display}</span>
+                        )}
                         {user.study_location === "abroad" && <span>Chet elda o&apos;qiydi</span>}
                         {user.telegram_username && <span>@{user.telegram_username}</span>}
                     </p>

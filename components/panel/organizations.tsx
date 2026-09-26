@@ -18,6 +18,11 @@ export type Organization = {
     region_display: string;
     problem_count: number;
     account_email: string | null;
+    /** Birinchi kirishda ulangan Telegram hisobi */
+    telegram_linked: boolean;
+    telegram_username: string;
+    telegram_phone: string;
+    last_login: string | null;
     created_at: string;
 };
 
@@ -229,7 +234,11 @@ function CredentialsCard({
 }) {
     const [copied, setCopied] = useState(false);
 
-    const text = `${data.name}\nLogin: ${data.email}\nParol: ${data.password}`;
+    const text =
+        `${data.name}\nSayt: https://samarqandyoshlari.uz/kirish\n` +
+        `Login: ${data.email}\nParol: ${data.password}\n\n` +
+        "Birinchi kirishda sayt Telegram hisobingizni ulashni so'raydi — " +
+        "havolani bosib, botga raqamingizni yuborasiz.";
 
     async function copy() {
         await navigator.clipboard.writeText(text);
@@ -248,6 +257,10 @@ function CredentialsCard({
                     <p className="mt-1 text-[13px] text-accent-text/80">
                         Parol faqat hozir ko&apos;rinadi. Nusxalab, tashkilotga yetkazing —
                         keyin uni qayta ko&apos;rib bo&apos;lmaydi, faqat yangisini yaratish mumkin.
+                    </p>
+                    <p className="mt-2 text-[13px] text-accent-text/80">
+                        Birinchi kirishda tashkilot Telegram hisobini ulaydi: sayt bot havolasini
+                        beradi, bot faqat raqam so&apos;raydi.
                     </p>
 
                     <dl className="mt-4 grid gap-2 rounded-lg bg-page p-4 font-mono text-[13.5px]">
@@ -291,7 +304,30 @@ function OrganizationRow({
     organization: Organization;
     onReset: (data: Credentials & { name: string }) => void;
 }) {
+    const router = useRouter();
     const [busy, setBusy] = useState(false);
+
+    async function unlinkTelegram() {
+        if (
+            !confirm(
+                `${organization.name} Telegram hisobidan uzilsinmi?\n\n` +
+                    "Keyingi kirishda tashkilot yangi Telegram hisobini ulaydi.",
+            )
+        ) {
+            return;
+        }
+
+        setBusy(true);
+        try {
+            const response = await fetch(
+                `/api/proxy/panel/organizations/${organization.id}/telegram`,
+                { method: "DELETE" },
+            );
+            if (response.ok) router.refresh();
+        } finally {
+            setBusy(false);
+        }
+    }
 
     async function reset() {
         if (!confirm(`${organization.name} uchun yangi parol yaratilsinmi?\n\nEski parol ishlamay qoladi.`)) {
@@ -327,6 +363,10 @@ function OrganizationRow({
                     <span>{organization.problem_count} muammo</span>
                     <span>{formatShortDate(organization.created_at)}</span>
                 </div>
+
+                {organization.account_email && (
+                    <TelegramBadge organization={organization} />
+                )}
             </div>
 
             {organization.account_email ? (
@@ -335,6 +375,18 @@ function OrganizationRow({
                 </span>
             ) : (
                 <span className="text-[12px] text-faint">hisob yo&apos;q</span>
+            )}
+
+            {organization.telegram_linked && (
+                <button
+                    type="button"
+                    onClick={unlinkTelegram}
+                    disabled={busy}
+                    title="Telegram hisobini uzish"
+                    className="shrink-0 rounded-full border border-line px-3 py-1.5 text-[12.5px] text-muted transition-colors hover:bg-warn-soft hover:text-warn-text disabled:opacity-40"
+                >
+                    TG&apos;ni uzish
+                </button>
             )}
 
             {organization.account_email && (
@@ -349,6 +401,30 @@ function OrganizationRow({
                 </button>
             )}
         </div>
+    );
+}
+
+/** «TG akkaunt» — tashkilot Telegram'ini ulaganmi. */
+function TelegramBadge({ organization }: { organization: Organization }) {
+    if (!organization.telegram_linked) {
+        return (
+            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-dashed border-line px-2.5 py-1 text-[11.5px] text-faint">
+                <Icon name="telegram" size={12} />
+                TG akkaunt ulanmagan
+                {organization.last_login ? "" : " · hali kirmagan"}
+            </span>
+        );
+    }
+
+    return (
+        <span className="tone-blue mt-2 inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 rounded-full border border-tone-line bg-tone-soft px-2.5 py-1 text-[11.5px] font-medium text-tone-text">
+            <Icon name="telegram" size={12} />
+            TG akkaunt
+            {organization.telegram_username && <span>@{organization.telegram_username}</span>}
+            {organization.telegram_phone && (
+                <span className="font-normal opacity-80">{organization.telegram_phone}</span>
+            )}
+        </span>
     );
 }
 

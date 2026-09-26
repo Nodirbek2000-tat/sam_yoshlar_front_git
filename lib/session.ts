@@ -57,3 +57,22 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
         return null;
     }
 });
+
+/** Kirish tokenlarini httpOnly cookie'ga yozadi (faqat route handler ichida). */
+export async function saveTokens(access: string, refresh: string) {
+    const store = await cookies();
+    store.set(ACCESS_COOKIE, access, { ...cookieOptions, maxAge: ACCESS_MAX_AGE });
+    store.set(REFRESH_COOKIE, refresh, { ...cookieOptions, maxAge: REFRESH_MAX_AGE });
+}
+
+/**
+ * Foydalanuvchining haqiqiy manzili Django'ga ham yetib borsin.
+ *
+ * Next Django'ga ichki tarmoqdan murojaat qiladi — sarlavhasiz hamma so'rov
+ * bitta (front konteyneri) manzildan kelgandek ko'rinadi va kirishdagi
+ * cheklovlar butun sayt uchun umumiy bo'lib qoladi.
+ */
+export function forwardedFor(request: Request): Record<string, string> {
+    const value = request.headers.get("x-forwarded-for");
+    return value ? { "X-Forwarded-For": value } : {};
+}

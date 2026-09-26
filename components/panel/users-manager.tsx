@@ -19,6 +19,8 @@ export type PanelUser = {
     role: string;
     role_display: string;
     region_display: string;
+    /** Samarqand viloyatining tumani yoki shahri */
+    district: string;
     initials: string;
     is_verified: boolean;
     is_admin: boolean;
@@ -29,6 +31,12 @@ export type PanelUser = {
     profile_status: "pending" | "approved" | "rejected" | null;
     created_at: string;
 };
+
+/** Tuman filtri: har bir tuman/shaharda nechta foydalanuvchi */
+export type DistrictCount = { value: string; label: string; count: number };
+
+/** «Tumani ko'rsatilmagan» — backend bilan bir xil qiymat */
+const NO_DISTRICT = "yoq";
 
 const PROFILE_BADGE: Record<string, { tone: string; label: string }> = {
     pending: { tone: "tone-amber", label: "Anketa tekshiruvda" },
@@ -52,6 +60,9 @@ export function UsersManager({
     pages,
     role,
     review = false,
+    district,
+    districts = [],
+    withoutDistrict = 0,
     pendingProfiles = 0,
 }: {
     users: PanelUser[];
@@ -61,6 +72,10 @@ export function UsersManager({
     role?: string;
     /** Faqat anketasi tekshiruv kutayotganlar */
     review?: boolean;
+    /** Tanlangan tuman (kodi) yoki «yoq» */
+    district?: string;
+    districts?: DistrictCount[];
+    withoutDistrict?: number;
     pendingProfiles?: number;
 }) {
     const router = useRouter();
@@ -121,12 +136,12 @@ export function UsersManager({
 
                 <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     <RoleChip
-                        href="/nazorat/foydalanuvchilar"
+                        href={usersHref({ district })}
                         active={!role && !review}
                         label="Barchasi"
                     />
                     <RoleChip
-                        href="/nazorat/foydalanuvchilar?tekshiruv=1"
+                        href={usersHref({ review: true, district })}
                         active={review}
                         label={`Tekshiruvda${pendingProfiles ? ` · ${pendingProfiles}` : ""}`}
                         tone="tone-amber"
@@ -134,14 +149,27 @@ export function UsersManager({
                     {roles.map((item) => (
                         <RoleChip
                             key={item.value}
-                            href={`/nazorat/foydalanuvchilar?rol=${item.value}`}
+                            href={usersHref({ role: item.value, district })}
                             active={role === item.value}
                             label={item.label}
                             tone={ROLE_TONE[item.value]}
                         />
                     ))}
+                    {/* Tashkilotlar foydalanuvchi sifatida sanalmaydi — o'z bo'limida */}
+                    <RoleChip href="/nazorat/korxonalar" active={false} label="Tashkilotlar →" />
                 </div>
             </div>
+
+            <DistrictFilter
+                value={district}
+                districts={districts}
+                withoutDistrict={withoutDistrict}
+                onChange={(value) =>
+                    router.push(usersHref({ role, review, district: value || undefined }), {
+                        scroll: false,
+                    })
+                }
+            />
 
             {rows.length ? (
                 <ul className="mt-5 space-y-2.5">
@@ -197,7 +225,12 @@ export function UsersManager({
                                     <span className="truncate">{user.email}</span>
                                     {user.phone && <span>{user.phone}</span>}
                                     {user.telegram_username && <span>@{user.telegram_username}</span>}
-                                    {user.region_display && <span>{user.region_display}</span>}
+                                    {(user.district || user.region_display) && (
+                                        <span className="inline-flex items-center gap-1">
+                                            <Icon name="pin" size={11} />
+                                            {user.district || user.region_display}
+                                        </span>
+                                    )}
                                     <span>{formatShortDate(user.created_at)}</span>
                                 </p>
                             </div>
@@ -250,7 +283,7 @@ export function UsersManager({
             {pages > 1 && (
                 <nav className="mt-6 flex items-center justify-center gap-2">
                     <PageLink
-                        href={pageHref(page - 1, role, review)}
+                        href={usersHref({ page: page - 1, role, review, district })}
                         disabled={page <= 1}
                         label="Oldingi"
                         icon="arrowLeft"
@@ -259,7 +292,7 @@ export function UsersManager({
                         {page} / {pages}
                     </span>
                     <PageLink
-                        href={pageHref(page + 1, role, review)}
+                        href={usersHref({ page: page + 1, role, review, district })}
                         disabled={page >= pages}
                         label="Keyingi"
                         icon="arrowRight"
@@ -270,13 +303,88 @@ export function UsersManager({
     );
 }
 
-function pageHref(page: number, role?: string, review?: boolean) {
+/** Filtrlar bir-birini o'chirmasin: rol almashsa ham tanlangan tuman qoladi. */
+function usersHref({
+    page = 1,
+    role,
+    review,
+    district,
+}: {
+    page?: number;
+    role?: string;
+    review?: boolean;
+    district?: string;
+}) {
     const params = new URLSearchParams();
     if (page > 1) params.set("sahifa", String(page));
     if (role) params.set("rol", role);
     if (review) params.set("tekshiruv", "1");
+    if (district) params.set("tuman", district);
     const query = params.toString();
     return `/nazorat/foydalanuvchilar${query ? `?${query}` : ""}`;
+}
+
+function DistrictFilter({
+    value,
+    districts,
+    withoutDistrict,
+    onChange,
+}: {
+    value?: string;
+    districts: DistrictCount[];
+    withoutDistrict: number;
+    onChange: (value: string) => void;
+}) {
+    if (!districts.length) return null;
+
+    const total = districts.reduce((sum, item) => sum + item.count, 0) + withoutDistrict;
+    const active = Boolean(value);
+
+    return (
+        <div className="mt-3 flex flex-wrap items-center gap-2.5">
+            <label
+                className={cn(
+                    active ? "tone-cyan border-tone-line bg-tone-soft text-tone-text" : "border-line",
+                    "relative inline-flex h-9 max-w-full items-center gap-2 rounded-full border pl-3.5 pr-2 text-[12.5px] transition-colors",
+                )}
+            >
+                <Icon name="pin" size={14} className={active ? "" : "text-faint"} />
+                <span className={cn("shrink-0", active ? "font-medium" : "text-muted")}>
+                    Tuman / shahar:
+                </span>
+                <select
+                    value={value ?? ""}
+                    onChange={(event) => onChange(event.target.value)}
+                    aria-label="Tuman yoki shahar bo'yicha saralash"
+                    className="h-full min-w-0 max-w-[14rem] cursor-pointer appearance-none truncate bg-transparent pr-5 font-medium text-text focus:outline-none"
+                >
+                    <option value="">Barchasi · {total}</option>
+                    {districts.map((item) => (
+                        <option key={item.value} value={item.value}>
+                            {item.label} · {item.count}
+                        </option>
+                    ))}
+                    <option value={NO_DISTRICT}>Ko&apos;rsatilmagan · {withoutDistrict}</option>
+                </select>
+                <Icon
+                    name="arrowRight"
+                    size={12}
+                    className="pointer-events-none absolute right-3 rotate-90 text-faint"
+                />
+            </label>
+
+            {active && (
+                <button
+                    type="button"
+                    onClick={() => onChange("")}
+                    className="inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[12px] text-muted transition-colors hover:bg-surface hover:text-text"
+                >
+                    <Icon name="close" size={12} />
+                    Filtrni tozalash
+                </button>
+            )}
+        </div>
+    );
 }
 
 function PageLink({

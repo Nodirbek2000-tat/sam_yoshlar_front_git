@@ -1,8 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
+import { Icon } from "@/components/icon";
 import { ContentManager } from "@/components/panel/content-manager";
 import { Field, INPUT, Toggle } from "@/components/panel/ui";
-import { formatShortDate } from "@/lib/format";
+import { formatShortDate, toTashkentDate } from "@/lib/format";
 import type { Choice } from "@/lib/types";
 
 export type PanelAnnouncement = {
@@ -13,7 +16,11 @@ export type PanelAnnouncement = {
     type_display: string;
     icon: string;
     body: string;
+    /** Kartada ikonka o'rniga chiqadigan rasm */
+    image_url: string | null;
     file_url: string | null;
+    /** «Murojaat qilish» tugmasi olib boradigan havola */
+    apply_url: string;
     posted_at: string;
     deadline: string | null;
     is_active: boolean;
@@ -54,10 +61,59 @@ function MarkupHelp() {
     );
 }
 
-/** `date` maydoni uchun: `2026-09-09`. */
-function toDateInput(value: string | null) {
-    if (!value) return "";
-    return value.slice(0, 10);
+/** `date` maydoni uchun — Toshkent sanasi (UTC bo'yicha bir kun orqada qolmasin). */
+const toDateInput = (value: string | null) => toTashkentDate(value);
+
+/** Rasm tanlash: joriy rasm ko'rinib turadi, xohlasa olib tashlanadi. */
+function ImageInput({ current }: { current: string | null }) {
+    const [preview, setPreview] = useState<string | null>(current);
+    const [removed, setRemoved] = useState(false);
+
+    useEffect(() => {
+        // Tanlangan faylning vaqtinchalik havolasi xotirada qolib ketmasin
+        return () => {
+            if (preview?.startsWith("blob:")) URL.revokeObjectURL(preview);
+        };
+    }, [preview]);
+
+    return (
+        <div className="flex items-center gap-3">
+            <span className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl border border-line bg-page text-faint">
+                {preview && !removed ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={preview} alt="" className="size-full object-cover" />
+                ) : (
+                    <Icon name="image" size={20} />
+                )}
+            </span>
+
+            <div className="min-w-0 flex-1">
+                <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (!file) return;
+                        setPreview(URL.createObjectURL(file));
+                        setRemoved(false);
+                    }}
+                    className="w-full text-[12.5px] text-muted file:mr-3 file:rounded-full file:border file:border-line file:bg-page file:px-3.5 file:py-1.5 file:text-[12.5px] file:text-text hover:file:bg-surface"
+                />
+                {current && (
+                    <label className="mt-1.5 inline-flex items-center gap-1.5 text-[12px] text-muted">
+                        <input
+                            type="checkbox"
+                            name="remove_image"
+                            checked={removed}
+                            onChange={(event) => setRemoved(event.target.checked)}
+                        />
+                        Rasmni olib tashlash
+                    </label>
+                )}
+            </div>
+        </div>
+    );
 }
 
 export function AnnouncementsPanel({
@@ -82,6 +138,7 @@ export function AnnouncementsPanel({
             render={(item) => ({
                 title: item.title,
                 icon: item.icon,
+                image: item.image_url,
                 href: `/elonlar/${item.slug}`,
                 badges: (
                     <>
@@ -100,6 +157,7 @@ export function AnnouncementsPanel({
                         <span>{formatShortDate(item.posted_at)}</span>
                         {item.deadline && <span>Muddat: {formatShortDate(item.deadline)}</span>}
                         {item.file_url && <span>Hujjat bor</span>}
+                        {item.apply_url && <span>Murojaat havolasi bor</span>}
                     </>
                 ),
             })}
@@ -153,6 +211,24 @@ export function AnnouncementsPanel({
                                 defaultValue={toDateInput(item?.deadline ?? null)}
                                 className={INPUT}
                             />
+                        </Field>
+
+                        <Field label="Rasm (kartada ikonka o'rniga chiqadi)">
+                            <ImageInput current={item?.image_url ?? null} />
+                        </Field>
+
+                        <Field label="Murojaat havolasi (ixtiyoriy)">
+                            <input
+                                type="url"
+                                name="apply_url"
+                                defaultValue={item?.apply_url ?? ""}
+                                placeholder="https://tashkilot.uz/ariza"
+                                className={INPUT}
+                            />
+                            <span className="mt-1.5 block text-[11.5px] text-faint">
+                                «Murojaat qilish» tugmasi shu saytga olib boradi. Bo&apos;sh qolsa —
+                                tugma chiqmaydi.
+                            </span>
                         </Field>
 
                         <Field label="Hujjat (ixtiyoriy)">

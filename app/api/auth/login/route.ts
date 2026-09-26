@@ -1,20 +1,17 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { API_BASE } from "@/lib/api";
-import {
-    ACCESS_COOKIE,
-    ACCESS_MAX_AGE,
-    REFRESH_COOKIE,
-    REFRESH_MAX_AGE,
-    cookieOptions,
-} from "@/lib/session";
+import { forwardedFor, saveTokens } from "@/lib/session";
 
 /**
  * Kirish — brauzer shu yerga murojaat qiladi, Django'ga emas.
  *
  * Shunda token brauzerga JavaScript orqali umuman ko'rinmaydi:
  * biz uni `httpOnly` cookie'ga yozamiz.
+ *
+ * Tashkilot birinchi marta login-parol bilan kirganda token kelmaydi —
+ * Django Telegram'ni ulash havolasini beradi. U holda cookie yozilmaydi,
+ * brauzer esa `/api/auth/org-link` orqali ulanishni kutadi.
  */
 export async function POST(request: Request) {
     let body: { mode?: string; code?: string; email?: string; password?: string };
@@ -36,7 +33,7 @@ export async function POST(request: Request) {
     try {
         upstream = await fetch(API_BASE + endpoint, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...forwardedFor(request) },
             body: JSON.stringify(payload),
             cache: "no-store",
         });
@@ -56,9 +53,19 @@ export async function POST(request: Request) {
         );
     }
 
-    const store = await cookies();
-    store.set(ACCESS_COOKIE, data.access, { ...cookieOptions, maxAge: ACCESS_MAX_AGE });
-    store.set(REFRESH_COOKIE, data.refresh, { ...cookieOptions, maxAge: REFRESH_MAX_AGE });
+    // Tashkilot: avval Telegram'ni ulash kerak — token hali yo'q
+    if (data?.telegram_required) {
+        return NextResponse.json({
+            telegram_required: true,
+            ticket: data.ticket,
+            bot_url: data.bot_url,
+            organization: data.organization ?? "",
+            first_login: Boolean(data.first_login),
+            expires_in: data.expires_in ?? 900,
+        });
+    }
+
+    await saveTokens(data.access, data.refresh);
 
     // Tokenni brauzerga qaytarmaymiz — faqat foydalanuvchi ma'lumoti
     return NextResponse.json({

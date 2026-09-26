@@ -36,6 +36,10 @@ export type User = {
     avatar: string | null;
     initials: string;
     telegram_username: string;
+    /** Telegram hisobi ulanganmi (username bo'lmasligi ham mumkin) */
+    telegram_linked?: boolean;
+    /** Tashkilot hisobi bo'lsa — tashkilotning nomi */
+    organization_name?: string;
     is_verified: boolean;
     is_panel_admin: boolean;
     /** Ro'yxatdan o'tishning qolgan qadami; hammasi tayyor bo'lsa `null` */
@@ -183,6 +187,10 @@ export type Announcement = {
     type_display: string;
     icon: string;
     body: string;
+    /** Kartada ikonka o'rniga chiqadigan rasm */
+    image: string | null;
+    /** «Murojaat qilish» tugmasi olib boradigan havola */
+    apply_url: string;
     posted_at: string;
     deadline: string | null;
     is_active: boolean;
@@ -417,6 +425,8 @@ export type Reference = {
     appeal_categories: Choice[];
     peer_purposes: Choice[];
     countries: Country[];
+    /** Samarqand viloyatining tuman va shaharlari */
+    districts: Choice[];
 };
 
 export type VoteResult = {

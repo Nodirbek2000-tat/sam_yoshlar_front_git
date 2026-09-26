@@ -87,13 +87,6 @@ const ITEMS: Item[] = [
         countKey: "comments",
     },
     {
-        href: "/kabinet/murojaatlarim",
-        label: "Murojaatlarim",
-        icon: "appeal",
-        tone: "cyan",
-        countKey: "appeals",
-    },
-    {
         href: "/kabinet/bildirishnomalar",
         label: "Bildirishnomalar",
         icon: "bell",

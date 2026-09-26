@@ -5,9 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 
+import { OrgTelegramStep, type OrgLink } from "@/components/auth/org-telegram-step";
 import { SuccessBurst } from "@/components/auth/success-burst";
 import { Icon } from "@/components/icon";
 import { cn } from "@/lib/cn";
+import type { User } from "@/lib/types";
 
 type Mode = "telegram" | "password";
 
@@ -28,6 +30,24 @@ export function LoginForm({
     const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
     const [welcome, setWelcome] = useState<{ title: string; subtitle: string } | null>(null);
+    // Tashkilot birinchi kirishda — Telegram'ni ulash bosqichi
+    const [orgLink, setOrgLink] = useState<OrgLink | null>(null);
+
+    function enter(title: string, pending: boolean) {
+        setWelcome({ title, subtitle: pending ? "Bir-ikki savol qoldi" : "Kabinetingiz ochilmoqda" });
+
+        // «Xush kelibsiz» ko'rinib ulgursin; rol yoki anketa to'ldirilmagan
+        // bo'lsa — darhol o'sha qadamga
+        window.setTimeout(() => {
+            router.replace(pending ? "/kirish/rol" : next);
+            router.refresh();
+        }, 1300);
+    }
+
+    function orgLinked(user: User | null, onboarding: string | null) {
+        const name = orgLink?.organization || user?.organization_name || "";
+        enter(name ? `Xush kelibsiz, ${name}!` : "Xush kelibsiz!", Boolean(onboarding));
+    }
 
     async function submit(payload: Record<string, string>) {
         setBusy(true);
@@ -46,19 +66,23 @@ export function LoginForm({
                 return;
             }
 
-            const firstName = String(data.user?.full_name ?? "").trim().split(/\s+/)[0];
-            const pending = Boolean(data.onboarding || data.needs_profile);
-            setWelcome({
-                title: firstName ? `Xush kelibsiz, ${firstName}!` : "Xush kelibsiz!",
-                subtitle: pending ? "Bir-ikki savol qoldi" : "Kabinetingiz ochilmoqda",
-            });
+            // Tashkilotning Telegram'i hali ulanmagan — avval bot havolasi
+            if (data.telegram_required) {
+                setOrgLink({
+                    ticket: data.ticket,
+                    botUrl: data.bot_url,
+                    organization: data.organization,
+                    firstLogin: Boolean(data.first_login),
+                    expiresIn: Number(data.expires_in) || 900,
+                });
+                return;
+            }
 
-            // «Xush kelibsiz» ko'rinib ulgursin; rol yoki anketa to'ldirilmagan
-            // bo'lsa — darhol o'sha qadamga
-            window.setTimeout(() => {
-                router.replace(pending ? "/kirish/rol" : next);
-                router.refresh();
-            }, 1300);
+            const name = data.user?.organization_name
+                ? String(data.user.organization_name)
+                : String(data.user?.full_name ?? "").trim().split(/\s+/)[0];
+            enter(name ? `Xush kelibsiz, ${name}!` : "Xush kelibsiz!",
+                Boolean(data.onboarding || data.needs_profile));
         } catch {
             setError("Tarmoqda xatolik. Qayta urinib ko'ring.");
         } finally {
@@ -73,6 +97,18 @@ export function LoginForm({
                 title={welcome?.title ?? ""}
                 subtitle={welcome?.subtitle}
             />
+            {orgLink ? (
+                <OrgTelegramStep
+                    link={orgLink}
+                    onLinked={orgLinked}
+                    onRestart={() => {
+                        setOrgLink(null);
+                        setMode("password");
+                        setError(null);
+                    }}
+                />
+            ) : (
+            <>
             {/* Rejim tanlash — ro'yxatdan o'tishda kerak emas */}
             {!telegramOnly && (
             <div className="relative mb-8 grid grid-cols-2 gap-1 rounded-full border border-line bg-surface p-1">
@@ -165,6 +201,8 @@ export function LoginForm({
                     </>
                 )}
             </p>
+            </>
+            )}
         </div>
     );
 }

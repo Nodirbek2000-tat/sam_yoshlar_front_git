@@ -142,6 +142,7 @@ const EMPTY_REFERENCE: Reference = {
     appeal_categories: [],
     peer_purposes: [],
     countries: [],
+    districts: [],
 };
 
 export async function getReference(): Promise<Reference> {

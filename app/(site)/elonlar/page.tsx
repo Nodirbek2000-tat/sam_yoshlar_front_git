@@ -6,7 +6,7 @@ import { Icon } from "@/components/icon";
 import { PageHero } from "@/components/page-hero";
 import { Stagger, StaggerItem } from "@/components/motion-primitives";
 import { getAnnouncements } from "@/lib/api";
-import { formatShortDate } from "@/lib/format";
+import { daysUntil, formatShortDate, plainText } from "@/lib/format";
 import { toneClass } from "@/lib/tone";
 import type { Announcement } from "@/lib/types";
 
@@ -17,11 +17,7 @@ export const metadata: Metadata = {
 };
 
 /** Muddatgacha necha kun qolgani. Muddat yo'q bo'lsa `null`. */
-function daysLeft(deadline: string | null) {
-    if (!deadline) return null;
-    const ms = new Date(deadline).getTime() - Date.now();
-    return Math.ceil(ms / 86_400_000);
-}
+const daysLeft = (deadline: string | null) => daysUntil(deadline);
 
 /** E'lonlar oddiy ketma-ketlikda turadi — kategoriya bo'yicha ajratilmaydi. */
 export default async function AnnouncementsPage() {
@@ -69,10 +65,23 @@ function AnnouncementCard({ item }: { item: Announcement }) {
             className={`${toneClass(item.icon)} group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-raised p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-tone-line hover:shadow-[0_12px_32px_-16px_var(--tone)]`}
         >
             {/* Yuqoridagi rangli chiziq — hover'da to'liq ochiladi */}
-            <span className="tone-top absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100" />
+            <span className="tone-top absolute inset-x-0 top-0 z-10 h-0.5 origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100" />
+
+            {/* Rasm yuklangan bo'lsa — ikonka o'rniga muqova */}
+            {item.image && (
+                <div className="-mx-5 -mt-5 mb-5 aspect-[16/9] overflow-hidden border-b border-line bg-surface">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        src={item.image}
+                        alt=""
+                        loading="lazy"
+                        className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    />
+                </div>
+            )}
 
             <div className="flex items-start justify-between gap-3">
-                <CategoryTile slug={item.icon} size="md" />
+                {item.image ? <span /> : <CategoryTile slug={item.icon} size="md" />}
 
                 {item.deadline && (
                     <span
@@ -95,10 +104,14 @@ function AnnouncementCard({ item }: { item: Announcement }) {
                 )}
             </div>
 
-            <h2 className="mt-4 text-[16px] font-semibold leading-snug">{item.title}</h2>
+            <h2
+                className={`${item.image && !item.deadline ? "" : "mt-4 "}text-[16px] font-semibold leading-snug`}
+            >
+                {item.title}
+            </h2>
 
             <p className="mt-2 line-clamp-2 flex-1 text-[13.5px] leading-relaxed text-muted">
-                {item.body}
+                {plainText(item.body)}
             </p>
 
             <span className="mt-5 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-tone-text">
