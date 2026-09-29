@@ -95,7 +95,7 @@ const SECTIONS: {
     {
         href: "/yangiliklar",
         title: "Yangiliklar",
-        description: "Kengash faoliyati, qarorlar va yosh tadbirkorlar hayotidan xabarlar.",
+        description: "Samarqand yoshlari hayotidan xabarlar: tadbirlar, uchrashuvlar va yutuqlar.",
         icon: Newspaper,
         tone: "rose",
     },

@@ -25,7 +25,7 @@ const sora = Sora({
 export const metadata: Metadata = {
     metadataBase: new URL("https://samarqandyoshlari.uz"),
     title: {
-        default: "Samarqand yoshlari — Yosh Tadbirkorlar Kengashi",
+        default: "Samarqand yoshlari — Yoshlar uchun tashabbus maydoni",
         template: "%s — Samarqand yoshlari",
     },
     description:

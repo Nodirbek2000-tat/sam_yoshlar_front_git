@@ -14,7 +14,7 @@ import type { News } from "@/lib/types";
 export const metadata: Metadata = {
     alternates: { canonical: "/yangiliklar" },
     title: "Yangiliklar",
-    description: "Kengash faoliyati, qarorlar va yosh tadbirkorlar hayotidan xabarlar.",
+    description: "Samarqand yoshlari hayotidan xabarlar: tadbirlar, uchrashuvlar va yutuqlar.",
 };
 
 /** Xabarlar oddiy ketma-ketlikda turadi — kategoriya bo'yicha ajratilmaydi. */
@@ -31,10 +31,10 @@ export default async function NewsPage() {
                 eyebrow="Yangiliklar"
                 title={
                     <>
-                        Kengash <span className="text-accent">hayotidan</span> xabarlar
+                        Yoshlar <span className="text-accent">hayotidan</span> xabarlar
                     </>
                 }
-                lead="Qarorlar, uchrashuvlar, natijalar va yosh tadbirkorlar muvaffaqiyati — bir joyda."
+                lead="Tadbirlar, uchrashuvlar, natijalar va yoshlar muvaffaqiyati — bir joyda."
             />
 
             <section className="container-page py-8 md:py-10">

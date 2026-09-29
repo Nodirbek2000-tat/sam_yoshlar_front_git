@@ -14,8 +14,8 @@ export const absoluteUrl = (path: string) => `${SITE_URL}${path.startsWith("/") 
 export const organizationSchema = () => ({
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Samarqand yoshlari — Yosh Tadbirkorlar Kengashi",
-    alternateName: "sam-yosh tadbirkor",
+    name: "Samarqand yoshlari",
+    alternateName: "Yoshlar uchun tashabbus maydoni",
     url: SITE_URL,
     logo: absoluteUrl("/logo/belgi-kun.webp"),
     description:
