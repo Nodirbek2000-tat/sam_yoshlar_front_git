@@ -76,7 +76,8 @@ export default async function CabinetLayout({ children }: LayoutProps<"/kabinet"
             </header>
 
             {/* Chapda menyu, o'ngda mazmun */}
-            <div className="mt-8 grid gap-8 lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:gap-12">
+            {/* `grid-cols-1` — telefonda ustun ekrandan kengaymasin (menyu lentasi o'zi siljiydi) */}
+            <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:gap-12">
                 <CabinetSidebar counts={overview.counts} role={user.role} />
                 <div className="min-w-0">{children}</div>
             </div>

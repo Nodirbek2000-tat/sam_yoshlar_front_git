@@ -7,6 +7,7 @@ import { STAGE_TONE } from "@/components/directory/cards";
 import { Icon } from "@/components/icon";
 import { Img } from "@/components/img";
 import { Reveal } from "@/components/motion-primitives";
+import { InvestButton } from "@/components/offers/invest-button";
 import { ApiError, getStartup } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { formatMoney } from "@/lib/format";
@@ -176,6 +177,9 @@ export default async function StartupPage({ params }: PageProps<"/startaplar/[id
                         <Fact label="Jamoa" value={`${startup.team_size} kishi`} />
                         <Fact label="Kerakli investitsiya" value={investment || "Ko'rsatilmagan"} strong />
                     </dl>
+
+                    {/* Investor aloqa ma'lumotini qoldiradi — asoschiga saytda va botda xabar boradi */}
+                    <InvestButton startupId={startup.id} startupName={startup.name} />
 
                     {(startup.website || startup.pitch_url) && (
                         <div className="grid gap-2">

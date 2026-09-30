@@ -20,6 +20,8 @@ export async function GET() {
                       initials: user.initials,
                       avatar: user.avatar,
                       is_panel_admin: user.is_panel_admin,
+                      unread: user.unread_notifications ?? 0,
+                      feedback: user.pending_feedback ?? null,
                   }
                 : null,
         },

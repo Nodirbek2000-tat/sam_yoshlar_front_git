@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 import { BrandLogo } from "@/components/brand-logo";
 import { Icon, type IconName } from "@/components/icon";
 import { Img } from "@/components/img";
+import { NewNoticeCallout, NotificationBell } from "@/components/notification-bell";
+import { FeedbackPrompt } from "@/components/offers/feedback-prompt";
 import { ThemeToggle } from "@/components/theme/toggle";
 import { cn } from "@/lib/cn";
 import { useSessionUser } from "@/lib/use-session-user";
@@ -18,7 +20,7 @@ import { useSessionUser } from "@/lib/use-session-user";
  */
 const LogoutButton = dynamic(
     () => import("@/components/auth/logout-button").then((module) => module.LogoutButton),
-    { ssr: false, loading: () => <span className="size-8" aria-hidden /> },
+    { ssr: false, loading: () => <span className="hidden size-8 sm:block" aria-hidden /> },
 );
 
 const NAV: { href: string; label: string; icon: IconName }[] = [
@@ -51,18 +53,29 @@ export function SiteHeader() {
 
     return (
         <header className="sticky top-0 z-50 border-b border-line bg-page/80 backdrop-blur-xl">
-            <div className="container-page flex h-15 items-center gap-6">
+            <div className="container-page flex h-15 items-center gap-3 sm:gap-6 xl:gap-4">
                 <Link href="/" aria-label="Bosh sahifa" className="flex shrink-0 items-center">
-                    <BrandLogo height={50} priority className="transition-opacity hover:opacity-85" />
+                    {/*
+                      Telefonda logo kichikroq, juda tor ekranda faqat belgi — aks holda
+                      o'ngdagi tugmalar ekrandan chiqib ketadi. Rasm manzillari bir xil,
+                      brauzer ularni bir marta yuklaydi.
+                    */}
+                    <BrandLogo variant="mark" height={36} priority className="min-[360px]:hidden" />
+                    <BrandLogo height={34} priority className="hidden min-[360px]:inline-flex sm:hidden" />
+                    <BrandLogo
+                        height={50}
+                        priority
+                        className="hidden transition-opacity hover:opacity-85 sm:inline-flex"
+                    />
                 </Link>
 
-                <nav className="hidden items-center gap-0.5 xl:flex">
+                <nav className="hidden items-center xl:flex">
                     {NAV.map((item) => (
                         <Link
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "rounded-md px-2.5 py-1.5 text-[13.5px] transition-colors duration-150",
+                                "rounded-md px-2 py-1.5 text-[13.5px] transition-colors duration-150",
                                 isActive(item.href)
                                     ? "font-medium text-text"
                                     : "text-muted hover:text-text",
@@ -86,11 +99,18 @@ export function SiteHeader() {
                                     href="/nazorat"
                                     title="Boshqaruv paneli"
                                     aria-label="Boshqaruv paneli"
-                                    className="grid size-9 place-items-center rounded-lg border border-line text-muted transition-colors hover:border-accent hover:text-accent"
+                                    // Telefonda bu tugma menyu ichida — o'rniga qo'ng'iroqcha sig'adi
+                                    className="hidden size-9 place-items-center rounded-lg border border-line text-muted transition-colors hover:border-accent hover:text-accent sm:grid"
                                 >
                                     <Icon name="settings" size={17} />
                                 </Link>
                             )}
+
+                            {/* Yangi xabar kelganda yorliq shu qo'ng'iroqcha ostidan chiqadi */}
+                            <div className="relative">
+                                <NotificationBell unread={user.unread} />
+                                {user.unread > 0 && !open && <NewNoticeCallout unread={user.unread} />}
+                            </div>
 
                             <Link
                                 href="/kabinet"
@@ -104,9 +124,10 @@ export function SiteHeader() {
                                 )}
                             </Link>
 
+                            {/* Telefonda chiqish tugmasi menyu ichida */}
                             <LogoutButton
                                 name={user.full_name}
-                                className="grid size-8 place-items-center rounded-lg text-faint transition-colors hover:bg-surface hover:text-text"
+                                className="hidden size-8 place-items-center rounded-lg text-faint transition-colors hover:bg-surface hover:text-text sm:grid"
                             />
                         </div>
                     ) : (
@@ -129,6 +150,9 @@ export function SiteHeader() {
                     </button>
                 </div>
             </div>
+
+            {/* Startap egasidan investor bilan suhbat natijasi so'raladi */}
+            {user?.feedback && <FeedbackPrompt key={user.feedback.id} feedback={user.feedback} />}
 
             {/* Telefon menyusi — CSS bilan ochiladi (balandlik 0fr -> 1fr) */}
             <nav
@@ -172,6 +196,15 @@ export function SiteHeader() {
 
                         <div className="mt-2 flex items-center justify-between border-t border-line pt-3">
                             <ThemeToggle />
+                            {user && (
+                                <LogoutButton
+                                    name={user.full_name}
+                                    className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-[14px] text-muted"
+                                >
+                                    <Icon name="power" size={15} />
+                                    Chiqish
+                                </LogoutButton>
+                            )}
                             {ready && !user && (
                                 <Link
                                     href="/kirish"

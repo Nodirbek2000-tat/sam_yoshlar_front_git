@@ -1229,3 +1229,114 @@ html.fx [data-fx="heading"]:not([data-shown]) .fx-word {
         animation: sweep 5s ease-in-out infinite;
     }
 }
+
+/* --- Investitsiya: tugma, qo'ng'iroqcha va «yangi xabar» yorlig'i --- */
+
+/* Tugma ostidagi rangli yog'du va ustidan yugurib o'tuvchi nur */
+.invest-cta {
+    box-shadow: 0 14px 34px -14px color-mix(in oklab, var(--tone) 80%, transparent);
+}
+
+.invest-cta::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        105deg,
+        transparent 35%,
+        color-mix(in oklab, var(--tone) 55%, transparent) 50%,
+        transparent 65%
+    );
+    transform: translateX(-120%);
+    animation: invest-shine 3.8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes invest-shine {
+    0%,
+    55% {
+        transform: translateX(-120%);
+    }
+    100% {
+        transform: translateX(120%);
+    }
+}
+
+/* Qo'ng'iroqcha chayqaladi */
+.bell-ring {
+    transform-origin: 50% 10%;
+    animation: bell-ring 2.4s ease-in-out infinite;
+}
+
+@keyframes bell-ring {
+    0%,
+    60%,
+    100% {
+        transform: rotate(0);
+    }
+    8%,
+    24%,
+    40% {
+        transform: rotate(14deg);
+    }
+    16%,
+    32%,
+    48% {
+        transform: rotate(-12deg);
+    }
+}
+
+/* Yorliq sarlavha ostidan sakrab chiqadi */
+.notice-pop {
+    animation: notice-pop 0.5s cubic-bezier(0.22, 1.4, 0.36, 1) both;
+    transform-origin: top right;
+}
+
+@keyframes notice-pop {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/*
+ * Yorliq qo'ng'iroqchaga bog'langan: o'ng cheti sarlavha tugmalarining chetiga
+ * to'g'ri keladi, uchburchagi esa qo'ng'iroqcha o'rtasiga qaraydi.
+ * Telefonda qo'ng'iroqchadan o'ngda: rasm (32) + oraliqlar (6 + 8) + menyu (36) = 82;
+ * katta ekranda: rasm (32) + chiqish (32) + oraliqlar (6 + 6) = 76.
+ */
+.notice-anchor {
+    --after-bell: 82px;
+    right: calc(var(--after-bell) * -1);
+    width: min(17rem, calc(100vw - 2.5rem));
+}
+
+.notice-anchor .notice-arrow {
+    /* qo'ng'iroqcha yarmi (18) − uchburchak yarmi (6) */
+    right: calc(var(--after-bell) + 12px);
+}
+
+@media (width >= 40rem) {
+    .notice-anchor {
+        --after-bell: 76px;
+    }
+}
+
+/* Menyu tugmasi ko'rinadigan oraliq: u ham qo'ng'iroqchadan o'ngda turadi */
+@media (width >= 40rem) and (width < 80rem) {
+    .notice-anchor {
+        --after-bell: 120px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .invest-cta::after,
+    .bell-ring,
+    .notice-pop {
+        animation: none;
+    }
+}

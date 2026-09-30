@@ -49,7 +49,55 @@ export type User = {
     study_location: "" | "uz" | "abroad";
     /** Bir odam bir nechta rolda bo'la oladi: biznesi, startaplari, tengdosh profili */
     capabilities?: { business: boolean; startups: number; peer: boolean };
+    /** O'qilmagan bildirishnomalar — sarlavhadagi qo'ng'iroqcha uchun */
+    unread_notifications?: number;
+    /** Investor bilan suhbat natijasi so'ralishi kerak bo'lgan taklif */
+    pending_feedback?: PendingFeedback | null;
 };
+
+/* --- Investitsiya takliflari --- */
+
+export type OfferStatus = "new" | "accepted" | "declined";
+export type OfferOutcome = "deal" | "talking" | "no_deal";
+
+/** Sayt startap egasidan so'raydi: suhbat qanday o'tdi */
+export type PendingFeedback = {
+    id: number;
+    startup_name: string;
+    investor_name: string;
+    /** Oldin «muzokara davom etmoqda» degan — endi yakuni so'raladi */
+    follow_up: boolean;
+};
+
+export type OfferState = {
+    id: number;
+    status: OfferStatus;
+    status_display: string;
+    created_at: string;
+    responded_at: string | null;
+};
+
+/** Hisobga havola: `/insonlar/<id>` */
+export type OfferPerson = { id: number; full_name: string; initials: string; avatar: string | null };
+
+export type OfferStartup = { id: number; name: string; logo_url: string | null };
+
+/** Investorning o'zi yuborgan taklif — aloqa ma'lumotisiz */
+export type SentOffer = OfferState & { startup: OfferStartup };
+
+/** Startap egasiga kelgan taklif — investorning aloqasi bilan */
+export type ReceivedOffer = SentOffer & {
+    investor: OfferPerson | null;
+    full_name: string;
+    phone: string;
+    telegram: string;
+    outcome: OfferOutcome | "";
+    outcome_display: string;
+    feedback: string;
+    feedback_at: string | null;
+};
+
+export type MyOffers = { new: number; received: ReceivedOffer[]; sent: SentOffer[] };
 
 export type MyStartups = { limit: number; results: StartupProfile[] };
 

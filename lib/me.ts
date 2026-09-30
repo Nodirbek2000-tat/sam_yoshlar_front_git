@@ -23,6 +23,7 @@ export type CabinetCounts = {
     appeals: number;
     suggestions: number;
     unread: number;
+    offers: number;
 };
 
 export type CabinetOverview = {

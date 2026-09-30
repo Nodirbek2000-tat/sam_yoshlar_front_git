@@ -3,10 +3,15 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import type { User } from "./types";
+import type { PendingFeedback, User } from "./types";
 
 /** Sarlavhaga kerakli qism */
-export type SessionUser = Pick<User, "full_name" | "initials" | "avatar" | "is_panel_admin">;
+export type SessionUser = Pick<User, "full_name" | "initials" | "avatar" | "is_panel_admin"> & {
+    /** O'qilmagan bildirishnomalar soni */
+    unread: number;
+    /** Investor bilan suhbat natijasi so'ralishi kerak bo'lsa */
+    feedback: PendingFeedback | null;
+};
 
 /** Kirish yoki chiqishdan keyin sarlavha darhol yangilansin */
 const EVENT = "sy:session";

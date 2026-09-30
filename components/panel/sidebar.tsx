@@ -49,6 +49,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
         items: [
             { href: "/nazorat/tengdoshlar", label: "Tengdoshlar", icon: "globe" },
             { href: "/nazorat/startaplar", label: "Startaplar", icon: "rocket" },
+            { href: "/nazorat/investitsiya", label: "Investitsiya takliflari", icon: "bank" },
         ],
     },
 ];

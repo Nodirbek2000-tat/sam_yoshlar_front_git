@@ -32,6 +32,8 @@ export type Counts = {
     appeals: number;
     suggestions: number;
     unread: number;
+    /** Startaplarga kelgan, hali javob berilmagan investitsiya takliflari */
+    offers?: number;
 };
 
 const ITEMS: Item[] = [
@@ -49,6 +51,14 @@ const ITEMS: Item[] = [
         label: "Startaplarim",
         icon: "ic-rocket",
         tone: "orange",
+        roles: PEOPLE,
+    },
+    {
+        href: "/kabinet/investitsiya",
+        label: "Investitsiya",
+        icon: "ic-money",
+        tone: "emerald",
+        countKey: "offers",
         roles: PEOPLE,
     },
     {
@@ -112,7 +122,9 @@ export function CabinetSidebar({ counts, role }: { counts: Counts; role: string 
                             : pathname.startsWith(item.href);
 
                     const count = item.countKey ? counts[item.countKey] : undefined;
-                    const highlight = item.countKey === "unread" && (count ?? 0) > 0;
+                    // Yangi xabar yoki javob kutayotgan taklif — raqam ajralib turadi
+                    const highlight =
+                        (item.countKey === "unread" || item.countKey === "offers") && (count ?? 0) > 0;
 
                     return (
                         <li key={item.href} className="shrink-0 lg:shrink">
