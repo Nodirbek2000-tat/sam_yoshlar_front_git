@@ -1340,3 +1340,553 @@ html.fx [data-fx="heading"]:not([data-shown]) .fx-word {
         animation: none;
     }
 }
+
+/* ==========================================================================
+   Bosh sahifa — aylantirishga bog'langan sahnalar
+
+   Holatni `ScrollScenes` beradi: `--p` (0..1), `--step`, `--active`.
+   Bu yerda faqat ko'rinish. `html.fx` yo'q bo'lsa (harakat kamaytirilgan
+   yoki JS ishlamagan) — hammasi oddiy, qimirlamaydigan sahifa.
+   ========================================================================== */
+
+/* --- Sahifa qancha o'qilgani --- */
+.lp-progress {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 60;
+    height: 2px;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, var(--color-brand-500), oklch(66% 0.14 235), oklch(64% 0.17 290));
+    pointer-events: none;
+}
+
+/* --- Nuqtali to'r: kartalar burchagi va fon uchun --- */
+.lp-dots {
+    background-image: radial-gradient(
+        circle,
+        color-mix(in oklab, var(--tone) 42%, transparent) 1px,
+        transparent 1.5px
+    );
+    background-size: 14px 14px;
+    pointer-events: none;
+}
+
+/* --- Kartalardagi yirik tartib raqami --- */
+.lp-index {
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+}
+
+/* --- Registon atrofidagi halqalar --- */
+.lp-orbit {
+    animation: orbit-spin 70s linear infinite;
+}
+
+.lp-orbit::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+}
+
+.lp-orbit-slow {
+    animation-duration: 120s;
+    animation-direction: reverse;
+}
+
+/* --- Yirik so'zlar: sahifa aylantirilganda yonga siljiydi --- */
+.lp-band {
+    overflow: hidden;
+    padding-block: clamp(1.25rem, 3.5vw, 2.75rem);
+}
+
+.lp-band-track {
+    display: flex;
+    gap: clamp(1.5rem, 4vw, 4rem);
+    width: max-content;
+    white-space: nowrap;
+    font-family: var(--font-display);
+    font-size: clamp(3.25rem, 12vw, 10rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+    color: transparent;
+    -webkit-text-stroke: 1.5px color-mix(in oklab, var(--text) 24%, transparent);
+    transform: translate3d(calc(-6vw - var(--p, 0.3) * 70vw), 0, 0);
+    will-change: transform;
+}
+
+.lp-band-fill {
+    -webkit-text-stroke: 0;
+    /* `background-image` — qisqa `background` yozilsa, brauzerga moslash bloki `background-clip` ni bekor qiladi */
+    background-image: linear-gradient(90deg, var(--color-brand-500), oklch(66% 0.14 235), oklch(64% 0.17 290));
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+/* --- Raqamlarda: bo'lim joyida turadi, raqam va nuqtalar shakli almashadi --- */
+.lp-number {
+    font-family: var(--font-display);
+    font-size: clamp(4.25rem, 15vw, 10.5rem);
+    font-weight: 700;
+    line-height: 0.92;
+    letter-spacing: -0.055em;
+    font-variant-numeric: tabular-nums;
+    color: transparent;
+    background-image: linear-gradient(100deg, var(--text) 35%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.lp-story-pin {
+    padding-block: 4rem;
+}
+
+.lp-steps {
+    display: grid;
+    gap: 3rem;
+}
+
+.lp-ticks {
+    display: none;
+}
+
+.lp-story-art {
+    position: relative;
+    height: min(36svh, 19rem);
+}
+
+@media (width >= 64rem) {
+    .lp-story-art {
+        height: min(74svh, 40rem);
+    }
+}
+
+html.fx .lp-story {
+    height: calc(var(--steps, 4) * 100svh + 20svh);
+}
+
+html.fx .lp-story-pin {
+    position: sticky;
+    top: 3.75rem;
+    height: calc(100svh - 3.75rem);
+    overflow: hidden;
+    padding-block: 1.5rem;
+}
+
+html.fx .lp-steps {
+    gap: 0;
+}
+
+/* Hamma qadam bitta joyda turadi; faqat `--step` ga teng kelgani ko'rinadi */
+html.fx .lp-step {
+    --d: calc(var(--i) - var(--step, 0));
+    grid-area: 1 / 1;
+    opacity: calc(1 - min(1, max(var(--d), var(--d) * -1)));
+    transform: translate3d(0, calc(var(--d) * 2.5rem), 0);
+    transition:
+        opacity 0.45s var(--ease-soft),
+        transform 0.7s var(--ease-soft);
+}
+
+html.fx .lp-ticks {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.lp-ticks span {
+    width: 2rem;
+    height: 3px;
+    border-radius: 9px;
+    background: var(--accent);
+    opacity: clamp(0.18, calc(var(--step, 0) - var(--i) + 1), 1);
+    transition: opacity 0.4s var(--ease-soft);
+}
+
+/* --- Yo'nalishlar: ro'yxat yurganda faol band yonadi --- */
+.lp-panel {
+    --d: calc(var(--i) - var(--active, 0));
+    grid-area: 1 / 1;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--dir);
+    border-radius: 1.25rem;
+    background: var(--raised);
+    padding: 1.5rem 1.75rem;
+    opacity: calc(1 - min(1, max(var(--d), var(--d) * -1)));
+    transform: translate3d(0, calc(clamp(-1, var(--d), 1) * 1.25rem), 0);
+    transition:
+        opacity 0.35s var(--ease-soft),
+        transform 0.55s var(--ease-soft);
+}
+
+.lp-panel-n {
+    font-family: var(--font-display);
+    font-size: 4.5rem;
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    font-variant-numeric: tabular-nums;
+    color: var(--dir);
+}
+
+.lp-panel-n span {
+    margin-left: 0.6rem;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--faint);
+}
+
+.lp-dirs {
+    border-top: 1px solid var(--line);
+}
+
+.lp-dirs > li {
+    border-bottom: 1px solid var(--line);
+}
+
+.lp-dir {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.4rem 0.25rem;
+    transition: opacity 0.4s var(--ease-soft);
+}
+
+html.fx .lp-dirs > li:not([data-active]) .lp-dir:not(:hover) {
+    opacity: 0.36;
+}
+
+.lp-dir-n {
+    min-width: 3.4rem;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4.5vw, 2.9rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    color: var(--faint);
+    transition: color 0.35s var(--ease-soft);
+}
+
+.lp-dir-name {
+    display: block;
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 2.4vw, 1.55rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.lp-dir-text {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--muted);
+}
+
+.lp-dir-arrow {
+    color: var(--dir);
+    opacity: 0;
+    transform: translate(-6px, 6px);
+    transition:
+        opacity 0.35s var(--ease-soft),
+        transform 0.35s var(--ease-soft);
+}
+
+[data-active] .lp-dir-n,
+.lp-dir:hover .lp-dir-n {
+    color: var(--dir);
+}
+
+[data-active] .lp-dir-arrow,
+.lp-dir:hover .lp-dir-arrow {
+    opacity: 1;
+    transform: none;
+}
+
+/* --- Yo'l: kartalar bir-birining ustiga taxlanadi --- */
+.lp-stack {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.lp-stack-card {
+    position: relative;
+    display: grid;
+    gap: 1.25rem;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 1.75rem;
+    background: var(--raised);
+    padding: 1.75rem;
+}
+
+.lp-stack-n {
+    position: relative;
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 9vw, 6.5rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (width >= 48rem) {
+    .lp-stack-card {
+        grid-template-columns: 10rem 1fr;
+        align-items: center;
+        min-height: 17rem;
+        padding: 2.75rem 3rem;
+    }
+}
+
+html.fx .lp-stack-card {
+    position: sticky;
+    top: calc(5.25rem + var(--i) * 1rem);
+    box-shadow: 0 -22px 50px -38px rgb(0 0 0 / 0.55);
+}
+
+/* --- Bo'limlar: pastga aylantirilsa kartalar yonga yuradi --- */
+.lp-rail {
+    position: relative;
+    border-block: 1px solid var(--line);
+}
+
+.lp-rail-pin {
+    position: relative;
+    overflow: hidden;
+    padding-block: 5rem;
+}
+
+.lp-rail-line {
+    height: 1px;
+    background: var(--line);
+}
+
+.lp-rail-line span {
+    display: block;
+    height: 2px;
+    transform: scaleX(var(--p, 0));
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, var(--color-brand-400), oklch(70% 0.14 235), oklch(70% 0.16 290));
+}
+
+/* Telefonda — barmoq bilan yonga suriladi */
+.lp-rail-view {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+}
+
+.lp-rail-view::-webkit-scrollbar {
+    display: none;
+}
+
+.lp-rail-track {
+    display: flex;
+    gap: 1rem;
+    width: max-content;
+    padding-inline: 1.25rem;
+}
+
+.lp-rail-track > li {
+    scroll-snap-align: center;
+}
+
+.lp-rail-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: min(78vw, 21rem);
+    min-height: 21rem;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 1.5rem;
+    background: color-mix(in oklab, var(--raised) 78%, transparent);
+    padding: 1.5rem;
+    transition:
+        border-color 0.3s var(--ease-soft),
+        transform 0.45s var(--ease-soft);
+}
+
+.lp-rail-card:hover {
+    border-color: var(--tone-line);
+    transform: translateY(-5px);
+}
+
+@media (width >= 48rem) {
+    .lp-rail-track {
+        /* Birinchi karta sahifa mazmuni bilan bir chiziqda boshlanadi */
+        padding-inline: max(2rem, calc((100vw - 72rem) / 2 + 2rem));
+    }
+}
+
+@media (width >= 64rem) {
+    html.fx .lp-rail {
+        height: calc(100svh + var(--count, 8) * 15rem);
+    }
+
+    html.fx .lp-rail-pin {
+        position: sticky;
+        top: 3.75rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: calc(100svh - 3.75rem);
+        padding-block: 1.5rem;
+    }
+
+    html.fx .lp-rail-view {
+        overflow: visible;
+    }
+
+    html.fx .lp-rail-track {
+        /* `100%` — lentaning o'z kengligi: oxirida so'nggi karta o'ng chetga keladi */
+        transform: translate3d(calc(var(--p, 0) * (100vw - 100%)), 0, 0);
+        will-change: transform;
+    }
+}
+
+@media (width >= 64rem) and (height < 47rem) {
+    .lp-rail-card {
+        min-height: 16.5rem;
+    }
+}
+
+/* --- Reyting: ovozlar ulushi chizig'i --- */
+.lp-bar {
+    position: absolute;
+    inset: auto 0 0;
+    height: 2px;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, var(--tone), transparent);
+    transition: transform 1.2s var(--ease-soft) 0.3s;
+}
+
+html:not(.fx) .lp-bar,
+[data-shown] .lp-bar {
+    transform: scaleX(var(--w, 0));
+}
+
+/* --- Pastki bo'limlar: qatorlar ikki yondan, kartalar yelpig'ich bo'lib kiradi ---
+
+     data-fx="left"        bolalari chapdan kiradi
+     data-fx="right"       bolalari o'ngdan kiradi
+     data-fx="zip"         navbat bilan: toqlari chapdan, juftlari o'ngdan
+     data-fx="deck"        kartalar yelpig'ich bo'lib ochiladi (--mid — o'rtadagi karta)
+     data-fx="from-right"  bitta blok o'ngdan sirg'alib kiradi
+     data-fx="line"        chiziq chapdan o'ngga chiziladi
+
+   Tartib (`--i`) sahifaning o'zida beriladi. Yashirin turgan element ekrandan
+   tashqariga chiqib, gorizontal siljish hosil qilmasligi uchun bo'limda
+   `overflow-x-clip` bo'lishi kerak.
+*/
+[data-fx="left"] > *,
+[data-fx="right"] > *,
+[data-fx="zip"] > *,
+[data-fx="deck"] > * {
+    transition:
+        opacity 0.8s var(--ease-out-3) calc(var(--i, 0) * 0.09s),
+        transform 1.15s var(--ease-out-expo) calc(var(--i, 0) * 0.09s);
+}
+
+html.fx [data-fx="left"]:not([data-shown]) > *,
+html.fx [data-fx="zip"]:not([data-shown]) > :nth-child(odd) {
+    opacity: 0;
+    transform: translate3d(-5.5rem, 0, 0) rotate(-1.5deg);
+}
+
+html.fx [data-fx="right"]:not([data-shown]) > *,
+html.fx [data-fx="zip"]:not([data-shown]) > :nth-child(even) {
+    opacity: 0;
+    transform: translate3d(5.5rem, 0, 0) rotate(1.5deg);
+}
+
+html.fx [data-fx="deck"]:not([data-shown]) > * {
+    --offset: calc(var(--i, 0) - var(--mid, 1.5));
+    opacity: 0;
+    transform: translate3d(calc(var(--offset) * 2.75rem), 6.5rem, 0) rotate(calc(var(--offset) * 5deg))
+        scale(0.88);
+}
+
+[data-fx="from-right"] {
+    transition:
+        opacity 0.8s var(--ease-out-3) 0.25s,
+        transform 1.1s var(--ease-out-expo) 0.25s;
+}
+
+html.fx [data-fx="from-right"]:not([data-shown]) {
+    opacity: 0;
+    transform: translate3d(3.5rem, 0, 0);
+}
+
+/* Sarlavha ostidagi chiziq — yorug' uchi bilan chapdan o'ngga chiziladi */
+.lp-rule {
+    position: relative;
+    height: 1px;
+    background: var(--line);
+}
+
+.lp-rule::after {
+    content: "";
+    position: absolute;
+    inset: -0.5px 0 auto;
+    height: 2px;
+    background-image: linear-gradient(
+        90deg,
+        var(--color-brand-500),
+        oklch(66% 0.14 235) 28%,
+        oklch(64% 0.17 290) 46%,
+        transparent 70%
+    );
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 1.6s var(--ease-out-expo) 0.2s;
+}
+
+html:not(.fx) .lp-rule::after,
+.lp-rule[data-shown]::after {
+    transform: scaleX(1);
+}
+
+/* Sarlavha orqasidagi yirik tartib raqami — sahifa aylantirilganda yonga siljiydi */
+.lp-ghost {
+    position: absolute;
+    top: -3.25rem;
+    right: -0.5rem;
+    font-family: var(--font-display);
+    font-size: clamp(6.5rem, 17vw, 13rem);
+    font-weight: 700;
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+    font-variant-numeric: tabular-nums;
+    color: transparent;
+    -webkit-text-stroke: 1.5px color-mix(in oklab, var(--text) 10%, transparent);
+    transform: translate3d(calc((0.5 - var(--p, 0.5)) * 11rem), 0, 0);
+    pointer-events: none;
+    user-select: none;
+    will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lp-orbit {
+        animation: none;
+    }
+
+    .lp-band-track {
+        transform: translate3d(-6vw, 0, 0);
+    }
+}
