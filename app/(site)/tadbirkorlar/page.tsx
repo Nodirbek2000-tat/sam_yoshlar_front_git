@@ -12,7 +12,7 @@ import type { PublicBusiness } from "@/lib/types";
 export const metadata: Metadata = {
     alternates: { canonical: "/tadbirkorlar" },
     title: "Tadbirkorlar",
-    description: "Kengash a'zosi bo'lgan yosh tadbirkorlar: biznesi, rasmlari va aloqasi.",
+    description: "Yoshlarning bizneslari: nima qilishadi, rasmlari va aloqasi.",
 };
 
 /** Filtr qatori uchun: qiymat -> nomi va nechta. */
@@ -64,7 +64,7 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/tadbi
                         Yosh tadbirkorlar — <span className="text-accent">bir joyda</span>
                     </>
                 }
-                lead="Kengash tasdiqlagan bizneslar: nima qilishadi, qayerda, qanday bog'lanish mumkin. Hamkor, yetkazib beruvchi yoki mijoz izlayotgan bo'lsangiz — shu yerdan boshlang."
+                lead="Yoshlarning bizneslari: nima qilishadi, qayerda, qanday bog'lanish mumkin. Hamkor, yetkazib beruvchi yoki mijoz izlayotgan bo'lsangiz — shu yerdan boshlang."
                 action={
                     <Link
                         href="/royxatdan-otish"

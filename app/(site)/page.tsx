@@ -67,7 +67,7 @@ const SECTIONS: {
     {
         href: "/tadbirkorlar",
         title: "Tadbirkorlar",
-        description: "Kengash a'zolarining bizneslari — rasmlari, sohasi va aloqasi bilan.",
+        description: "Yoshlarning bizneslari — rasmlari, sohasi va aloqasi bilan.",
         icon: Briefcase,
         tone: "amber",
     },
@@ -527,7 +527,7 @@ export default async function HomePage() {
                         <div>
                             <SectionLabel>Tadbirkorlar</SectionLabel>
                             <h2 data-fx="heading" className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
-                                <Words text="Kengash a'zolarining bizneslari" />
+                                <Words text="Yoshlarning bizneslari" />
                             </h2>
                         </div>
                         <ViewAll href="/tadbirkorlar" />
