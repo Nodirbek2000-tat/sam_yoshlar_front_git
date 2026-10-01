@@ -12,7 +12,7 @@ import type { BusinessProfile, Choice, StartupProfile } from "@/lib/types";
 /**
  * Kabinetdagi «Biznesim» va «Startapim»: anketa holati va tahrirlash.
  *
- * Anketa kengash tomonidan ko'rib chiqiladi. Rad etilgan anketani tuzatib
+ * Anketa sayt ma'muriyati tomonidan ko'rib chiqiladi. Rad etilgan anketani tuzatib
  * saqlasa — backend uni qayta «kutilmoqda» holatiga o'tkazadi.
  */
 
@@ -20,7 +20,7 @@ const STATUS: Record<string, { tone: string; icon: IconName; title: string; text
     pending: {
         tone: "amber",
         icon: "clock",
-        title: "Kengash ko'rib chiqmoqda",
+        title: "Ko'rib chiqilmoqda",
         text: "Tasdiqlangach ommaviy ro'yxatda ko'rinadi. Odatda 1–2 kun oladi.",
     },
     approved: {
@@ -55,7 +55,7 @@ export function StatusBanner({ status, note }: { status: string; note?: string }
                 <p className="mt-0.5 text-[13px] leading-relaxed text-muted">{info.text}</p>
                 {note && (
                     <p className="mt-2 rounded-lg bg-page px-3 py-2 text-[13px] text-text">
-                        <span className="text-faint">Kengash izohi: </span>
+                        <span className="text-faint">Ma&apos;muriyat izohi: </span>
                         {note}
                     </p>
                 )}

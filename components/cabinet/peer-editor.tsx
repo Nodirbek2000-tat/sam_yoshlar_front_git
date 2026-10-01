@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 
+import { StatusBanner } from "@/components/cabinet/profile-editor";
 import { Icon } from "@/components/icon";
 import { PeerForm } from "@/components/onboarding/peer-form";
 import type { Country, PeerProfile } from "@/lib/types";
@@ -18,8 +19,11 @@ export function PeerEditor({
     defaultPhone: string;
 }) {
     const [saved, setSaved] = useState(false);
+    // Anketa holati: yangi anketa admin tasdig'idan keyin saytda ko'rinadi
+    const [status, setStatus] = useState(initial?.status ?? "");
 
-    function flash() {
+    function flash(profile: PeerProfile) {
+        if (profile?.status) setStatus(profile.status);
         setSaved(true);
         window.scrollTo({ top: 0, behavior: "smooth" });
         setTimeout(() => setSaved(false), 2800);
@@ -40,6 +44,8 @@ export function PeerEditor({
                     </motion.p>
                 )}
             </AnimatePresence>
+
+            {status && <StatusBanner status={status} />}
 
             <PeerForm
                 initial={initial}

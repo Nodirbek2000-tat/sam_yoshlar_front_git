@@ -523,10 +523,10 @@ export function OnboardingFlow({
                         </h1>
                         <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-muted">
                             {isYouth
-                                ? "Saqlangach profilingiz darhol «Chet eldagi tengdoshlar» bo'limida chiqadi."
+                                ? "Anketa sayt ma'muriyati tomonidan ko'rib chiqiladi, tasdiqlangach profilingiz «Chet eldagi tengdoshlar» bo'limida chiqadi."
                                 : role === "startupper"
-                                  ? "Anketa kengash tomonidan ko'rib chiqiladi, tasdiqlangach startapingiz reyestrga tushadi va investorlarga ko'rinadi."
-                                  : "Anketa kengash tomonidan ko'rib chiqiladi, tasdiqlangach biznesingiz hamkorlar ro'yxatida ko'rinadi."}{" "}
+                                  ? "Anketa sayt ma'muriyati tomonidan ko'rib chiqiladi, tasdiqlangach startapingiz reyestrga tushadi va investorlarga ko'rinadi."
+                                  : "Anketa sayt ma'muriyati tomonidan ko'rib chiqiladi, tasdiqlangach biznesingiz hamkorlar ro'yxatida ko'rinadi."}{" "}
                             Yulduzchali maydonlar majburiy.
                         </p>
 
