@@ -550,28 +550,11 @@ p {
 /* ==========================================================================
    Bosh sahifa effektlari — faqat `/` da ishlatiladi.
 
-   Harakatning asosiy qismi GSAP va Motion'da; bu yerda faqat CSS bilan
-   arzonroq qilinadigan narsalar: tovlanish, porlash, suzish, marquee.
+   Hammasi CSS bilan (kutubxonasiz): tovlanish, porlash, suzish, marquee.
+   Doimiy (cheksiz) animatsiyalardan qochiladi — tinch turgan sahifa
+   protsessorni band qilmasin.
    `prefers-reduced-motion` da hammasi o'chadi (yuqoridagi umumiy qoida).
    ========================================================================== */
-
-/* --- Lenis: o'zi yumshatadi, brauzerning `smooth` i xalaqit bermasin --- */
-html.lenis,
-html.lenis body {
-    height: auto;
-}
-
-html.lenis.lenis-smooth {
-    scroll-behavior: auto !important;
-}
-
-html.lenis.lenis-smooth [data-lenis-prevent] {
-    overscroll-behavior: contain;
-}
-
-html.lenis.lenis-stopped {
-    overflow: hidden;
-}
 
 /* ==========================================================================
    Chiqish animatsiyalari — kutubxonasiz (CSS + kichik skript)
@@ -675,6 +658,21 @@ html.fx [data-fx="rows"]:not([data-shown]) > * {
 
 html.fx [data-fx="heading"]:not([data-shown]) .fx-word {
     transform: translateY(110%);
+}
+
+/* Harfma-harf: har bir harf pastdan, biroz burilib chiqadi */
+.fx-letters {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.fx-char {
+    display: inline-block;
+    transition: transform 0.95s var(--ease-out-4) calc(var(--c, 0) * 0.026s);
+}
+
+html.fx [data-fx="heading"]:not([data-shown]) .fx-char {
+    transform: translateY(115%) rotate(7deg);
 }
 
 [data-stagger] > :nth-child(2),
@@ -961,6 +959,20 @@ html.fx [data-fx="heading"]:not([data-shown]) .fx-word {
             animation-timeline: scroll(root block);
             animation-range: 0 90vh;
         }
+
+        /* Registon sahifadan chiqib ketayotganda kattalashib so'nadi — faqat kompozitor, JS'siz */
+        [data-hero-art] {
+            animation: hero-art-out linear both;
+            animation-timeline: view();
+            animation-range: exit 10% exit 95%;
+        }
+    }
+}
+
+@keyframes hero-art-out {
+    to {
+        transform: scale(1.35);
+        opacity: 0;
     }
 }
 
@@ -1013,7 +1025,6 @@ html.fx [data-fx="heading"]:not([data-shown]) .fx-word {
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
-    animation: shimmer-move 7s ease-in-out infinite alternate;
 }
 
 @keyframes shimmer-move {
@@ -1050,8 +1061,13 @@ html.fx [data-fx="heading"]:not([data-shown]) .fx-word {
             transparent 200deg,
             transparent 360deg
         );
-        animation: ring-spin 3.2s linear infinite;
+        animation: ring-spin 3.2s linear infinite paused;
         opacity: 0.9;
+    }
+
+    &:hover::before,
+    &:hover::after {
+        animation-play-state: running;
     }
 
     &::after {
@@ -1068,7 +1084,7 @@ html.fx [data-fx="heading"]:not([data-shown]) .fx-word {
         );
         filter: blur(14px);
         opacity: 0.45;
-        animation: ring-spin 3.2s linear infinite;
+        animation: ring-spin 3.2s linear infinite paused;
     }
 }
 
@@ -1111,8 +1127,6 @@ html.fx [data-fx="heading"]:not([data-shown]) .fx-word {
     position: absolute;
     border-radius: 9999px;
     filter: blur(80px);
-    animation: blob-drift 18s ease-in-out infinite;
-    will-change: transform;
 }
 
 /* --- Cheksiz lenta --- */
@@ -1384,7 +1398,7 @@ html.fx [data-fx="heading"]:not([data-shown]) .fx-word {
 
 /* --- Registon atrofidagi halqalar --- */
 .lp-orbit {
-    animation: orbit-spin 70s linear infinite;
+    /* Qimirlamaydi — sahifa tinch turganda hech narsa chizilmasin */
 }
 
 .lp-orbit::after {
@@ -1399,9 +1413,55 @@ html.fx [data-fx="heading"]:not([data-shown]) .fx-word {
     box-shadow: 0 0 12px var(--accent);
 }
 
-.lp-orbit-slow {
-    animation-duration: 120s;
-    animation-direction: reverse;
+
+/* --- Kursor halqasi (faqat sichqoncha) --- */
+.lp-cursor {
+    position: fixed;
+    top: -18px;
+    left: -18px;
+    z-index: 80;
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid color-mix(in oklab, var(--accent) 70%, transparent);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        opacity 0.3s var(--ease-soft),
+        scale 0.35s var(--ease-soft),
+        background-color 0.35s var(--ease-soft);
+    will-change: transform;
+}
+
+.lp-cursor::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: translate(-50%, -50%);
+}
+
+.lp-cursor.is-on {
+    opacity: 1;
+}
+
+.lp-cursor.is-hover {
+    scale: 1.9;
+    background-color: color-mix(in oklab, var(--accent) 12%, transparent);
+}
+
+.lp-cursor.is-down {
+    scale: 0.75;
+}
+
+@media (pointer: coarse) {
+    .lp-cursor {
+        display: none;
+    }
 }
 
 /* --- Yirik so'zlar: sahifa aylantirilganda yonga siljiydi --- */
@@ -1443,10 +1503,43 @@ html.fx [data-fx="heading"]:not([data-shown]) .fx-word {
     line-height: 0.92;
     letter-spacing: -0.055em;
     font-variant-numeric: tabular-nums;
-    color: transparent;
-    background-image: linear-gradient(100deg, var(--text) 35%, var(--accent) 100%);
+    color: var(--text);
+}
+
+.lp-number {
+    line-height: 1;
+}
+
+/* Odometr: har bir raqam 0–9 ustuni, kerakli qiymatgacha aylanib keladi */
+.od {
+    display: inline-block;
+    height: 1em;
+    overflow: hidden;
+    vertical-align: top;
+}
+
+.od-col {
+    display: block;
+    transform: translateY(calc(var(--n, 0) * -1em));
+    transition: transform 1.4s var(--ease-out-expo) calc(var(--k, 0) * 0.08s);
+}
+
+.od-col > span {
+    display: block;
+    height: 1em;
+    line-height: 1;
+    /* Gradient har bir raqamda alohida — aylanayotgan ustun bilan ham to'g'ri ishlaydi */
+    background-image: linear-gradient(160deg, var(--text) 45%, var(--accent) 115%);
     -webkit-background-clip: text;
     background-clip: text;
+    color: transparent;
+}
+
+/* Qadam faol bo'lmaguncha raqam nolda turadi — faollashganda aylanadi */
+html.fx .lp-step:not([data-active]) .od-col {
+    transform: translateY(0);
+    transition-duration: 0s;
+    transition-delay: 0s;
 }
 
 .lp-story-pin {
@@ -1528,6 +1621,42 @@ html.fx .lp-ticks {
     transition:
         opacity 0.35s var(--ease-soft),
         transform 0.55s var(--ease-soft);
+}
+
+.lp-panel {
+    position: relative;
+    overflow: hidden;
+}
+
+.lp-panel-img {
+    position: absolute;
+    top: -0.75rem;
+    right: -0.5rem;
+    width: 9.5rem;
+    height: 9.5rem;
+    object-fit: contain;
+    /* Faol panel (d = 0): rasm kattalashib, to'g'rilanib keladi */
+    transform: scale(calc(1 - min(1, max(var(--d, 1), var(--d, 1) * -1)) * 0.4))
+        rotate(calc(clamp(-1, var(--d, 1), 1) * -12deg));
+    transition: transform 0.9s var(--ease-out-expo);
+}
+
+.lp-dir-img {
+    width: 3.5rem;
+    height: 3.5rem;
+    flex-shrink: 0;
+    object-fit: contain;
+    opacity: 0.35;
+    transform: scale(0.85);
+    transition:
+        opacity 0.45s var(--ease-soft),
+        transform 0.6s var(--ease-out-expo);
+}
+
+[data-active] .lp-dir-img,
+.lp-dir:hover .lp-dir-img {
+    opacity: 1;
+    transform: scale(1.05) rotate(-6deg);
 }
 
 .lp-panel-n {
@@ -1661,7 +1790,51 @@ html.fx .lp-stack-card {
 /* --- Bo'limlar: pastga aylantirilsa kartalar yonga yuradi --- */
 .lp-rail {
     position: relative;
+    z-index: 2;
     border-block: 1px solid var(--line);
+}
+
+@media (width >= 48rem) {
+    /* To'q sahna oldingi bo'lim ustiga varaq bo'lib chiqadi */
+    .lp-rail {
+        margin-top: -2.5rem;
+        border-radius: 2.5rem 2.5rem 0 0;
+        box-shadow: 0 -32px 60px -36px rgb(0 0 0 / 0.7);
+    }
+}
+
+.lp-rail-count {
+    align-items: baseline;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+}
+
+.lp-rail-count-cur {
+    display: grid;
+    font-size: 3.5rem;
+    line-height: 1;
+}
+
+.lp-rail-count-cur > span {
+    --d: calc(var(--i) - var(--idx, 0));
+    grid-area: 1 / 1;
+    opacity: calc(1 - min(1, max(var(--d), var(--d) * -1)));
+    transform: translateY(calc(clamp(-1, var(--d), 1) * -0.35em));
+    transition:
+        opacity 0.35s var(--ease-soft),
+        transform 0.5s var(--ease-out-expo);
+    background-image: linear-gradient(100deg, var(--text), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.lp-rail-count-all {
+    font-size: 1rem;
+    color: var(--faint);
 }
 
 .lp-rail-pin {
@@ -1756,6 +1929,14 @@ html.fx .lp-stack-card {
         /* `100%` — lentaning o'z kengligi: oxirida so'nggi karta o'ng chetga keladi */
         transform: translate3d(calc(var(--p, 0) * (100vw - 100%)), 0, 0);
         will-change: transform;
+    }
+
+    /* O'rtadagi karta kattaroq va yorqinroq, chetdagilari xira */
+    html.fx .lp-rail-track > li {
+        --d: calc(var(--i, 0) - var(--p, 0) * (var(--count, 8) - 1));
+        --far: min(1, max(var(--d), var(--d) * -1));
+        transform: scale(calc(1.04 - var(--far) * 0.07));
+        opacity: calc(1 - var(--far) * 0.4);
     }
 }
 
@@ -1882,9 +2063,6 @@ html:not(.fx) .lp-rule::after,
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .lp-orbit {
-        animation: none;
-    }
 
     .lp-band-track {
         transform: translate3d(-6vw, 0, 0);

@@ -22,6 +22,7 @@ import { BusinessCard, StartupCard } from "@/components/directory/cards";
 import { HeroStage } from "@/components/home/hero-stage";
 import { HomeFx } from "@/components/home/home-fx";
 import { MagneticLink, SpotlightCard } from "@/components/home/interactive";
+import { Odometer } from "@/components/home/odometer";
 import { ParticleField, type ParticleShape } from "@/components/home/particle-field";
 import { ScrollScenes } from "@/components/home/scroll-scenes";
 import { Img } from "@/components/img";
@@ -262,7 +263,6 @@ export default async function HomePage() {
             <HeroStage>
                 {stats && (
                     <div className="relative border-t border-line bg-page/60 backdrop-blur">
-                        <div aria-hidden className="line-sweep absolute inset-x-0 top-[-1px] h-px" />
                         <div className="container-page">
                             <dl className="grid grid-cols-2 divide-line md:grid-cols-5 md:divide-x">
                                 {(
@@ -310,7 +310,7 @@ export default async function HomePage() {
                             data-fx="heading"
                             className="mt-5 text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl"
                         >
-                            <Words text="Samarqand yoshlari nima?" />
+                            <Words text="Samarqand yoshlari nima?" chars />
                         </h2>
                     </div>
 
@@ -369,11 +369,18 @@ export default async function HomePage() {
 
                                 <div className="lp-steps mt-7 lg:mt-9">
                                     {story.map((step, index) => (
-                                        <article key={step.label} className="lp-step" style={{ "--i": index } as Vars}>
+                                        <article
+                                            key={step.label}
+                                            data-step-item
+                                            className="lp-step"
+                                            style={{ "--i": index } as Vars}
+                                        >
                                             <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-accent-text">
                                                 {step.label}
                                             </p>
-                                            <p className="lp-number mt-2">{formatNumber(step.value)}</p>
+                                            <p className="lp-number mt-2">
+                                                <Odometer value={step.value} />
+                                            </p>
                                             <p className="mt-3 text-[12.5px] font-semibold uppercase tracking-[0.14em]">
                                                 {step.unit}
                                             </p>
@@ -412,7 +419,7 @@ export default async function HomePage() {
                                 data-fx="heading"
                                 className="mt-5 text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl"
                             >
-                                <Words text={`${directions.length} yo'nalish, bitta maydon`} />
+                                <Words text={`${directions.length} yo'nalish, bitta maydon`} chars />
                             </h2>
                             <p data-fx="rise" className="mt-5 max-w-md text-[15.5px] leading-relaxed text-muted">
                                 Har bir yo&apos;nalish — alohida ekotizim: tashabbus va ovozlar bilan birga
@@ -427,6 +434,15 @@ export default async function HomePage() {
                                         className="lp-panel"
                                         style={{ "--i": index, "--dir": direction.color } as Vars}
                                     >
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={`/yonalish/sm/${direction.id}.webp`}
+                                            alt=""
+                                            width={160}
+                                            height={160}
+                                            loading="lazy"
+                                            className="lp-panel-img"
+                                        />
                                         <p className="lp-panel-n">
                                             {pad(index + 1)}
                                             <span>/ {pad(directions.length)}</span>
@@ -465,6 +481,15 @@ export default async function HomePage() {
                                         className="lp-dir group"
                                     >
                                         <span className="lp-dir-n">{pad(index + 1)}</span>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={`/yonalish/sm/${direction.id}.webp`}
+                                            alt=""
+                                            width={56}
+                                            height={56}
+                                            loading="lazy"
+                                            className="lp-dir-img"
+                                        />
                                         <span className="min-w-0 flex-1">
                                             <span className="lp-dir-name">{direction.name}</span>
                                             {direction.tagline && (
@@ -493,7 +518,7 @@ export default async function HomePage() {
                                 data-fx="heading"
                                 className="mt-5 text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl"
                             >
-                                <Words text="Qanday ishlaydi" />
+                                <Words text="Qanday ishlaydi" chars />
                             </h2>
                         </div>
                         <p data-fx="rise" className="max-w-xs text-[15.5px] leading-relaxed text-muted">
@@ -534,18 +559,16 @@ export default async function HomePage() {
             {/* `dark` — yorug' rejimda ham to'q «sahna»: ichidagi ranglar o'zi moslashadi */}
             <section
                 data-scene="pin"
+                data-count={SECTIONS.length}
                 className="dark lp-rail bg-page text-text"
                 style={{ "--count": SECTIONS.length } as Vars}
             >
                 <div className="lp-rail-pin">
-                    <div aria-hidden className="pointer-events-none absolute inset-0">
-                        <div className="grid-lines absolute inset-0 opacity-30 [mask-image:radial-gradient(ellipse_80%_70%_at_50%_0%,#000,transparent)]" />
-                        <div className="blob -left-32 top-10 size-[26rem] bg-[color-mix(in_oklab,var(--accent)_16%,transparent)]" />
-                        <div
-                            className="blob -right-32 bottom-0 size-[24rem] bg-[oklch(65%_0.14_255/0.14)]"
-                            style={{ animationDelay: "-8s" }}
-                        />
-                    </div>
+                    {/* Fon: oddiy gradientlar — filtr va niqobsiz, aylantirishda arzon */}
+                    <div
+                        aria-hidden
+                        className="pointer-events-none absolute inset-0 bg-[radial-gradient(34rem_28rem_at_0%_10%,color-mix(in_oklab,var(--accent)_14%,transparent),transparent_70%),radial-gradient(30rem_26rem_at_100%_100%,oklch(65%_0.14_255/0.13),transparent_70%)]"
+                    />
 
                     <div className="container-page relative">
                         <Label n={no("sections")}>Bo&apos;limlar</Label>
@@ -554,13 +577,24 @@ export default async function HomePage() {
                                 data-fx="heading"
                                 className="text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl"
                             >
-                                <Words text="Platformada nima bor" />
+                                <Words text="Platformada nima bor" chars />
                             </h2>
                             <p className="max-w-xs text-[15px] leading-relaxed text-muted">
                                 Sakkizta bo&apos;lim — hammasi ochiq. Ko&apos;rish uchun ro&apos;yxatdan
                                 o&apos;tish shart emas.
                             </p>
                         </div>
+                        {/* Qaysi karta o'rtada — raqam shunga qarab almashadi */}
+                        <p aria-hidden className="lp-rail-count mt-6 hidden lg:flex">
+                            <span className="lp-rail-count-cur">
+                                {SECTIONS.map((item, index) => (
+                                    <span key={item.href} style={{ "--i": index } as Vars}>
+                                        {pad(index + 1)}
+                                    </span>
+                                ))}
+                            </span>
+                            <span className="lp-rail-count-all">/ {pad(SECTIONS.length)}</span>
+                        </p>
                         {/* Yo'l chizig'i — qancha yurilgani */}
                         <div aria-hidden className="lp-rail-line mt-8">
                             <span />
@@ -570,7 +604,7 @@ export default async function HomePage() {
                     <div className="lp-rail-view relative mt-8">
                         <ul className="lp-rail-track">
                             {SECTIONS.map((item, index) => (
-                                <li key={item.href}>
+                                <li key={item.href} style={{ "--i": index } as Vars}>
                                     <Link href={item.href} className={`lp-rail-card group tone-${item.tone}`}>
                                         <span
                                             aria-hidden
@@ -634,7 +668,7 @@ export default async function HomePage() {
                                         <span
                                             className={
                                                 index < 3
-                                                    ? "pulse-glow relative grid size-10 shrink-0 place-items-center rounded-xl border border-tone-line bg-tone-soft text-[14px] font-semibold tabular-nums text-tone-text"
+                                                    ? "relative grid size-10 shrink-0 place-items-center rounded-xl border border-tone-line bg-tone-soft text-[14px] font-semibold tabular-nums text-tone-text"
                                                     : "relative grid size-10 shrink-0 place-items-center rounded-xl border border-line text-[14px] font-semibold tabular-nums text-faint"
                                             }
                                         >
@@ -828,13 +862,10 @@ export default async function HomePage() {
 
             {/* ================= CHET ELDAGI TENGDOSHLAR ================= */}
             <section className="relative overflow-hidden border-b border-line">
-                <div aria-hidden className="pointer-events-none absolute inset-0">
-                    <div className="blob -right-32 top-6 size-[26rem] bg-[oklch(65%_0.14_230/0.14)]" />
-                    <div
-                        className="blob -left-40 bottom-0 size-[22rem] bg-[color-mix(in_oklab,var(--accent)_14%,transparent)]"
-                        style={{ animationDelay: "-7s" }}
-                    />
-                </div>
+                <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(32rem_26rem_at_100%_8%,oklch(65%_0.14_230/0.12),transparent_70%),radial-gradient(28rem_24rem_at_0%_100%,color-mix(in_oklab,var(--accent)_12%,transparent),transparent_70%)]"
+                />
 
                 <div className="container-page relative py-20 md:py-24">
                     <SectionHead
@@ -868,7 +899,7 @@ export default async function HomePage() {
                         data-fx="rise"
                         className="mt-8 flex flex-col items-start gap-4 rounded-2xl border border-line bg-raised/70 p-5 backdrop-blur sm:flex-row sm:items-center"
                     >
-                        <span className="float-slow tone-blue grid size-12 shrink-0 place-items-center rounded-2xl border border-tone-line bg-tone-soft text-tone-text">
+                        <span className="tone-blue grid size-12 shrink-0 place-items-center rounded-2xl border border-tone-line bg-tone-soft text-tone-text">
                             <Plane className="size-6" strokeWidth={1.7} />
                         </span>
                         <p className="flex-1 text-[14.5px] leading-relaxed text-muted">
@@ -976,7 +1007,7 @@ export default async function HomePage() {
                             data-fx="heading"
                             className="text-5xl font-semibold leading-[1.02] tracking-[-0.035em] sm:text-6xl md:text-7xl"
                         >
-                            <Words text="Ovoz berish uchun qo'shiling" />
+                            <Words text="Ovoz berish uchun qo'shiling" chars />
                         </h2>
                         {/* O'qilgan sari so'zlar to'ladi */}
                         <p
@@ -1014,8 +1045,7 @@ function Label({ n, children }: { n?: number; children: ReactNode }) {
     return (
         <p className="flex items-center gap-3 text-[12px] font-medium uppercase leading-5 tracking-[0.14em] text-muted">
             {n ? <span className="font-semibold tabular-nums text-accent-text">{pad(n)}</span> : null}
-            {/* Chiziq bo'ylab nur yugurib o'tadi */}
-            <span aria-hidden className="line-sweep block h-px w-8 bg-line" />
+            <span aria-hidden className="block h-px w-8 bg-line" />
             {children}
         </p>
     );
@@ -1060,7 +1090,7 @@ function SectionHead({
                                 : "mt-5 max-w-2xl text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl"
                         }
                     >
-                        <Words text={title} />
+                        <Words text={title} chars />
                     </h2>
                     {lead && (
                         <p data-fx="rise" className="mt-4 max-w-xl text-[15.5px] leading-relaxed text-muted">

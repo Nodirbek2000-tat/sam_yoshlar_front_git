@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Fragment, useRef, type CSSProperties, type PointerEvent, type ReactNode } from "react";
 
 import { MagneticLink } from "@/components/home/interactive";
@@ -114,21 +114,11 @@ export function HeroStage({ children }: { children?: ReactNode }) {
                         </MagneticLink>
                     </div>
 
-                    <div
-                        data-intro="cue"
-                        // Faqat baland ekranda — pastdagi raqamlar qatori ko'rinib tursin
-                        className="mt-12 hidden items-center gap-2.5 text-[12px] text-faint xl:[@media(min-height:60rem)]:flex"
-                    >
-                        <span className="relative flex h-8 w-5 justify-center rounded-full border border-line">
-                            <span className="scroll-wheel mt-1.5 h-1.5 w-1 rounded-full bg-accent" />
-                        </span>
-                        Pastga aylantiring
-                        <ChevronDown className="size-3.5 animate-bounce" />
-                    </div>
                 </div>
 
                 {/* ---------- Nuqtalardan Registon ---------- */}
-                <div aria-hidden className="relative mx-auto aspect-square w-full max-w-[22rem] sm:max-w-[28rem] xl:max-w-none">
+                {/* `data-hero-art` — sahifadan chiqib ketayotganda CSS'da kattalashib so'nadi */}
+                <div data-hero-art aria-hidden className="relative mx-auto aspect-square w-full max-w-[22rem] sm:max-w-[28rem] xl:max-w-none">
                     {/* Orqadagi aylanuvchi halqalar */}
                     <span className="lp-orbit absolute inset-[6%] rounded-full border border-dashed border-line" />
                     <span className="lp-orbit lp-orbit-slow absolute inset-[-4%] rounded-full border border-line-soft" />
