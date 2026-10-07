@@ -133,3 +133,16 @@ export function formatMoney(value: number | string | null | undefined) {
     if (amount >= 1_000_000) return `${short(amount / 1_000_000)} mln so'm`;
     return `${formatNumber(amount)} so'm`;
 }
+
+/**
+ * Qidiruv va solishtirish uchun matn kaliti: kichik harf, tutuq belgilarisiz
+ * (o', g', o‘, oʻ — hammasi bir xil), bo'shliqlar bitta. «Bog'ishamol»,
+ * «Bog’ishamol» va «Bogishamol» bir-biriga mos keladi.
+ */
+export function foldText(text: string) {
+    return text
+        .toLowerCase()
+        .replace(/['`´ʻʼ‘’]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+}

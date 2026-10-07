@@ -492,3 +492,70 @@ export type AuthResult = {
     user: User;
     needs_profile: boolean;
 };
+
+/** So'rovnomadagi bitta nomzod. `votes`/`percent`/`rank` — natijalar ochiq bo'lsagina. */
+export type PollOption = {
+    id: number;
+    name: string;
+    mahalla: string;
+    district: string;
+    district_display: string;
+    note: string;
+    photo: string | null;
+    votes?: number;
+    percent?: number;
+    rank?: number;
+};
+
+export type Poll = {
+    id: number;
+    slug: string;
+    title: string;
+    description: string;
+    image: string | null;
+    ends_at: string | null;
+    is_active: boolean;
+    is_closed: boolean;
+    /** Hozir ovoz berish mumkinmi */
+    is_open: boolean;
+    show_results: boolean;
+    /** Shuncha ovozga yetmagan nomzod 1-2-3 o'rin zinapoyasiga chiqmaydi */
+    podium_min_votes: number;
+    /** Natijalar yopiq bo'lsa `null` */
+    total_votes: number | null;
+    options_count: number;
+    /** Ro'yxatda — peshqadam uchtalik, sahifada — hammasi (reyting tartibida) */
+    options: PollOption[];
+    created_at: string;
+    /** Kirgan foydalanuvchi qaysi nomzodga ovoz bergan (faqat sahifada) */
+    my_vote?: number | null;
+};
+
+/** Ovoz berilgandan keyingi javob — yangilangan so'rovnoma. */
+export type PollVoteResult = Poll & { my_vote: number; message: string };
+
+/** Panel: so'rovnoma + tahrirlash uchun nomzodlar asl tartibida. */
+export type PanelPoll = Poll & {
+    url: string;
+    total_votes: number;
+    editable: (PollOption & { votes: number })[];
+};
+
+/** Panel: natijalar sahifasi. */
+export type PollResults = Poll & {
+    url: string;
+    total_votes: number;
+    districts: { district: string; label: string; votes: number }[];
+    daily: { date: string; votes: number }[];
+    voters_count: number;
+    voters: {
+        id: number;
+        user_id: number;
+        full_name: string;
+        phone: string;
+        district: string;
+        option_id: number;
+        option: string;
+        created_at: string;
+    }[];
+};

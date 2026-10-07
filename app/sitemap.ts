@@ -2,7 +2,17 @@ import type { MetadataRoute } from "next";
 
 import { apiFetch } from "@/lib/api";
 import { SITE_URL } from "@/lib/seo";
-import type { Announcement, Event, Initiative, News, Paginated, Peer, PublicBusiness, PublicStartup } from "@/lib/types";
+import type {
+    Announcement,
+    Event,
+    Initiative,
+    News,
+    Paginated,
+    Peer,
+    Poll,
+    PublicBusiness,
+    PublicStartup,
+} from "@/lib/types";
 
 /**
  * Sayt xaritasi — Google va Yandex shu ro'yxat bo'yicha sahifalarni topadi.
@@ -48,7 +58,7 @@ function entry(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const [news, events, announcements, initiatives, startups, businesses, peers] =
+    const [news, events, announcements, initiatives, startups, businesses, peers, polls] =
         await Promise.all([
             collect<News>("/news/"),
             collect<Event>("/events/"),
@@ -57,6 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             collect<PublicStartup>("/startups/"),
             collect<PublicBusiness>("/businesses/"),
             collect<Peer>("/peers/"),
+            collect<Poll>("/polls/"),
         ]);
 
     const pages: MetadataRoute.Sitemap = [
@@ -64,6 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         entry("/yangiliklar", undefined, 0.9, "daily"),
         entry("/tadbirlar", undefined, 0.9, "daily"),
         entry("/elonlar", undefined, 0.9, "daily"),
+        entry("/sorovnomalar", undefined, 0.8, "daily"),
         entry("/tashabbuslar", undefined, 0.8),
         entry("/tashabbuslar/yoshlar", undefined, 0.8, "daily"),
         entry("/tashabbuslar/muammolar", undefined, 0.7),
@@ -76,6 +88,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ...pages,
         ...news.map((item) => entry(`/yangiliklar/${item.slug}`, item.published_at, 0.8, "monthly")),
         ...events.map((item) => entry(`/tadbirlar/${item.slug}`, item.starts_at, 0.7, "weekly")),
+        ...polls.map((item) => entry(`/sorovnomalar/${item.slug}`, item.created_at, 0.8, "daily")),
         ...announcements.map((item) =>
             entry(`/elonlar/${item.slug}`, item.posted_at, 0.8, "weekly"),
         ),

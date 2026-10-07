@@ -16,6 +16,7 @@ const ALLOWED = new Set([
     "news",
     "events",
     "announcements",
+    "polls",
     "initiatives",
     "problems",
     "peers",

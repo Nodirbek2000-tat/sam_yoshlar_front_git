@@ -2068,3 +2068,45 @@ html:not(.fx) .lp-rule::after,
         transform: translate3d(-6vw, 0, 0);
     }
 }
+
+/* So'rovnoma: «jonli» nuqtasi atrofidagi to'lqin */
+.poll-live::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: var(--tone);
+    animation: poll-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes poll-ping {
+    75%,
+    100% {
+        transform: scale(2.6);
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .poll-live::after {
+        animation: none;
+    }
+}
+
+/* So'rovnoma: peshqadamlar zinapoyasi pastdan ko'tariladi */
+.podium-step {
+    transform-origin: bottom;
+    animation: podium-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes podium-rise {
+    from {
+        transform: scaleY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .podium-step {
+        animation: none;
+    }
+}

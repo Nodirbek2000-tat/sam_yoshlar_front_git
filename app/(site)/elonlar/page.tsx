@@ -6,11 +6,12 @@ import { Icon } from "@/components/icon";
 import { Img } from "@/components/img";
 import { PageHero } from "@/components/page-hero";
 import { Stagger, StaggerItem } from "@/components/motion-primitives";
-import { getAnnouncements } from "@/lib/api";
+import { PollBanner } from "@/components/polls/poll-ui";
+import { getAnnouncements, getPolls } from "@/lib/api";
 import { daysUntil, formatShortDate, plainText } from "@/lib/format";
 import { IMAGE_SIZES } from "@/lib/image";
 import { toneClass } from "@/lib/tone";
-import type { Announcement } from "@/lib/types";
+import type { Announcement, Poll } from "@/lib/types";
 
 export const metadata: Metadata = {
     alternates: { canonical: "/elonlar" },
@@ -18,13 +19,26 @@ export const metadata: Metadata = {
     description: "Grant, kredit, tanlov, trening va vakansiyalar.",
 };
 
+/** Davom etayotgan yoki 30 kun ichida yakunlangan so'rovnoma. */
+function isRecentPoll(poll: Poll) {
+    if (poll.is_open) return true;
+    return Boolean(poll.ends_at && Date.now() - new Date(poll.ends_at).getTime() < 30 * 86_400_000);
+}
+
 /** Muddatgacha necha kun qolgani. Muddat yo'q bo'lsa `null`. */
 const daysLeft = (deadline: string | null) => daysUntil(deadline);
 
 /** E'lonlar oddiy ketma-ketlikda turadi — kategoriya bo'yicha ajratilmaydi. */
 export default async function AnnouncementsPage() {
-    const page = await getAnnouncements().catch(() => null);
+    const [page, polls] = await Promise.all([
+        getAnnouncements().catch(() => null),
+        getPolls().catch(() => null),
+    ]);
     const items = page?.results ?? [];
+    // So'rovnomalar e'lonlar ustida: avval davom etayotganlari, keyin yaqinda
+    // (30 kun ichida) yakunlanganlari — g'oliblarni ko'rish uchun
+    const allPolls = polls?.results ?? [];
+    const shownPolls = allPolls.filter(isRecentPoll).slice(0, 2);
 
     return (
         <>
@@ -41,6 +55,23 @@ export default async function AnnouncementsPage() {
             />
 
             <section className="container-page py-8 md:py-10">
+                {shownPolls.length > 0 && (
+                    <div className="mb-3 space-y-3">
+                        {shownPolls.map((poll) => (
+                            <PollBanner key={poll.id} poll={poll} />
+                        ))}
+                    </div>
+                )}
+                {allPolls.length > 0 && (
+                    <Link
+                        href="/sorovnomalar"
+                        className="mb-8 inline-flex items-center gap-1.5 text-[13px] font-medium text-accent hover:underline"
+                    >
+                        Barcha so&apos;rovnomalar va natijalar
+                        <Icon name="arrowRight" size={13} />
+                    </Link>
+                )}
+
                 {items.length ? (
                     <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {items.map((item) => (

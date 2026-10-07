@@ -10,6 +10,7 @@ const SECTIONS: { title: string; links: { href: string; label: string }[] }[] = 
             { href: "/yangiliklar", label: "Yangiliklar" },
             { href: "/tadbirlar", label: "Tadbirlar" },
             { href: "/elonlar", label: "E'lonlar" },
+            { href: "/sorovnomalar", label: "So'rovnomalar" },
             { href: "/tashabbuslar", label: "Tashabbuslar" },
             { href: "/tadbirkorlar", label: "Tadbirkorlar" },
             { href: "/startaplar", label: "Startaplar" },

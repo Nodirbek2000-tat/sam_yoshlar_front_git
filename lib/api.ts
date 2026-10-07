@@ -15,6 +15,7 @@ import type {
     Overview,
     Paginated,
     Peer,
+    Poll,
     Problem,
     PublicProfile,
     Reference,
@@ -201,6 +202,12 @@ export const getAnnouncement = (slug: string) =>
         revalidate: 120,
         tags: ["announcements"],
     });
+
+export const getPolls = () =>
+    apiFetch<{ count: number; results: Poll[] }>("/polls/", { revalidate: 30, tags: ["polls"] });
+
+export const getPoll = (slug: string) =>
+    apiFetch<Poll>(`/polls/${slug}/`, { revalidate: 30, tags: ["polls"] });
 
 export const getProblems = () =>
     apiFetch<Paginated<Problem>>("/problems/", { revalidate: 60, tags: ["problems"] });

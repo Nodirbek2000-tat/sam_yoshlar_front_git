@@ -50,8 +50,26 @@ async function forward(request: Request, path: string[], method: string) {
         );
     }
 
+    // Tanasiz javoblar (204 — o'chirildi) JSON qilib bo'lmaydi — o'zini qaytaramiz
+    if (upstream.status === 204 || upstream.status === 205 || upstream.status === 304) {
+        return new NextResponse(null, { status: upstream.status });
+    }
+
     const text = await upstream.text();
-    const data = text ? JSON.parse(text) : null;
+    let data: unknown = null;
+    try {
+        data = text ? JSON.parse(text) : null;
+    } catch {
+        // Django yoki nginx HTML qaytardi (413, 502, ...) — tushunarli xabarga aylantiramiz
+        data = {
+            detail:
+                upstream.status === 413
+                    ? "Yuborilgan fayllar juda katta."
+                    : upstream.status >= 500
+                      ? "Serverda xatolik. Birozdan keyin qayta urinib ko'ring."
+                      : `So'rov bajarilmadi (${upstream.status}).`,
+        };
+    }
 
     return NextResponse.json(data, { status: upstream.status });
 }

@@ -1,11 +1,21 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 import { Icon } from "@/components/icon";
 import { cn } from "@/lib/cn";
+
+const FOCUSABLE =
+    'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/** Oyna ichidagi, ko'rinib turgan, bosib bo'ladigan elementlar. */
+function focusables(panel: HTMLElement) {
+    return Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+        (element) => element.getClientRects().length > 0,
+    );
+}
 
 /**
  * Markazda ochiladigan oyna — forma va savollar uchun.
@@ -31,11 +41,55 @@ export function Dialog({
     className?: string;
     children: ReactNode;
 }) {
+    const panelRef = useRef<HTMLDivElement>(null);
+    // Eng so'nggi `onClose`/`locked` — effekt har qayta chizilishda qayta ishlamasin
+    // (aks holda fokus oyna boshiga sakrab ketardi)
+    const latest = useRef({ onClose, locked });
+    useEffect(() => {
+        latest.current = { onClose, locked };
+    });
+
     useEffect(() => {
         if (!open) return;
 
+        // Klaviatura bilan ishlovchi uchun: fokus oyna ichiga o'tadi, Tab tashqariga
+        // chiqmaydi, yopilgach esa oynani ochgan tugmaga qaytadi
+        const opener =
+            document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        // Fokus: `data-autofocus` belgilangan tugmaga, bo'lmasa oynaning o'ziga —
+        // telefonda maydonga tushib, klaviatura oynani yopib qo'ymasin
+        // (oyna shu paytda DOM'da bor — kadr kutish shart emas; yashirin varaqda
+        // requestAnimationFrame umuman ishlamasligi ham mumkin)
+        const panel = panelRef.current;
+        if (panel && !panel.contains(document.activeElement)) {
+            (panel.querySelector<HTMLElement>("[data-autofocus]") ?? panel).focus({
+                preventScroll: true,
+            });
+        }
+
         const onKey = (event: KeyboardEvent) => {
-            if (event.key === "Escape" && !locked) onClose();
+            if (event.key === "Escape" && !latest.current.locked) {
+                latest.current.onClose();
+                return;
+            }
+            if (event.key !== "Tab") return;
+
+            const panel = panelRef.current;
+            if (!panel) return;
+            const items = focusables(panel);
+            const active = document.activeElement;
+            // Oynaning o'zi fokusda bo'lsa ham — Tab ichkarida aylanadi
+            const outside = active === panel || !panel.contains(active);
+            if (!items.length) {
+                event.preventDefault();
+                panel.focus();
+            } else if (event.shiftKey && (active === items[0] || outside)) {
+                event.preventDefault();
+                items[items.length - 1].focus();
+            } else if (!event.shiftKey && (active === items[items.length - 1] || outside)) {
+                event.preventDefault();
+                items[0].focus();
+            }
         };
         window.addEventListener("keydown", onKey);
 
@@ -46,8 +100,9 @@ export function Dialog({
         return () => {
             window.removeEventListener("keydown", onKey);
             document.body.style.overflow = previous;
+            if (opener?.isConnected) opener.focus();
         };
-    }, [open, locked, onClose]);
+    }, [open]);
 
     return createPortal(
         <AnimatePresence>
@@ -62,6 +117,8 @@ export function Dialog({
                     onClick={() => !locked && onClose()}
                 >
                     <motion.div
+                        ref={panelRef}
+                        tabIndex={-1}
                         role="dialog"
                         aria-modal="true"
                         aria-label={label}
@@ -72,7 +129,7 @@ export function Dialog({
                         onClick={(event) => event.stopPropagation()}
                         className={cn(
                             // Telefonda pastdan chiqadi, katta ekranda markazda
-                            "relative max-h-[92dvh] w-full overflow-y-auto rounded-t-3xl border border-line bg-page p-6 shadow-2xl sm:max-w-md sm:rounded-3xl sm:p-7",
+                            "relative max-h-[92dvh] w-full overflow-y-auto rounded-t-3xl outline-none border border-line bg-page p-6 shadow-2xl sm:max-w-md sm:rounded-3xl sm:p-7",
                             className,
                         )}
                     >
@@ -86,6 +143,7 @@ export function Dialog({
                                 type="button"
                                 onClick={onClose}
                                 aria-label="Yopish"
+                                data-dialog-close
                                 className="absolute right-4 top-4 z-10 grid size-8 place-items-center rounded-full text-faint transition-colors hover:bg-surface hover:text-text"
                             >
                                 <Icon name="close" size={16} />

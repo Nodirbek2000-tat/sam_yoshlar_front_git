@@ -1,3 +1,4 @@
+import { AnnouncementTabs } from "@/components/panel/announcement-tabs";
 import {
     AnnouncementsPanel,
     type PanelAnnouncement,
@@ -12,9 +13,12 @@ export default async function PanelAnnouncementsPage() {
     ]);
 
     return (
-        <AnnouncementsPanel
-            announcements={data.results}
-            types={reference.announcement_types}
-        />
+        <>
+            <AnnouncementTabs active="elonlar" />
+            <AnnouncementsPanel
+                announcements={data.results}
+                types={reference.announcement_types}
+            />
+        </>
     );
 }
