@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CategoryIcon } from "@/components/category-icon";
+import { LogoDownload } from "@/components/directory/logo-download";
 import { PhotoGallery } from "@/components/directory/photo-gallery";
 import { Icon, type IconName } from "@/components/icon";
 import { Img } from "@/components/img";
@@ -87,8 +88,13 @@ export default async function BusinessPage({ params }: PageProps<"/tadbirkorlar/
             <div className="container-page">
                 {/* Faqat logotip muqovaga chiqib turadi — nom rasm ustiga tushmasin */}
                 <Reveal className="relative flex flex-wrap items-start gap-x-5 gap-y-3 px-2 sm:px-6">
-                    <span className="-mt-12 grid size-24 shrink-0 place-items-center overflow-hidden rounded-3xl border-4 border-page bg-page text-tone-text shadow-lg sm:-mt-14 sm:size-28">
-                        {business.logo_url ? (
+                    {business.logo_url ? (
+                        // Logotip ustiga bosilsa — kompaniya nomi bilan yuklab olinadi
+                        <LogoDownload
+                            src={business.logo_url}
+                            name={business.name}
+                            className="-mt-12 grid size-24 shrink-0 place-items-center overflow-hidden rounded-3xl border-4 border-page bg-page shadow-lg sm:-mt-14 sm:size-28"
+                        >
                             <Img
                                 src={business.logo_url}
                                 alt={business.name}
@@ -96,10 +102,12 @@ export default async function BusinessPage({ params }: PageProps<"/tadbirkorlar/
                                 maxWidth={384}
                                 className="size-full object-cover"
                             />
-                        ) : (
+                        </LogoDownload>
+                    ) : (
+                        <span className="-mt-12 grid size-24 shrink-0 place-items-center overflow-hidden rounded-3xl border-4 border-page bg-page text-tone-text shadow-lg sm:-mt-14 sm:size-28">
                             <CategoryIcon slug={business.sphere_icon} size={40} />
-                        )}
-                    </span>
+                        </span>
+                    )}
 
                     <div className="min-w-0 pt-4">
                         <h1 className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
