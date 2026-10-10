@@ -30,7 +30,6 @@ const NAV: { href: string; label: string; icon: IconName }[] = [
     { href: "/tashabbuslar", label: "Tashabbuslar", icon: "spark" },
     { href: "/tadbirkorlar", label: "Tadbirkorlar", icon: "briefcase" },
     { href: "/startaplar", label: "Startaplar", icon: "rocket" },
-    { href: "/startuplar-ofisi", label: "Startuplar ofisi", icon: "building" },
     { href: "/tengdoshlar", label: "Tengdoshlar", icon: "globe" },
 ];
 
@@ -50,7 +49,9 @@ export function SiteHeader() {
         };
     }, [open]);
 
-    const isActive = (href: string) => pathname.startsWith(href);
+    // Startuplar ofisi Startaplar bo'limining ichida — menyuda ham shu band yonadi
+    const isActive = (href: string) =>
+        pathname.startsWith(href) || (href === "/startaplar" && pathname.startsWith("/startuplar-ofisi"));
 
     return (
         <header className="sticky top-0 z-50 border-b border-line bg-page/80 backdrop-blur-xl">
@@ -66,13 +67,7 @@ export function SiteHeader() {
                     <BrandLogo
                         height={50}
                         priority
-                        className="hidden transition-opacity hover:opacity-85 sm:inline-flex xl:hidden 2xl:inline-flex"
-                    />
-                    {/* 1280–1535px: menyu bandlari ko'p — logo biroz kichikroq, hammasi bir qatorda sig'sin */}
-                    <BrandLogo
-                        height={40}
-                        priority
-                        className="hidden transition-opacity hover:opacity-85 xl:inline-flex 2xl:hidden"
+                        className="hidden transition-opacity hover:opacity-85 sm:inline-flex"
                     />
                 </Link>
 
@@ -82,8 +77,7 @@ export function SiteHeader() {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                // 8 ta band bir qatorda sig'ishi uchun: bo'linmaydi, tor ekranda zichroq
-                                "whitespace-nowrap rounded-md px-1.5 py-1.5 text-[13px] transition-colors duration-150 2xl:px-2 2xl:text-[13.5px]",
+                                "rounded-md px-2 py-1.5 text-[13.5px] transition-colors duration-150",
                                 isActive(item.href)
                                     ? "font-medium text-text"
                                     : "text-muted hover:text-text",
@@ -95,8 +89,7 @@ export function SiteHeader() {
                 </nav>
 
                 <div className="ml-auto flex items-center gap-2">
-                    {/* Juda tor noutbuk ekranida (1280–1359px) joy menyu bandlariga beriladi */}
-                    <ThemeToggle className="hidden sm:flex xl:max-[1359px]:hidden" />
+                    <ThemeToggle className="hidden sm:flex" />
 
                     {!ready ? (
                         // Kim kirgani hali aniq emas — tugma o'rnida bo'sh joy (miltillamasin)

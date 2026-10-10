@@ -5,6 +5,7 @@ import { FilterChip, FilterRow } from "@/components/filter-chip";
 import { Icon } from "@/components/icon";
 import { Stagger, StaggerItem } from "@/components/motion-primitives";
 import { OFFICE_STAGES, OfficeCard, sphereOf } from "@/components/office/office-ui";
+import { StartupTabs } from "@/components/office/startup-tabs";
 import { PageHero } from "@/components/page-hero";
 import { getOfficeStartups } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -68,6 +69,8 @@ export default async function OfficePage({ searchParams }: PageProps<"/startupla
             />
 
             <section className="container-page py-10 md:py-14">
+                <StartupTabs active="ofis" />
+
                 {/* Bosqichlar — raqamli lenta, bosilsa saralaydi */}
                 <div className="mb-7 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
                     {OFFICE_STAGES.map((stage) => {

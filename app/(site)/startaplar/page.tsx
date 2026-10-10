@@ -5,6 +5,7 @@ import { StartupCard, STAGE_TONE } from "@/components/directory/cards";
 import { FilterChip, FilterRow } from "@/components/filter-chip";
 import { Icon } from "@/components/icon";
 import { Stagger, StaggerItem } from "@/components/motion-primitives";
+import { StartupTabs } from "@/components/office/startup-tabs";
 import { PageHero } from "@/components/page-hero";
 import { getStartups } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -79,6 +80,8 @@ export default async function StartupsPage({ searchParams }: PageProps<"/startap
             />
 
             <section className="container-page py-12 md:py-16">
+                <StartupTabs active="startaplar" />
+
                 {/* Bosqichlar — raqamli lenta, bosilsa filtrlaydi */}
                 {stages.length > 0 && (
                     <div className="mb-8 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
