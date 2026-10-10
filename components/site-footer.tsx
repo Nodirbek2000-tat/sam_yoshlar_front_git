@@ -14,6 +14,7 @@ const SECTIONS: { title: string; links: { href: string; label: string }[] }[] = 
             { href: "/tashabbuslar", label: "Tashabbuslar" },
             { href: "/tadbirkorlar", label: "Tadbirkorlar" },
             { href: "/startaplar", label: "Startaplar" },
+            { href: "/startuplar-ofisi", label: "Samarqand startuplar ofisi" },
             { href: "/tengdoshlar", label: "Chet eldagi tengdoshim" },
         ],
     },

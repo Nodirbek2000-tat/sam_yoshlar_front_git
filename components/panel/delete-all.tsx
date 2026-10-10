@@ -21,6 +21,7 @@ const LABELS: Record<string, { noun: string; extra?: string }> = {
     problems: { noun: "muammo", extra: "takliflari bilan birga" },
     peers: { noun: "tengdosh" },
     startups: { noun: "startap" },
+    "office-startups": { noun: "ofis startapi", extra: "rasmlari bilan birga" },
     news: { noun: "yangilik" },
     events: { noun: "tadbir", extra: "yozilishlari bilan birga" },
     announcements: { noun: "e'lon" },

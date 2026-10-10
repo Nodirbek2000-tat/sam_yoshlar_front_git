@@ -30,6 +30,7 @@ const NAV: { href: string; label: string; icon: IconName }[] = [
     { href: "/tashabbuslar", label: "Tashabbuslar", icon: "spark" },
     { href: "/tadbirkorlar", label: "Tadbirkorlar", icon: "briefcase" },
     { href: "/startaplar", label: "Startaplar", icon: "rocket" },
+    { href: "/startuplar-ofisi", label: "Startuplar ofisi", icon: "building" },
     { href: "/tengdoshlar", label: "Tengdoshlar", icon: "globe" },
 ];
 
@@ -65,7 +66,13 @@ export function SiteHeader() {
                     <BrandLogo
                         height={50}
                         priority
-                        className="hidden transition-opacity hover:opacity-85 sm:inline-flex"
+                        className="hidden transition-opacity hover:opacity-85 sm:inline-flex xl:hidden 2xl:inline-flex"
+                    />
+                    {/* 1280–1535px: menyu bandlari ko'p — logo biroz kichikroq, hammasi bir qatorda sig'sin */}
+                    <BrandLogo
+                        height={40}
+                        priority
+                        className="hidden transition-opacity hover:opacity-85 xl:inline-flex 2xl:hidden"
                     />
                 </Link>
 
@@ -75,7 +82,8 @@ export function SiteHeader() {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "rounded-md px-2 py-1.5 text-[13.5px] transition-colors duration-150",
+                                // 8 ta band bir qatorda sig'ishi uchun: bo'linmaydi, tor ekranda zichroq
+                                "whitespace-nowrap rounded-md px-1.5 py-1.5 text-[13px] transition-colors duration-150 2xl:px-2 2xl:text-[13.5px]",
                                 isActive(item.href)
                                     ? "font-medium text-text"
                                     : "text-muted hover:text-text",
@@ -87,7 +95,8 @@ export function SiteHeader() {
                 </nav>
 
                 <div className="ml-auto flex items-center gap-2">
-                    <ThemeToggle className="hidden sm:flex" />
+                    {/* Juda tor noutbuk ekranida (1280–1359px) joy menyu bandlariga beriladi */}
+                    <ThemeToggle className="hidden sm:flex xl:max-[1359px]:hidden" />
 
                     {!ready ? (
                         // Kim kirgani hali aniq emas — tugma o'rnida bo'sh joy (miltillamasin)

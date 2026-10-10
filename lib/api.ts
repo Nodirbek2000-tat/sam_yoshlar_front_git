@@ -15,6 +15,8 @@ import type {
     Overview,
     Paginated,
     Peer,
+    OfficeStartupDetail,
+    OfficeStartupList,
     Poll,
     Problem,
     PublicProfile,
@@ -201,6 +203,19 @@ export const getAnnouncement = (slug: string) =>
     apiFetch<Announcement>(`/announcements/${slug}/`, {
         revalidate: 120,
         tags: ["announcements"],
+    });
+
+export const getOfficeStartups = (query?: Query) =>
+    apiFetch<OfficeStartupList>("/startuplar-ofisi/", {
+        query,
+        revalidate: 120,
+        tags: ["office-startups"],
+    });
+
+export const getOfficeStartup = (id: number | string) =>
+    apiFetch<OfficeStartupDetail>(`/startuplar-ofisi/${id}/`, {
+        revalidate: 120,
+        tags: ["office-startups"],
     });
 
 export const getPolls = () =>

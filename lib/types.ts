@@ -559,3 +559,35 @@ export type PollResults = Poll & {
         created_at: string;
     }[];
 };
+
+/* --- Samarqand startuplar ofisi --- */
+
+export type OfficeStartup = {
+    id: number;
+    name: string;
+    about: string;
+    sphere: string;
+    sphere_display: string;
+    stage: string;
+    stage_display: string;
+    full_name: string;
+    age: number | null;
+    district: string;
+    district_display: string;
+    photo: string | null;
+    project_image: string | null;
+    /** Telegram'da yozish havolasi (username yoki raqam orqali) */
+    contact_url: string | null;
+    created_at: string;
+};
+
+export type OfficeStartupDetail = OfficeStartup & { related: OfficeStartup[] };
+
+export type OfficeFacet = { value: string; label: string; count: number };
+
+export type OfficeStartupList = {
+    count: number;
+    total: number;
+    facets: { spheres: OfficeFacet[]; stages: OfficeFacet[]; districts: OfficeFacet[] };
+    results: OfficeStartup[];
+};
