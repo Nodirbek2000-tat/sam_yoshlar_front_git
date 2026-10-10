@@ -22,6 +22,8 @@ export type PanelNews = {
     excerpt: string;
     body: string;
     image_url: string | null;
+    video_url: string | null;
+    photos: { id: number; url: string }[];
     author_name: string;
     author_display: string;
     published_at: string;
@@ -29,6 +31,34 @@ export type PanelNews = {
     is_featured: boolean;
     views: number;
 };
+
+/** Backend bilan bir xil cheklovlar */
+const VIDEO_MAX_MB = 25;
+const PHOTO_LIMIT = 20;
+
+type Sent = { ok: boolean; payload: Record<string, string[] | string> | null };
+
+/** Fayllar katta bo'lishi mumkin — yuklanish foizini ko'rsatish uchun XHR. */
+function send(url: string, method: string, body: FormData, onProgress: (percent: number) => void) {
+    return new Promise<Sent>((resolve, reject) => {
+        const request = new XMLHttpRequest();
+        request.open(method, url);
+        request.upload.onprogress = (event) => {
+            if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100));
+        };
+        request.onload = () => {
+            let payload = null;
+            try {
+                payload = request.responseText ? JSON.parse(request.responseText) : null;
+            } catch {
+                payload = null;
+            }
+            resolve({ ok: request.status >= 200 && request.status < 300, payload });
+        };
+        request.onerror = () => reject(new Error("network"));
+        request.send(body);
+    });
+}
 
 /** Sana maydoni uchun: ISO -> `2026-09-09T14:30` (Toshkent vaqti). */
 const toLocalInput = (value: string) => toTashkentInput(value);
@@ -299,6 +329,43 @@ function NewsForm({
     const [error, setError] = useState<string | null>(null);
     const [preview, setPreview] = useState<string | null>(item?.image_url ?? null);
     const fileRef = useRef<HTMLInputElement>(null);
+    const [progress, setProgress] = useState<number | null>(null);
+
+    // Qo'shimcha rasmlar: mavjudlaridan o'chiriladiganlar va yangi tanlanganlar
+    const [removing, setRemoving] = useState<number[]>([]);
+    const [added, setAdded] = useState<{ file: File; url: string }[]>([]);
+    const kept = (item?.photos.length ?? 0) - removing.length;
+    const room = PHOTO_LIMIT - kept - added.length;
+
+    // Video: yangisi tanlansa — almashadi, «olib tashlash» belgilansa — o'chadi
+    const [video, setVideo] = useState<File | null>(null);
+    const [removeVideo, setRemoveVideo] = useState(false);
+
+    function pickPhotos(files: FileList | null) {
+        if (!files?.length) return;
+        const list = [...files].filter((file) => file.type.startsWith("image/"));
+        setError(
+            list.length > room
+                ? `Ko'pi bilan ${PHOTO_LIMIT} ta rasm — yana ${Math.max(room, 0)} ta qo'shish mumkin.`
+                : null,
+        );
+        setAdded((current) => [
+            ...current,
+            ...list.slice(0, Math.max(room, 0)).map((file) => ({ file, url: URL.createObjectURL(file) })),
+        ]);
+    }
+
+    function pickVideo(file: File | undefined) {
+        if (!file) return;
+        if (file.size > VIDEO_MAX_MB * 1024 * 1024) {
+            const size = (file.size / 1024 / 1024).toFixed(1);
+            setError(`Video ${VIDEO_MAX_MB} MB dan oshmasin (tanlangani ${size} MB).`);
+            return;
+        }
+        setError(null);
+        setVideo(file);
+        setRemoveVideo(false);
+    }
 
     async function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -312,20 +379,24 @@ function NewsForm({
         const file = data.get("image");
         if (file instanceof File && file.size === 0) data.delete("image");
 
+        for (const photo of added) data.append("new_photos", photo.file);
+        for (const id of removing) data.append("remove_photos", String(id));
+        if (video) data.append("video", video);
+        else if (removeVideo) data.append("remove_video", "true");
+
         setBusy(true);
         setError(null);
+        setProgress(0);
 
         try {
-            const response = await fetch(
+            const { ok, payload } = await send(
                 item ? `/api/proxy/panel/news/${item.id}/tahrir` : "/api/proxy/panel/news",
-                { method: item ? "PATCH" : "POST", body: data },
+                item ? "PATCH" : "POST",
+                data,
+                setProgress,
             );
 
-            if (!response.ok) {
-                const payload = (await response.json().catch(() => null)) as Record<
-                    string,
-                    string[] | string
-                > | null;
+            if (!ok) {
                 const first = payload ? Object.values(payload)[0] : null;
                 setError(
                     Array.isArray(first)
@@ -340,8 +411,11 @@ function NewsForm({
             setError("Tarmoqda xatolik.");
         } finally {
             setBusy(false);
+            setProgress(null);
         }
     }
+
+    const existingVideo = item?.video_url && !removeVideo && !video ? item.video_url : null;
 
     return (
         <form
@@ -443,6 +517,152 @@ function NewsForm({
                         />
                     </div>
                 </Field>
+
+                {/* ---------------------------------------- qo'shimcha rasmlar */}
+                <div className="md:col-span-2">
+                    <span className="mb-1.5 flex items-center justify-between text-[12.5px] text-muted">
+                        <span>Qo&apos;shimcha rasmlar (fotolavha)</span>
+                        <span className="tabular-nums text-faint">
+                            {kept + added.length} / {PHOTO_LIMIT}
+                        </span>
+                    </span>
+                    <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-5 lg:grid-cols-6">
+                        {item?.photos.map((photo) => {
+                            const gone = removing.includes(photo.id);
+                            return (
+                                <div
+                                    key={photo.id}
+                                    className={cn(
+                                        "relative aspect-square overflow-hidden rounded-xl border border-line bg-page",
+                                        gone && "opacity-35",
+                                    )}
+                                >
+                                    <Img src={photo.url} sizes="120px" maxWidth={256} className="size-full object-cover" />
+                                    <button
+                                        type="button"
+                                        title={gone ? "Qaytarish" : "O'chirish"}
+                                        aria-label={gone ? "Qaytarish" : "O'chirish"}
+                                        onClick={() =>
+                                            setRemoving((current) =>
+                                                gone ? current.filter((id) => id !== photo.id) : [...current, photo.id],
+                                            )
+                                        }
+                                        className="absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+                                    >
+                                        <Icon name={gone ? "plus" : "close"} size={13} />
+                                    </button>
+                                </div>
+                            );
+                        })}
+                        {added.map((photo, index) => (
+                            <div
+                                key={photo.url}
+                                className="relative aspect-square overflow-hidden rounded-xl border border-accent/50 bg-page"
+                            >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={photo.url} alt="" className="size-full object-cover" />
+                                <span className="absolute bottom-1.5 left-1.5 rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-medium text-white">
+                                    yangi
+                                </span>
+                                <button
+                                    type="button"
+                                    aria-label="Olib tashlash"
+                                    onClick={() => setAdded((current) => current.filter((_, i) => i !== index))}
+                                    className="absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+                                >
+                                    <Icon name="close" size={13} />
+                                </button>
+                            </div>
+                        ))}
+                        {room > 0 && (
+                            <label className="grid aspect-square cursor-pointer place-items-center rounded-xl border border-dashed border-line bg-page text-center text-faint transition-colors hover:border-accent hover:text-accent">
+                                <span className="flex flex-col items-center gap-1 text-[11.5px]">
+                                    <Icon name="plus" size={18} />
+                                    Rasm qo&apos;shish
+                                </span>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    className="sr-only"
+                                    onChange={(event) => {
+                                        pickPhotos(event.target.files);
+                                        event.target.value = "";
+                                    }}
+                                />
+                            </label>
+                        )}
+                    </div>
+                    <p className="mt-1.5 text-[11.5px] text-faint">
+                        Bir nechtasini birdan tanlash mumkin. Har biri 10 MB gacha.
+                    </p>
+                </div>
+
+                {/* ---------------------------------------- video */}
+                <div className="md:col-span-2">
+                    <span className="mb-1.5 block text-[12.5px] text-muted">Video (ixtiyoriy)</span>
+                    <div className="flex flex-col gap-3 rounded-xl border border-line bg-page p-3 sm:flex-row sm:items-center">
+                        {existingVideo ? (
+                            <video
+                                src={existingVideo}
+                                controls
+                                preload="metadata"
+                                className="aspect-video w-full rounded-lg bg-black sm:w-56"
+                            />
+                        ) : (
+                            <span className="grid aspect-video w-full place-items-center rounded-lg bg-surface text-faint sm:w-56">
+                                {video ? (
+                                    <span className="px-3 text-center text-[12px] text-text">
+                                        {video.name}
+                                        <span className="mt-0.5 block text-faint">
+                                            {(video.size / 1024 / 1024).toFixed(1)} MB
+                                        </span>
+                                    </span>
+                                ) : (
+                                    <Icon name="image" size={22} />
+                                )}
+                            </span>
+                        )}
+
+                        <div className="flex flex-1 flex-col gap-2">
+                            <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-full border border-line bg-raised px-4 py-2 text-[12.5px] transition-colors hover:bg-surface">
+                                <Icon name="plus" size={14} />
+                                {item?.video_url || video ? "Boshqa video tanlash" : "Video tanlash"}
+                                <input
+                                    type="file"
+                                    accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v"
+                                    className="sr-only"
+                                    onChange={(event) => {
+                                        pickVideo(event.target.files?.[0]);
+                                        event.target.value = "";
+                                    }}
+                                />
+                            </label>
+                            {video && (
+                                <button
+                                    type="button"
+                                    onClick={() => setVideo(null)}
+                                    className="w-fit text-[12.5px] text-muted hover:text-text"
+                                >
+                                    Tanlovni bekor qilish
+                                </button>
+                            )}
+                            {item?.video_url && !video && (
+                                <label className="inline-flex w-fit cursor-pointer items-center gap-2 text-[12.5px] text-muted">
+                                    <input
+                                        type="checkbox"
+                                        checked={removeVideo}
+                                        onChange={(event) => setRemoveVideo(event.target.checked)}
+                                    />
+                                    Videoni olib tashlash
+                                </label>
+                            )}
+                            <p className="text-[11.5px] text-faint">
+                                MP4, WEBM yoki MOV — {VIDEO_MAX_MB} MB gacha.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div className="mt-5 flex flex-wrap gap-5">
@@ -463,7 +683,13 @@ function NewsForm({
                     disabled={busy}
                     className="inline-flex items-center gap-2 rounded-full bg-invert px-5 py-2.5 text-[13.5px] font-medium text-on-invert transition-opacity hover:opacity-90 disabled:opacity-60"
                 >
-                    {busy ? "Saqlanmoqda…" : item ? "Saqlash" : "Qo'shish"}
+                    {busy
+                        ? progress !== null && progress < 100
+                            ? `Yuklanmoqda… ${progress}%`
+                            : "Saqlanmoqda…"
+                        : item
+                          ? "Saqlash"
+                          : "Qo'shish"}
                 </button>
                 <button
                     type="button"

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { PhotoGallery } from "@/components/directory/photo-gallery";
 import { Icon } from "@/components/icon";
 import { Img } from "@/components/img";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion-primitives";
@@ -51,6 +52,8 @@ export default async function NewsDetailPage({ params }: PageProps<"/yangiliklar
         if (error instanceof ApiError) notFound();
         throw error;
     }
+
+    const photos = (item.photos ?? []).map((url, index) => ({ id: index, url, caption: "" }));
 
     // Shu bo'limdagi boshqa xabarlar
     const related = await getNewsList({ kategoriya: item.category })
@@ -134,6 +137,31 @@ export default async function NewsDetailPage({ params }: PageProps<"/yangiliklar
                             <p key={index}>{line}</p>
                         ))}
                 </Reveal>
+
+                {item.video && (
+                    <Reveal className="mt-10 max-w-3xl">
+                        <h2 className="mb-3 inline-flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.1em] text-accent">
+                            Video
+                        </h2>
+                        <video
+                            src={item.video}
+                            poster={item.image ?? undefined}
+                            controls
+                            playsInline
+                            preload="metadata"
+                            className="aspect-video w-full rounded-2xl border border-line bg-black object-contain"
+                        />
+                    </Reveal>
+                )}
+
+                {photos.length > 0 && (
+                    <Reveal className="mt-10 max-w-3xl">
+                        <h2 className="mb-3 text-[12px] font-medium uppercase tracking-[0.1em] text-accent">
+                            Fotolavhalar · {photos.length}
+                        </h2>
+                        <PhotoGallery photos={photos} name={item.title} />
+                    </Reveal>
+                )}
             </div>
 
             {related.length > 0 && (

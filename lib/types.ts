@@ -205,6 +205,9 @@ export type News = {
     is_featured: boolean;
     body?: string;
     author_name?: string;
+    /** Faqat yangilik sahifasida: qo'shimcha rasmlar va video */
+    photos?: string[];
+    video?: string | null;
 };
 
 export type Event = {
