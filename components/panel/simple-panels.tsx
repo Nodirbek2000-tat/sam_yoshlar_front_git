@@ -1,6 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { ResourceList } from "@/components/panel/resource-list";
+import { SocialBadge, SocialFilter, type SocialCount } from "@/components/panel/social-filter";
 import { formatShortDate } from "@/lib/format";
 import type { Peer, Problem, Startup } from "@/lib/types";
 
@@ -68,9 +71,28 @@ export function PeersPanel({ items }: { items: Moderated<Peer>[] }) {
     );
 }
 
-export function StartupsPanel({ items }: { items: Moderated<Startup>[] }) {
+/** Startap egasi — ijtimoiy holati bilan (panel ro'yxati uchun backend qo'shadi). */
+type StartupOwner = {
+    id: number;
+    full_name: string;
+    social_status: string;
+    social_status_display: string;
+    education_place: string;
+} | null;
+
+export function StartupsPanel({
+    items,
+    social,
+    socials = [],
+}: {
+    items: Moderated<Startup & { owner?: StartupOwner }>[];
+    social?: string;
+    socials?: SocialCount[];
+}) {
+    const router = useRouter();
+
     return (
-        <ResourceList<Moderated<Startup>>
+        <ResourceList<Moderated<Startup & { owner?: StartupOwner }>>
             resource="startups"
             title="Startaplar"
             description="Startap anketalarini tekshiring va saytda ko'rsating."
@@ -78,12 +100,31 @@ export function StartupsPanel({ items }: { items: Moderated<Startup>[] }) {
             searchPlaceholder="Nomi bo'yicha qidirish"
             icon="rocket"
             items={items}
+            toolbar={
+                <SocialFilter
+                    value={social}
+                    counts={socials}
+                    onChange={(value) =>
+                        router.push(value ? `/nazorat/startaplar?holat=${value}` : "/nazorat/startaplar", {
+                            scroll: false,
+                        })
+                    }
+                />
+            }
             render={(item) => ({
                 title: item.name,
                 subtitle: item.about,
                 icon: item.sphere_icon,
                 meta: (
                     <>
+                        {item.owner && <span className="font-medium text-muted">{item.owner.full_name}</span>}
+                        {item.owner?.social_status && (
+                            <SocialBadge
+                                status={item.owner.social_status}
+                                display={item.owner.social_status_display}
+                                place={item.owner.education_place}
+                            />
+                        )}
                         <span>{item.sphere_display}</span>
                         <span>{item.stage_display}</span>
                         <span>{item.team_size} kishi</span>

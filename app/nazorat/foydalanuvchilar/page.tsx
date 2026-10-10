@@ -3,6 +3,7 @@ import {
     type DistrictCount,
     type PanelUser,
 } from "@/components/panel/users-manager";
+import type { SocialCount } from "@/components/panel/social-filter";
 import { getReference } from "@/lib/api";
 import { panelFetch } from "@/lib/panel";
 
@@ -13,6 +14,7 @@ type UsersPage = {
     pages: number;
     districts?: DistrictCount[];
     without_district?: number;
+    social_statuses?: SocialCount[];
     results: PanelUser[];
 };
 
@@ -24,11 +26,13 @@ export default async function PanelUsersPage({
     const review = params.tekshiruv === "1";
     const page = typeof params.sahifa === "string" ? params.sahifa : "1";
     const district = typeof params.tuman === "string" ? params.tuman : undefined;
+    const social = typeof params.holat === "string" ? params.holat : undefined;
 
     const query = new URLSearchParams({ page });
     if (role) query.set("rol", role);
     if (review) query.set("tekshiruv", "1");
     if (district) query.set("tuman", district);
+    if (social) query.set("holat", social);
 
     const [data, reference] = await Promise.all([
         panelFetch<UsersPage>(`/users/?${query.toString()}`),
@@ -47,6 +51,8 @@ export default async function PanelUsersPage({
             district={district}
             districts={data.districts ?? []}
             withoutDistrict={data.without_district ?? 0}
+            social={social}
+            socials={data.social_statuses ?? []}
             pendingProfiles={data.pending_profiles}
         />
     );

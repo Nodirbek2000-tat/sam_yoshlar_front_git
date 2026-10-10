@@ -91,6 +91,7 @@ export function OnboardingFlow({
     business = null,
     startup = null,
     peer = null,
+    askSocial = false,
 }: {
     initialStep: Step;
     initialRole: string | null;
@@ -108,6 +109,8 @@ export function OnboardingFlow({
     business?: BusinessProfile | null;
     startup?: StartupProfile | null;
     peer?: PeerProfile | null;
+    /** Ijtimoiy holati hali so'ralmagan — startap anketasida so'raladi */
+    askSocial?: boolean;
 }) {
     const router = useRouter();
     const [step, setStep] = useState<Step>(initialStep);
@@ -544,6 +547,7 @@ export function OnboardingFlow({
                                     spheres={startupSpheres}
                                     stages={startupStages}
                                     initial={startup}
+                                    askSocial={askSocial && !startup}
                                     submitLabel="Tayyor — kabinetga"
                                     onSaved={finish}
                                 />

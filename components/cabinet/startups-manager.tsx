@@ -32,11 +32,14 @@ export function StartupsManager({
     limit,
     spheres,
     stages,
+    askSocial = false,
 }: {
     startups: StartupProfile[];
     limit: number;
     spheres: Choice[];
     stages: Choice[];
+    /** Ijtimoiy holati hali so'ralmagan — yangi startap formasida so'raladi */
+    askSocial?: boolean;
 }) {
     const router = useRouter();
     // Hali startap yo'q bo'lsa — forma darrov ochiq turadi
@@ -238,6 +241,7 @@ export function StartupsManager({
                             spheres={spheres}
                             stages={stages}
                             action="/api/proxy/me/startups"
+                            askSocial={askSocial}
                             submitLabel="Startapni qo'shish"
                             onSaved={() => setOpen(null)}
                         />

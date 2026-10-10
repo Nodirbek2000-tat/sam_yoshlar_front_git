@@ -50,6 +50,7 @@ export function ResourceList<T extends ResourceRow>({
     items,
     render,
     extra,
+    toolbar,
 }: {
     /** Backenddagi bo'lim nomi: `initiatives`, `problems`, `peers`, `startups`. */
     resource: string;
@@ -62,6 +63,8 @@ export function ResourceList<T extends ResourceRow>({
     render: (item: T) => RowView;
     /** Qatorning o'ng tomoniga qo'shimcha tugma (masalan, ovoz sozlash). */
     extra?: (item: T) => ReactNode;
+    /** Qidiruv yonidagi qo'shimcha filtrlar */
+    toolbar?: ReactNode;
 }) {
     const router = useRouter();
     const [query, setQuery] = useState("");
@@ -135,6 +138,7 @@ export function ResourceList<T extends ResourceRow>({
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
                 <SearchBox value={query} onChange={setQuery} placeholder={searchPlaceholder} />
+                {toolbar}
                 <span className="text-[13px] text-faint">{rows.length} ta yozuv</span>
             </div>
 

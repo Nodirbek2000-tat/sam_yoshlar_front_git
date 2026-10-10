@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Icon } from "@/components/icon";
+import { SocialBadge, SocialFilter, type SocialCount } from "@/components/panel/social-filter";
 import { EmptyState, Flash, PanelHeader, SearchBox } from "@/components/panel/ui";
 import { UserDrawer } from "@/components/panel/user-drawer";
 import { cn } from "@/lib/cn";
@@ -21,6 +22,9 @@ export type PanelUser = {
     region_display: string;
     /** Samarqand viloyatining tumani yoki shahri */
     district: string;
+    social_status: string;
+    social_status_display: string;
+    education_place: string;
     initials: string;
     is_verified: boolean;
     is_admin: boolean;
@@ -63,6 +67,8 @@ export function UsersManager({
     district,
     districts = [],
     withoutDistrict = 0,
+    social,
+    socials = [],
     pendingProfiles = 0,
 }: {
     users: PanelUser[];
@@ -76,6 +82,9 @@ export function UsersManager({
     district?: string;
     districts?: DistrictCount[];
     withoutDistrict?: number;
+    /** Tanlangan ijtimoiy holat yoki «yoq» */
+    social?: string;
+    socials?: SocialCount[];
     pendingProfiles?: number;
 }) {
     const router = useRouter();
@@ -136,12 +145,12 @@ export function UsersManager({
 
                 <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     <RoleChip
-                        href={usersHref({ district })}
+                        href={usersHref({ district, social })}
                         active={!role && !review}
                         label="Barchasi"
                     />
                     <RoleChip
-                        href={usersHref({ review: true, district })}
+                        href={usersHref({ review: true, district, social })}
                         active={review}
                         label={`Tekshiruvda${pendingProfiles ? ` · ${pendingProfiles}` : ""}`}
                         tone="tone-amber"
@@ -149,7 +158,7 @@ export function UsersManager({
                     {roles.map((item) => (
                         <RoleChip
                             key={item.value}
-                            href={usersHref({ role: item.value, district })}
+                            href={usersHref({ role: item.value, district, social })}
                             active={role === item.value}
                             label={item.label}
                             tone={ROLE_TONE[item.value]}
@@ -160,16 +169,37 @@ export function UsersManager({
                 </div>
             </div>
 
-            <DistrictFilter
-                value={district}
-                districts={districts}
-                withoutDistrict={withoutDistrict}
-                onChange={(value) =>
-                    router.push(usersHref({ role, review, district: value || undefined }), {
-                        scroll: false,
-                    })
-                }
-            />
+            <div className="mt-3 flex flex-wrap items-center gap-2.5">
+                <DistrictFilter
+                    value={district}
+                    districts={districts}
+                    withoutDistrict={withoutDistrict}
+                    onChange={(value) =>
+                        router.push(usersHref({ role, review, social, district: value || undefined }), {
+                            scroll: false,
+                        })
+                    }
+                />
+                <SocialFilter
+                    value={social}
+                    counts={socials}
+                    onChange={(value) =>
+                        router.push(usersHref({ role, review, district, social: value || undefined }), {
+                            scroll: false,
+                        })
+                    }
+                />
+                {(district || social) && (
+                    <button
+                        type="button"
+                        onClick={() => router.push(usersHref({ role, review }), { scroll: false })}
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[12px] text-muted transition-colors hover:bg-surface hover:text-text"
+                    >
+                        <Icon name="close" size={12} />
+                        Filtrni tozalash
+                    </button>
+                )}
+            </div>
 
             {rows.length ? (
                 <ul className="mt-5 space-y-2.5">
@@ -216,6 +246,11 @@ export function UsersManager({
                                             Ro&apos;yxatni tugatmagan
                                         </span>
                                     )}
+                                    <SocialBadge
+                                        status={user.social_status}
+                                        display={user.social_status_display}
+                                        place={user.education_place}
+                                    />
                                 </div>
 
                                 <p className="mt-1.5 truncate text-[14.5px] font-medium">
@@ -283,7 +318,7 @@ export function UsersManager({
             {pages > 1 && (
                 <nav className="mt-6 flex items-center justify-center gap-2">
                     <PageLink
-                        href={usersHref({ page: page - 1, role, review, district })}
+                        href={usersHref({ page: page - 1, role, review, district, social })}
                         disabled={page <= 1}
                         label="Oldingi"
                         icon="arrowLeft"
@@ -292,7 +327,7 @@ export function UsersManager({
                         {page} / {pages}
                     </span>
                     <PageLink
-                        href={usersHref({ page: page + 1, role, review, district })}
+                        href={usersHref({ page: page + 1, role, review, district, social })}
                         disabled={page >= pages}
                         label="Keyingi"
                         icon="arrowRight"
@@ -309,17 +344,20 @@ function usersHref({
     role,
     review,
     district,
+    social,
 }: {
     page?: number;
     role?: string;
     review?: boolean;
     district?: string;
+    social?: string;
 }) {
     const params = new URLSearchParams();
     if (page > 1) params.set("sahifa", String(page));
     if (role) params.set("rol", role);
     if (review) params.set("tekshiruv", "1");
     if (district) params.set("tuman", district);
+    if (social) params.set("holat", social);
     const query = params.toString();
     return `/nazorat/foydalanuvchilar${query ? `?${query}` : ""}`;
 }
@@ -341,49 +379,36 @@ function DistrictFilter({
     const active = Boolean(value);
 
     return (
-        <div className="mt-3 flex flex-wrap items-center gap-2.5">
-            <label
-                className={cn(
-                    active ? "tone-cyan border-tone-line bg-tone-soft text-tone-text" : "border-line",
-                    "relative inline-flex h-9 max-w-full items-center gap-2 rounded-full border pl-3.5 pr-2 text-[12.5px] transition-colors",
-                )}
-            >
-                <Icon name="pin" size={14} className={active ? "" : "text-faint"} />
-                <span className={cn("shrink-0", active ? "font-medium" : "text-muted")}>
-                    Tuman / shahar:
-                </span>
-                <select
-                    value={value ?? ""}
-                    onChange={(event) => onChange(event.target.value)}
-                    aria-label="Tuman yoki shahar bo'yicha saralash"
-                    className="h-full min-w-0 max-w-[14rem] cursor-pointer appearance-none truncate bg-transparent pr-5 font-medium text-text focus:outline-none"
-                >
-                    <option value="">Barchasi · {total}</option>
-                    {districts.map((item) => (
-                        <option key={item.value} value={item.value}>
-                            {item.label} · {item.count}
-                        </option>
-                    ))}
-                    <option value={NO_DISTRICT}>Ko&apos;rsatilmagan · {withoutDistrict}</option>
-                </select>
-                <Icon
-                    name="arrowRight"
-                    size={12}
-                    className="pointer-events-none absolute right-3 rotate-90 text-faint"
-                />
-            </label>
-
-            {active && (
-                <button
-                    type="button"
-                    onClick={() => onChange("")}
-                    className="inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[12px] text-muted transition-colors hover:bg-surface hover:text-text"
-                >
-                    <Icon name="close" size={12} />
-                    Filtrni tozalash
-                </button>
+        <label
+            className={cn(
+                active ? "tone-cyan border-tone-line bg-tone-soft text-tone-text" : "border-line",
+                "relative inline-flex h-9 max-w-full items-center gap-2 rounded-full border pl-3.5 pr-2 text-[12.5px] transition-colors",
             )}
-        </div>
+        >
+            <Icon name="pin" size={14} className={active ? "" : "text-faint"} />
+            <span className={cn("shrink-0", active ? "font-medium" : "text-muted")}>
+                Tuman / shahar:
+            </span>
+            <select
+                value={value ?? ""}
+                onChange={(event) => onChange(event.target.value)}
+                aria-label="Tuman yoki shahar bo'yicha saralash"
+                className="h-full min-w-0 max-w-[14rem] cursor-pointer appearance-none truncate bg-transparent pr-5 font-medium text-text focus:outline-none"
+            >
+                <option value="">Barchasi · {total}</option>
+                {districts.map((item) => (
+                    <option key={item.value} value={item.value}>
+                        {item.label} · {item.count}
+                    </option>
+                ))}
+                <option value={NO_DISTRICT}>Ko&apos;rsatilmagan · {withoutDistrict}</option>
+            </select>
+            <Icon
+                name="arrowRight"
+                size={12}
+                className="pointer-events-none absolute right-3 rotate-90 text-faint"
+            />
+        </label>
     );
 }
 

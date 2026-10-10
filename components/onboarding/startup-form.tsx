@@ -15,6 +15,7 @@ import {
     toFieldErrors,
     type FieldErrors,
 } from "@/components/onboarding/form-kit";
+import { SocialStatusFields } from "@/components/onboarding/social-status";
 import type { Choice, StartupProfile } from "@/lib/types";
 
 /**
@@ -29,6 +30,7 @@ export function StartupForm({
     initial,
     submitLabel = "Saqlash",
     action = "/api/proxy/me/startup",
+    askSocial = false,
     onSaved,
 }: {
     spheres: Choice[];
@@ -37,6 +39,8 @@ export function StartupForm({
     submitLabel?: string;
     /** Qayerga yuboriladi: ro'yxatdan o'tishda — birinchi startap, kabinetda — aniq startap */
     action?: string;
+    /** Egasining ijtimoiy holati hali ma'lum emas — yangi startapda bir marta so'raladi */
+    askSocial?: boolean;
     onSaved?: (profile: StartupProfile) => void;
 }) {
     const router = useRouter();
@@ -105,6 +109,21 @@ export function StartupForm({
             className="space-y-4"
             noValidate
         >
+            {askSocial && (
+                <Section
+                    icon="user"
+                    tone="indigo"
+                    title="Siz haqingizda"
+                    hint="Bir marta so'raladi — keyingi startaplarda qayta so'ralmaydi"
+                    required
+                >
+                    <SocialStatusFields
+                        errors={{ social_status: errors.social_status, education_place: errors.education_place }}
+                        onPick={() => clearError("social_status")}
+                    />
+                </Section>
+            )}
+
             <Section icon="rocket" tone="violet" title="Startapingiz" hint="Nomi, yo'nalishi va bosqichi">
                 <div className="space-y-5">
                     <LogoPicker

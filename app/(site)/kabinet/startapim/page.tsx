@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { StartupsManager } from "@/components/cabinet/startups-manager";
 import { PageHead } from "@/components/cabinet/ui";
+import { SocialStatusCard } from "@/components/onboarding/social-status";
 import { getReference } from "@/lib/api";
 import { meFetch } from "@/lib/me";
 import { getCurrentUser } from "@/lib/session";
@@ -30,11 +31,19 @@ export default async function MyStartupsPage() {
                 subtitle={`${data.limit} tagacha startap kiritishingiz mumkin. Kengash tasdiqlagach reyestrda va investorlarga ko'rinadi.`}
             />
 
+            {/* Holat bir marta so'raladi; keyin shu yerdan o'zgartiriladi */}
+            {user.social_status && (
+                <div className="mb-6">
+                    <SocialStatusCard status={user.social_status} place={user.education_place ?? ""} />
+                </div>
+            )}
+
             <StartupsManager
                 startups={data.results}
                 limit={data.limit}
                 spheres={reference.startup_spheres}
                 stages={reference.startup_stages}
+                askSocial={!user.social_status}
             />
         </>
     );

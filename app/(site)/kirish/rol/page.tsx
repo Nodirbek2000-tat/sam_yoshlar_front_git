@@ -62,6 +62,7 @@ export default async function OnboardingPage() {
                     business={business && "id" in business ? (business as BusinessProfile) : null}
                     startup={startup && "id" in startup ? (startup as StartupProfile) : null}
                     peer={peer && "id" in peer ? (peer as PeerProfile) : null}
+                    askSocial={!user.social_status}
                 />
             </div>
         </section>

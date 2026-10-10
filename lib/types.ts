@@ -1,5 +1,7 @@
 /** Django API qaytaradigan ma'lumot shakllari. */
 
+import type { SocialStatus } from "./social";
+
 export type Paginated<T> = {
     count: number;
     next: string | null;
@@ -47,6 +49,11 @@ export type User = {
     /** Botda so'raladi */
     age: number | null;
     study_location: "" | "uz" | "abroad";
+    /** Startap qo'shishda bir marta so'raladi */
+    social_status?: "" | SocialStatus;
+    social_status_display?: string;
+    /** Talaba yoki maktab o'quvchisi bo'lsa — o'qish joyi */
+    education_place?: string;
     /** Bir odam bir nechta rolda bo'la oladi: biznesi, startaplari, tengdosh profili */
     capabilities?: { business: boolean; startups: number; peer: boolean };
     /** O'qilmagan bildirishnomalar — sarlavhadagi qo'ng'iroqcha uchun */

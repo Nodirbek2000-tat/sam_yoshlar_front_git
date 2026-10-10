@@ -70,6 +70,12 @@ export default async function CabinetLayout({ children }: LayoutProps<"/kabinet"
                             <span>{user.district || user.region_display}</span>
                         )}
                         {user.study_location === "abroad" && <span>Chet elda o&apos;qiydi</span>}
+                        {user.social_status_display && (
+                            <span>
+                                {user.social_status_display}
+                                {user.education_place ? ` · ${user.education_place}` : ""}
+                            </span>
+                        )}
                         {user.telegram_username && <span>@{user.telegram_username}</span>}
                     </p>
                 </div>
