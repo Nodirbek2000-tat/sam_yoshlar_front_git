@@ -67,7 +67,10 @@ export default async function CabinetLayout({ children }: LayoutProps<"/kabinet"
                         {user.age && <span>{user.age} yosh</span>}
                         {/* Tuman aniqroq: «Urgut tumani» — Samarqand viloyati ekani ayon */}
                         {(user.district || user.region_display) && (
-                            <span>{user.district || user.region_display}</span>
+                            <span>
+                                {user.district || user.region_display}
+                                {user.mahalla ? ` · ${user.mahalla}` : ""}
+                            </span>
                         )}
                         {user.study_location === "abroad" && <span>Chet elda o&apos;qiydi</span>}
                         {user.social_status_display && (

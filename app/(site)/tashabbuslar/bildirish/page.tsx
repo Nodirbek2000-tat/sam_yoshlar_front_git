@@ -65,9 +65,11 @@ export default async function CreateInitiativePage() {
                 <CreateInitiativeForm
                     directions={directions}
                     kinds={reference.initiative_kinds}
-                    regions={reference.regions}
+                    districts={reference.districts}
                     fullName={user.full_name}
                     phone={user.phone}
+                    userDistrict={user.district}
+                    userMahalla={user.mahalla ?? ""}
                 />
             </section>
         </>

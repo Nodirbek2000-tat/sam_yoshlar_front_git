@@ -22,6 +22,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
         items: [
             { href: "/nazorat", label: "Boshqaruv", icon: "chart" },
             { href: "/nazorat/foydalanuvchilar", label: "Foydalanuvchilar", icon: "users" },
+            { href: "/nazorat/hududlar", label: "Hududlar", icon: "pin" },
             { href: "/nazorat/korxonalar", label: "Korxonalar", icon: "building" },
             { href: "/nazorat/import", label: "Import", icon: "package" },
             { href: "/nazorat/eksport", label: "Excel yuklab olish", icon: "download" },

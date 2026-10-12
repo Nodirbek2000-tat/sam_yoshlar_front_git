@@ -35,17 +35,26 @@ const KIND_HINTS: Record<string, string> = {
 export function CreateInitiativeForm({
     directions,
     kinds,
-    regions,
+    districts,
     fullName,
     phone,
+    userDistrict = "",
+    userMahalla = "",
 }: {
     directions: Direction[];
     kinds: Choice[];
-    regions: Choice[];
+    /** Samarqand viloyatining tuman va shaharlari — hudud doim shu viloyat */
+    districts: Choice[];
     fullName: string;
     phone: string;
+    /** Hisobdagi tuman (nomi) va mahalla — bor bo'lsa qayta so'ralmaydi */
+    userDistrict?: string;
+    userMahalla?: string;
 }) {
     const router = useRouter();
+    const savedDistrict = districts.find((item) => item.label === userDistrict)?.value ?? "";
+    // Ikkalasi ham ma'lum bo'lsa — faqat ko'rsatiladi, «O'zgartirish» bilan ochiladi
+    const [editPlace, setEditPlace] = useState(!(savedDistrict && userMahalla));
     const [direction, setDirection] = useState<Direction | null>(null);
     const [kind, setKind] = useState(kinds[0]?.value ?? "idea");
     const [busy, setBusy] = useState(false);
@@ -73,7 +82,10 @@ export function CreateInitiativeForm({
                     expected_result: form.get("expected_result") ?? "",
                     author_name: form.get("author_name"),
                     author_phone: form.get("author_phone") ?? "",
-                    region: form.get("region") ?? "",
+                    // Yuborilmasa — hisobdagi tuman va mahalla olinadi
+                    ...(editPlace
+                        ? { district: form.get("district") ?? "", mahalla: form.get("mahalla") ?? "" }
+                        : {}),
                 }),
             });
 
@@ -292,16 +304,70 @@ export function CreateInitiativeForm({
                             />
                         </Field>
 
-                        <Field label="Hudud" className="sm:col-span-2">
-                            <select name="region" className={INPUT} defaultValue="">
-                                <option value="">Tanlanmagan</option>
-                                {regions.map((item) => (
-                                    <option key={item.value} value={item.value}>
-                                        {item.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </Field>
+                        {editPlace ? (
+                            <>
+                                <Field label="Viloyat">
+                                    <div
+                                        className={cn(
+                                            INPUT,
+                                            "flex items-center gap-2 bg-surface text-muted",
+                                        )}
+                                    >
+                                        <Icon name="pin" size={15} className="text-faint" />
+                                        Samarqand viloyati
+                                    </div>
+                                </Field>
+
+                                <Field label="Tuman / shahar">
+                                    <select
+                                        name="district"
+                                        required
+                                        className={INPUT}
+                                        defaultValue={savedDistrict}
+                                    >
+                                        <option value="" disabled>
+                                            Tanlang
+                                        </option>
+                                        {districts.map((item) => (
+                                            <option key={item.value} value={item.value}>
+                                                {item.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </Field>
+
+                                <Field
+                                    label="Mahalla (MFY)"
+                                    hint="Bir marta so'raladi"
+                                    className="sm:col-span-2"
+                                >
+                                    <input
+                                        name="mahalla"
+                                        required
+                                        minLength={3}
+                                        maxLength={150}
+                                        defaultValue={userMahalla}
+                                        placeholder="Masalan: Bog'ishamol MFY"
+                                        className={INPUT}
+                                    />
+                                </Field>
+                            </>
+                        ) : (
+                            <div className="flex flex-wrap items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-[13.5px] sm:col-span-2">
+                                <Icon name="pin" size={15} className="shrink-0 text-faint" />
+                                <span className="min-w-0 flex-1">
+                                    Samarqand viloyati, {userDistrict}
+                                    <span className="text-muted"> · {userMahalla}</span>
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setEditPlace(true)}
+                                    className="text-[12.5px] font-medium text-accent hover:underline"
+                                >
+                                    O&apos;zgartirish
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </Step>
 

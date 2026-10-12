@@ -22,6 +22,7 @@ export type PanelUser = {
     region_display: string;
     /** Samarqand viloyatining tumani yoki shahri */
     district: string;
+    mahalla?: string;
     social_status: string;
     social_status_display: string;
     education_place: string;
@@ -264,6 +265,7 @@ export function UsersManager({
                                         <span className="inline-flex items-center gap-1">
                                             <Icon name="pin" size={11} />
                                             {user.district || user.region_display}
+                                            {user.mahalla ? ` · ${user.mahalla}` : ""}
                                         </span>
                                     )}
                                     <span>{formatShortDate(user.created_at)}</span>

@@ -36,6 +36,7 @@ type Detail = {
         onboarding: string | null;
         age: number | null;
         study_location_display: string;
+        mahalla?: string;
         social_status_display?: string;
         education_place?: string;
         created_at: string;
@@ -277,6 +278,7 @@ function DrawerBody({
                     <Info label="Ro'yxatdan o'tgan" value={formatDate(data.user.created_at)} />
                     <Info label="Yoshi" value={data.user.age ? `${data.user.age} yosh` : ""} />
                     <Info label="Ta'lim" value={data.user.study_location_display ?? ""} />
+                    <Info label="Mahalla (MFY)" value={data.user.mahalla ?? ""} />
                     <Info label="Ijtimoiy holati" value={data.user.social_status_display ?? ""} />
                     <Info label="O'qish joyi" value={data.user.education_place ?? ""} />
                 </dl>

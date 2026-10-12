@@ -49,6 +49,8 @@ export type User = {
     /** Botda so'raladi */
     age: number | null;
     study_location: "" | "uz" | "abroad";
+    /** Mahalla (MFY): botda ro'yxatdan o'tishda yoki birinchi tashabbusda so'raladi */
+    mahalla?: string;
     /** Startap qo'shishda bir marta so'raladi */
     social_status?: "" | SocialStatus;
     social_status_display?: string;
