@@ -37,6 +37,7 @@ const KIND_TONE: Record<string, string> = {
     startup: "orange",
     business: "amber",
     peer: "cyan",
+    problem: "violet",
 };
 
 export function BotManager({ autoPost, posts }: { autoPost: boolean; posts: BotPost[] }) {
