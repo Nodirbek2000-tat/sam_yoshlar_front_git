@@ -9,6 +9,7 @@
 import type {
     Announcement,
     Direction,
+    DirectoryPage,
     Event,
     Initiative,
     News,
@@ -244,7 +245,7 @@ export const getPeer = (id: number | string) =>
     apiFetch<Peer>(`/peers/${id}/`, { revalidate: 120, tags: ["peers"] });
 
 export const getStartups = (query?: Query) =>
-    apiFetch<Paginated<PublicStartup>>("/startups/", {
+    apiFetch<DirectoryPage<PublicStartup>>("/startups/", {
         query,
         revalidate: 120,
         tags: ["startups"],
@@ -254,7 +255,7 @@ export const getStartup = (id: number | string) =>
     apiFetch<PublicStartupDetail>(`/startups/${id}/`, { revalidate: 120, tags: ["startups"] });
 
 export const getBusinesses = (query?: Query) =>
-    apiFetch<Paginated<PublicBusiness>>("/businesses/", {
+    apiFetch<DirectoryPage<PublicBusiness>>("/businesses/", {
         query,
         revalidate: 120,
         tags: ["businesses"],

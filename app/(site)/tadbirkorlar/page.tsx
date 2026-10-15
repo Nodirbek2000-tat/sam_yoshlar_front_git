@@ -6,8 +6,8 @@ import { FilterChip, FilterRow } from "@/components/filter-chip";
 import { Icon } from "@/components/icon";
 import { Stagger, StaggerItem } from "@/components/motion-primitives";
 import { PageHero } from "@/components/page-hero";
+import { Pager, pageParam } from "@/components/pager";
 import { getBusinesses } from "@/lib/api";
-import type { PublicBusiness } from "@/lib/types";
 
 export const metadata: Metadata = {
     alternates: { canonical: "/tadbirkorlar" },
@@ -15,42 +15,30 @@ export const metadata: Metadata = {
     description: "Yoshlarning bizneslari: nima qilishadi, rasmlari va aloqasi.",
 };
 
-/** Filtr qatori uchun: qiymat -> nomi va nechta. */
-function tally(rows: PublicBusiness[], key: "sphere" | "region") {
-    const map = new Map<string, { label: string; icon: string; count: number }>();
-    for (const row of rows) {
-        const value = row[key];
-        if (!value) continue;
-        const found = map.get(value);
-        map.set(value, {
-            label: key === "sphere" ? row.sphere_display : row.region_display,
-            icon: row.sphere_icon,
-            count: (found?.count ?? 0) + 1,
-        });
-    }
-    return [...map.entries()].sort((a, b) => b[1].count - a[1].count);
-}
+/** Backenddagi `DirectoryPagination.page_size` bilan bir xil */
+const PAGE_SIZE = 24;
 
 export default async function BusinessesPage({ searchParams }: PageProps<"/tadbirkorlar">) {
     const params = await searchParams;
     const soha = typeof params.soha === "string" ? params.soha : undefined;
     const hudud = typeof params.hudud === "string" ? params.hudud : undefined;
+    const current = pageParam(params.sahifa);
 
-    // Kartalar — filtrlangan, filtr qatorlari — to'liq ro'yxatdan
-    const [page, all] = await Promise.all([
-        getBusinesses({ soha, hudud }).catch(() => null),
-        soha || hudud ? getBusinesses({}).catch(() => null) : Promise.resolve(null),
-    ]);
+    // Sonlar backenddan — butun bazadan, faqat shu sahifadagi 24 tadan emas
+    const page = await getBusinesses({ soha, hudud, page: current > 1 ? current : undefined }).catch(
+        () => null,
+    );
 
     const businesses = page?.results ?? [];
-    const source = all?.results ?? businesses;
-    const spheres = tally(source, "sphere");
-    const regions = tally(source, "region");
+    const spheres = page?.facets?.soha ?? [];
+    const regions = page?.facets?.hudud ?? [];
+    const pages = Math.ceil((page?.count ?? 0) / PAGE_SIZE);
 
-    const link = (next: { soha?: string; hudud?: string }) => {
+    const link = (next: { soha?: string; hudud?: string; sahifa?: number }) => {
         const query = new URLSearchParams();
         if (next.soha) query.set("soha", next.soha);
         if (next.hudud) query.set("hudud", next.hudud);
+        if (next.sahifa && next.sahifa > 1) query.set("sahifa", String(next.sahifa));
         const text = query.toString();
         return `/tadbirkorlar${text ? `?${text}` : ""}`;
     };
@@ -77,7 +65,7 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/tadbi
             />
 
             <section className="container-page py-12 md:py-16">
-                {source.length > 0 && (
+                {(page?.total ?? 0) > 0 && (
                     <div className="space-y-3 pb-8">
                         {spheres.length > 1 && (
                             <FilterRow>
@@ -85,13 +73,13 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/tadbi
                                     href={link({ hudud })}
                                     active={!soha}
                                     label="Barcha soha"
-                                    count={source.length}
+                                    count={spheres.reduce((sum, item) => sum + item.count, 0)}
                                 />
-                                {spheres.map(([value, info]) => (
+                                {spheres.map((info) => (
                                     <FilterChip
-                                        key={value}
-                                        href={link({ soha: value, hudud })}
-                                        active={soha === value}
+                                        key={info.value}
+                                        href={link({ soha: info.value, hudud })}
+                                        active={soha === info.value}
                                         label={info.label}
                                         tone={info.icon}
                                         count={info.count}
@@ -107,11 +95,11 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/tadbi
                                     active={!hudud}
                                     label="Barcha hudud"
                                 />
-                                {regions.map(([value, info]) => (
+                                {regions.map((info) => (
                                     <FilterChip
-                                        key={value}
-                                        href={link({ soha, hudud: value })}
-                                        active={hudud === value}
+                                        key={info.value}
+                                        href={link({ soha, hudud: info.value })}
+                                        active={hudud === info.value}
                                         label={info.label}
                                         icon={<Icon name="pin" size={12} />}
                                         count={info.count}
@@ -133,6 +121,8 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/tadbi
                 ) : (
                     <Empty filtered={Boolean(soha || hudud)} />
                 )}
+
+                <Pager page={current} pages={pages} href={(next) => link({ soha, hudud, sahifa: next })} />
             </section>
         </>
     );

@@ -9,6 +9,16 @@ export type Paginated<T> = {
     results: T[];
 };
 
+/** Filtr tugmasi: qiymat, nomi va butun bazadagi soni (sahifadagi emas). */
+export type Facet = { value: string; label: string; count: number; icon?: string };
+
+/** Startap va tadbirkorlar ro'yxati: sahifa + filtr sonlari. */
+export type DirectoryPage<T> = Paginated<T> & {
+    /** Filtrsiz jami (eski keshlangan javobda bo'lmasligi mumkin) */
+    total?: number;
+    facets?: Record<string, Facet[]>;
+};
+
 export type Choice = { value: string; label: string };
 
 /** Tashkilot anketasining bitta savoli. */

@@ -7,9 +7,9 @@ import { Icon } from "@/components/icon";
 import { Stagger, StaggerItem } from "@/components/motion-primitives";
 import { StartupTabs } from "@/components/office/startup-tabs";
 import { PageHero } from "@/components/page-hero";
+import { Pager, pageParam } from "@/components/pager";
 import { getStartups } from "@/lib/api";
 import { cn } from "@/lib/cn";
-import type { PublicStartup } from "@/lib/types";
 
 export const metadata: Metadata = {
     alternates: { canonical: "/startaplar" },
@@ -17,43 +17,33 @@ export const metadata: Metadata = {
     description: "Yosh startupperlarning loyihalari: bosqichi, jamoasi va kerakli investitsiya.",
 };
 
-function tally(rows: PublicStartup[], key: "sphere" | "stage") {
-    const map = new Map<string, { label: string; icon: string; count: number }>();
-    for (const row of rows) {
-        const found = map.get(row[key]);
-        map.set(row[key], {
-            label: key === "sphere" ? row.sphere_display : row.stage_display,
-            icon: row.sphere_icon,
-            count: (found?.count ?? 0) + 1,
-        });
-    }
-    return [...map.entries()].sort((a, b) => b[1].count - a[1].count);
-}
-
 /** Bosqichlar tabiiy tartibda — g'oyadan kengayishgacha. */
 const STAGE_ORDER = ["idea", "mvp", "launched", "scaling"];
+
+/** Backenddagi `DirectoryPagination.page_size` bilan bir xil */
+const PAGE_SIZE = 24;
 
 export default async function StartupsPage({ searchParams }: PageProps<"/startaplar">) {
     const params = await searchParams;
     const soha = typeof params.soha === "string" ? params.soha : undefined;
     const bosqich = typeof params.bosqich === "string" ? params.bosqich : undefined;
+    const current = pageParam(params.sahifa);
 
-    const [page, all] = await Promise.all([
-        getStartups({ soha, bosqich }).catch(() => null),
-        soha || bosqich ? getStartups({}).catch(() => null) : Promise.resolve(null),
-    ]);
-
-    const startups = page?.results ?? [];
-    const source = all?.results ?? startups;
-    const spheres = tally(source, "sphere");
-    const stages = tally(source, "stage").sort(
-        (a, b) => STAGE_ORDER.indexOf(a[0]) - STAGE_ORDER.indexOf(b[0]),
+    // Sonlar backenddan — butun bazadan, faqat shu sahifadagi 24 tadan emas
+    const page = await getStartups({ soha, bosqich, page: current > 1 ? current : undefined }).catch(
+        () => null,
     );
 
-    const link = (next: { soha?: string; bosqich?: string }) => {
+    const startups = page?.results ?? [];
+    const spheres = page?.facets?.soha ?? [];
+    const stages = page?.facets?.bosqich ?? [];
+    const pages = Math.ceil((page?.count ?? 0) / PAGE_SIZE);
+
+    const link = (next: { soha?: string; bosqich?: string; sahifa?: number }) => {
         const query = new URLSearchParams();
         if (next.soha) query.set("soha", next.soha);
         if (next.bosqich) query.set("bosqich", next.bosqich);
+        if (next.sahifa && next.sahifa > 1) query.set("sahifa", String(next.sahifa));
         const text = query.toString();
         return `/startaplar${text ? `?${text}` : ""}`;
     };
@@ -86,9 +76,8 @@ export default async function StartupsPage({ searchParams }: PageProps<"/startap
                 {stages.length > 0 && (
                     <div className="mb-8 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
                         {STAGE_ORDER.map((value) => {
-                            const found = stages.find(([key]) => key === value);
-                            if (!found) return null;
-                            const [, info] = found;
+                            const info = stages.find((item) => item.value === value);
+                            if (!info) return null;
                             const active = bosqich === value;
 
                             return (
@@ -123,13 +112,13 @@ export default async function StartupsPage({ searchParams }: PageProps<"/startap
                                 href={link({ bosqich })}
                                 active={!soha}
                                 label="Barcha yo'nalish"
-                                count={source.length}
+                                count={spheres.reduce((sum, item) => sum + item.count, 0)}
                             />
-                            {spheres.map(([value, info]) => (
+                            {spheres.map((info) => (
                                 <FilterChip
-                                    key={value}
-                                    href={link({ soha: value, bosqich })}
-                                    active={soha === value}
+                                    key={info.value}
+                                    href={link({ soha: info.value, bosqich })}
+                                    active={soha === info.value}
                                     label={info.label}
                                     tone={info.icon}
                                     count={info.count}
@@ -166,6 +155,8 @@ export default async function StartupsPage({ searchParams }: PageProps<"/startap
                         </Link>
                     </div>
                 )}
+
+                <Pager page={current} pages={pages} href={(next) => link({ soha, bosqich, sahifa: next })} />
             </section>
         </>
     );
