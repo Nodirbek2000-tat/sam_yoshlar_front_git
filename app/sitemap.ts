@@ -6,6 +6,7 @@ import type {
     Announcement,
     Event,
     Initiative,
+    Laureate,
     News,
     OfficeStartup,
     Paginated,
@@ -59,7 +60,7 @@ function entry(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const [news, events, announcements, initiatives, startups, businesses, peers, polls, office] =
+    const [news, events, announcements, initiatives, startups, businesses, peers, polls, office, laureates] =
         await Promise.all([
             collect<News>("/news/"),
             collect<Event>("/events/"),
@@ -70,6 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             collect<Peer>("/peers/"),
             collect<Poll>("/polls/"),
             collect<OfficeStartup>("/startuplar-ofisi/"),
+            collect<Laureate>("/vorislar/"),
         ]);
 
     const pages: MetadataRoute.Sitemap = [
@@ -84,6 +86,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         entry("/tadbirkorlar", undefined, 0.8),
         entry("/startaplar", undefined, 0.8),
         entry("/startuplar-ofisi", undefined, 0.8),
+        entry("/mirzo-ulugbek-vorislari", undefined, 0.8),
         entry("/tengdoshlar", undefined, 0.8),
     ];
 
@@ -92,6 +95,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ...news.map((item) => entry(`/yangiliklar/${item.slug}`, item.published_at, 0.8, "monthly")),
         ...events.map((item) => entry(`/tadbirlar/${item.slug}`, item.starts_at, 0.7, "weekly")),
         ...office.map((item) => entry(`/startuplar-ofisi/${item.id}`, item.created_at, 0.6, "monthly")),
+        ...laureates.map((item) => entry(`/mirzo-ulugbek-vorislari/${item.id}`, undefined, 0.6, "monthly")),
         ...polls.map((item) => entry(`/sorovnomalar/${item.slug}`, item.created_at, 0.8, "daily")),
         ...announcements.map((item) =>
             entry(`/elonlar/${item.slug}`, item.posted_at, 0.8, "weekly"),

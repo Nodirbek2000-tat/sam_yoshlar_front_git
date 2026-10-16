@@ -4,10 +4,12 @@ import { Icon, type IconName } from "@/components/icon";
 import { cn } from "@/lib/cn";
 
 /**
- * Startaplar bo'limining ikki qismi: saytda ro'yxatdan o'tgan startaplar va
- * Samarqand startuplar ofisi reestri. Ikkala sahifaning tepasida turadi.
+ * Startaplar bo'limining uch qismi: saytda ro'yxatdan o'tgan startaplar,
+ * Samarqand startuplar ofisi reestri va «Mirzo Ulug'bek vorislari». Har birining tepasida turadi.
  */
-const TABS: { href: string; key: "startaplar" | "ofis"; label: string; hint: string; icon: IconName }[] = [
+type TabKey = "startaplar" | "ofis" | "vorislar";
+
+const TABS: { href: string; key: TabKey; label: string; hint: string; icon: IconName }[] = [
     {
         href: "/startaplar",
         key: "startaplar",
@@ -22,11 +24,18 @@ const TABS: { href: string; key: "startaplar" | "ofis"; label: string; hint: str
         hint: "Viloyat reestridagi loyihalar",
         icon: "building",
     },
+    {
+        href: "/mirzo-ulugbek-vorislari",
+        key: "vorislar",
+        label: "Samarqand viloyati Innovatsion rivojlanish bo'linmasi",
+        hint: "Mirzo Ulug'bek vorislari",
+        icon: "trophy",
+    },
 ];
 
-export function StartupTabs({ active }: { active: "startaplar" | "ofis" }) {
+export function StartupTabs({ active }: { active: TabKey }) {
     return (
-        <nav aria-label="Startaplar bo'limi" className="mb-8 grid gap-2.5 sm:grid-cols-2 lg:max-w-3xl">
+        <nav aria-label="Startaplar bo'limi" className="mb-8 grid gap-2.5 md:grid-cols-3">
             {TABS.map((tab) => {
                 const current = tab.key === active;
                 return (
@@ -50,7 +59,9 @@ export function StartupTabs({ active }: { active: "startaplar" | "ofis" }) {
                             <Icon name={tab.icon} size={19} />
                         </span>
                         <span className="min-w-0 flex-1">
-                            <span className="block truncate text-[14.5px] font-semibold">{tab.label}</span>
+                            <span className="line-clamp-2 block text-[14.5px] font-semibold leading-snug">
+                                {tab.label}
+                            </span>
                             <span className={cn("block truncate text-[12.5px]", current ? "opacity-70" : "text-muted")}>
                                 {tab.hint}
                             </span>

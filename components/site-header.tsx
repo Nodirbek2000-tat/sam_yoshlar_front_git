@@ -51,7 +51,9 @@ export function SiteHeader() {
 
     // Startuplar ofisi Startaplar bo'limining ichida — menyuda ham shu band yonadi
     const isActive = (href: string) =>
-        pathname.startsWith(href) || (href === "/startaplar" && pathname.startsWith("/startuplar-ofisi"));
+        pathname.startsWith(href) ||
+        (href === "/startaplar" &&
+            (pathname.startsWith("/startuplar-ofisi") || pathname.startsWith("/mirzo-ulugbek-vorislari")));
 
     return (
         <header className="sticky top-0 z-50 border-b border-line bg-page/80 backdrop-blur-xl">

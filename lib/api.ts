@@ -16,6 +16,8 @@ import type {
     Overview,
     Paginated,
     Peer,
+    LaureateDetail,
+    LaureateList,
     OfficeStartupDetail,
     OfficeStartupList,
     Poll,
@@ -204,6 +206,19 @@ export const getAnnouncement = (slug: string) =>
     apiFetch<Announcement>(`/announcements/${slug}/`, {
         revalidate: 120,
         tags: ["announcements"],
+    });
+
+export const getLaureates = (query?: Query) =>
+    apiFetch<LaureateList>("/vorislar/", {
+        query,
+        revalidate: 120,
+        tags: ["laureates"],
+    });
+
+export const getLaureate = (id: number | string) =>
+    apiFetch<LaureateDetail>(`/vorislar/${id}/`, {
+        revalidate: 120,
+        tags: ["laureates"],
     });
 
 export const getOfficeStartups = (query?: Query) =>

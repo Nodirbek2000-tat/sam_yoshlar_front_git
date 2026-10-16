@@ -51,6 +51,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
             { href: "/nazorat/tengdoshlar", label: "Tengdoshlar", icon: "globe" },
             { href: "/nazorat/startaplar", label: "Startaplar", icon: "rocket" },
             { href: "/nazorat/startuplar-ofisi", label: "Startuplar ofisi", icon: "building" },
+            { href: "/nazorat/vorislar", label: "Mirzo Ulug'bek vorislari", icon: "trophy" },
             { href: "/nazorat/investitsiya", label: "Investitsiya takliflari", icon: "bank" },
         ],
     },

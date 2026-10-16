@@ -613,3 +613,28 @@ export type OfficeStartupList = {
     facets: { spheres: OfficeFacet[]; stages: OfficeFacet[]; districts: OfficeFacet[] };
     results: OfficeStartup[];
 };
+
+/** «Mirzo Ulug'bek vorislari» g'olibi (Innovatsion rivojlanish bo'linmasi). */
+export type Laureate = {
+    id: number;
+    full_name: string;
+    year: number;
+    district: string;
+    age: number | null;
+    education_place: string;
+    course: string;
+    photo: string | null;
+    project_name: string;
+    about: string;
+    is_national_winner: boolean;
+};
+
+export type LaureateDetail = Laureate & { related: Laureate[] };
+
+export type LaureateList = {
+    count: number;
+    total: number;
+    national: number;
+    years: { value: number; count: number }[];
+    results: Laureate[];
+};

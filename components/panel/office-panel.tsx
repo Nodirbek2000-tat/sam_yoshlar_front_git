@@ -35,7 +35,11 @@ type ImportResult = {
 export function OfficePanel({ items, districts }: { items: PanelOfficeStartup[]; districts: Choice[] }) {
     return (
         <>
-            <ImportBox />
+            <ImportBox resource="office-startups" title="Excel reestrni yuklash">
+                Faqat kerakli ustunlar o&apos;qiladi: <b>Hudud, F.I.Sh, Yoshi, Rasmi, Loyiha haqida, StartUp sohasi,
+                StartUp bosqichi, Loyiha rasmi, Telefon</b>. Qolganlari e&apos;tiborsiz qoladi. Rasmlar Excel
+                ichidan olinadi. Bir xil loyiha ikki marta yuklanmaydi.
+            </ImportBox>
             <div className="mt-10">
                 <ContentManager<PanelOfficeStartup>
                     resource="office-startups"
@@ -83,7 +87,16 @@ export function OfficePanel({ items, districts }: { items: PanelOfficeStartup[];
     );
 }
 
-function ImportBox() {
+/** Excel yuklash oynasi. `resource` — panel bo'limi va sayt keshining yorlig'i. */
+export function ImportBox({
+    resource,
+    title,
+    children,
+}: {
+    resource: string;
+    title: string;
+    children: React.ReactNode;
+}) {
     const router = useRouter();
     const input = useRef<HTMLInputElement>(null);
     const [file, setFile] = useState<File | null>(null);
@@ -99,7 +112,7 @@ function ImportBox() {
         try {
             const data = new FormData();
             data.set("file", file);
-            const response = await fetch("/api/proxy/panel/office-startups/import", { method: "POST", body: data });
+            const response = await fetch(`/api/proxy/panel/${resource}/import`, { method: "POST", body: data });
             const payload = (await response.json().catch(() => null)) as (ImportResult & { detail?: string }) | null;
             if (!response.ok || !payload) {
                 setError(payload?.detail ?? "Yuklab bo'lmadi.");
@@ -108,7 +121,7 @@ function ImportBox() {
             setResult(payload);
             setFile(null);
             if (input.current) input.current.value = "";
-            await refreshPublic("office-startups");
+            await refreshPublic(resource);
             router.refresh();
         } catch {
             setError("Tarmoqda xatolik.");
@@ -124,12 +137,8 @@ function ImportBox() {
                     <Icon name="download" size={24} />
                 </span>
                 <div className="min-w-0 flex-1">
-                    <h2 className="text-[17px] font-semibold">Excel reestrni yuklash</h2>
-                    <p className="mt-1 text-[13px] leading-relaxed text-muted">
-                        Faqat kerakli ustunlar o&apos;qiladi: <b>Hudud, F.I.Sh, Yoshi, Rasmi, Loyiha haqida, StartUp sohasi,
-                        StartUp bosqichi, Loyiha rasmi, Telefon</b>. Qolganlari e&apos;tiborsiz qoladi. Rasmlar Excel
-                        ichidan olinadi. Bir xil loyiha ikki marta yuklanmaydi.
-                    </p>
+                    <h2 className="text-[17px] font-semibold">{title}</h2>
+                    <p className="mt-1 text-[13px] leading-relaxed text-muted">{children}</p>
                 </div>
             </div>
 
@@ -270,7 +279,7 @@ function OfficeForm({ item, districts }: { item: PanelOfficeStartup | null; dist
 }
 
 /** Rasm tanlash: joriysi ko'rinadi, yangisi tanlansa — oldindan ko'rish, xohlasa olib tashlash. */
-function ImageField({
+export function ImageField({
     name,
     removeName,
     current,
