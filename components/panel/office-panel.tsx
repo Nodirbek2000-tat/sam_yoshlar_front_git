@@ -255,8 +255,11 @@ function OfficeForm({ item, districts }: { item: PanelOfficeStartup | null; dist
             <Field label="Asoschi rasmi">
                 <ImageField name="photo_file" removeName="remove_photo" current={item?.photo ?? null} round />
             </Field>
-            <Field label="Loyiha rasmi">
+            <Field label="Loyiha rasmi (saytda ko'rinmaydi)">
                 <ImageField name="project_image_file" removeName="remove_project_image" current={item?.project_image ?? null} />
+                <span className="mt-1.5 block text-[11.5px] text-faint">
+                    Saytda har bir loyihada Samarqand startup ofisi logosi chiqadi. Bu rasm faqat panelda saqlanadi.
+                </span>
             </Field>
 
             <div className="md:col-span-2">

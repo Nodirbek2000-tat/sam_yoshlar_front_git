@@ -3,9 +3,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { Icon } from "@/components/icon";
-import { Img } from "@/components/img";
 import { Reveal } from "@/components/motion-primitives";
-import { FounderAvatar, OfficeCard, SpherePill, StagePill, sphereOf } from "@/components/office/office-ui";
+import {
+    FounderAvatar,
+    OFFICE_LOGO,
+    OfficeCard,
+    OfficeCover,
+    SpherePill,
+    StagePill,
+    sphereOf,
+} from "@/components/office/office-ui";
 import { ApiError, getOfficeStartup } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { shareMetadata } from "@/lib/seo";
@@ -33,7 +40,7 @@ export async function generateMetadata({ params }: PageProps<"/startuplar-ofisi/
     return shareMetadata({
         title: `${item.name} — Samarqand startuplar ofisi`,
         description: item.about || `${item.full_name} loyihasi`,
-        image: item.project_image ?? item.photo,
+        image: OFFICE_LOGO.share,
         path: `/startuplar-ofisi/${item.id}`,
     });
 }
@@ -100,30 +107,8 @@ export default async function OfficeStartupPage({ params }: PageProps<"/startupl
 
                     <Reveal delay={0.1}>
                         <div className="relative overflow-hidden rounded-[2rem] border border-line bg-tone-soft shadow-[0_30px_70px_-40px_var(--tone)]">
-                            {item.project_image ? (
-                                // Rasm to'liq ko'rinadi (logo kesilmasin), ortida o'zining xira nusxasi
-                                <div className="relative aspect-[4/3]">
-                                    <Img
-                                        src={item.project_image}
-                                        alt=""
-                                        sizes="(min-width: 1024px) 520px, 100vw"
-                                        maxWidth={640}
-                                        className="absolute inset-0 size-full scale-110 object-cover opacity-60 blur-2xl"
-                                    />
-                                    <Img
-                                        src={item.project_image}
-                                        alt={item.name}
-                                        sizes="(min-width: 1024px) 520px, 100vw"
-                                        maxWidth={1080}
-                                        priority
-                                        className="relative size-full object-contain"
-                                    />
-                                </div>
-                            ) : (
-                                <div className="grid aspect-[4/3] place-items-center text-8xl" aria-hidden>
-                                    {sphere.emoji}
-                                </div>
-                            )}
+                            {/* Har bir loyihada ofis logosi — loyiha rasmi ko'rsatilmaydi */}
+                            <OfficeCover priority className="aspect-[4/3]" />
                         </div>
                     </Reveal>
                 </div>

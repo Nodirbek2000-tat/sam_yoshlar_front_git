@@ -39,6 +39,53 @@ export const sphereOf = (value: string) =>
 
 export const stageOf = (value: string) => OFFICE_STAGES.find((item) => item.value === value) ?? OFFICE_STAGES[0];
 
+/**
+ * Muqova — har bir loyihada Samarqand startup ofisining logosi.
+ * Loyiha rasmi (Excel yoki paneldan yuklangan) saytda ko'rsatilmaydi.
+ */
+export const OFFICE_LOGO = {
+    small: "/startuplar-ofisi/logo-640.webp",
+    large: "/startuplar-ofisi/logo-1080.webp",
+    /** Ijtimoiy tarmoqlarda ulashilganda */
+    share: "/startuplar-ofisi/logo-share.jpg",
+};
+
+export function OfficeCover({
+    priority = false,
+    className,
+    imageClassName,
+}: {
+    priority?: boolean;
+    className?: string;
+    imageClassName?: string;
+}) {
+    return (
+        <div className={cn("relative overflow-hidden bg-[#e7ebf2]", className)}>
+            {/* Logo kvadrat — chetlari o'zining xira nusxasi bilan to'ldiriladi */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+                src={OFFICE_LOGO.small}
+                alt=""
+                aria-hidden
+                loading={priority ? "eager" : "lazy"}
+                decoding="async"
+                className="absolute inset-0 size-full scale-125 object-cover opacity-70 blur-2xl"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+                src={OFFICE_LOGO.small}
+                srcSet={`${OFFICE_LOGO.small} 640w, ${OFFICE_LOGO.large} 1080w`}
+                sizes="(min-width: 1024px) 520px, 100vw"
+                alt="Samarqand startup ofisi"
+                loading={priority ? "eager" : "lazy"}
+                decoding="async"
+                {...(priority ? { fetchPriority: "high" as const } : {})}
+                className={cn("relative size-full object-contain", imageClassName)}
+            />
+        </div>
+    );
+}
+
 const initials = (name: string) =>
     name
         .split(/\s+/)
@@ -119,24 +166,12 @@ export function OfficeCard({ item }: { item: OfficeStartup }) {
                 "group relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-raised transition-all duration-300 hover:-translate-y-1 hover:border-tone-line hover:shadow-[0_22px_44px_-26px_var(--tone)]",
             )}
         >
-            <div className="relative aspect-[16/10] overflow-hidden bg-tone-soft">
-                {item.project_image ? (
-                    <Img
-                        src={item.project_image}
-                        alt={item.name}
-                        sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw"
-                        maxWidth={828}
-                        className="size-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-                    />
-                ) : (
-                    <div className="grid size-full place-items-center">
-                        <div className="grid-lines absolute inset-0 opacity-40 [mask-image:radial-gradient(70%_70%_at_50%_50%,#000,transparent)]" />
-                        <span className="relative text-6xl" aria-hidden>
-                            {sphere.emoji}
-                        </span>
-                    </div>
-                )}
-                <span className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/35 to-transparent" />
+            <div className="relative aspect-[16/10] overflow-hidden">
+                <OfficeCover
+                    className="size-full"
+                    imageClassName="transition-transform duration-700 group-hover:scale-[1.05]"
+                />
+                <span className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/25 to-transparent" />
                 <StagePill value={item.stage} className="absolute right-3 top-3" />
             </div>
 
