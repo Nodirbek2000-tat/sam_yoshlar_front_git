@@ -644,6 +644,9 @@ export type FundedStartup = {
     id: number;
     name: string;
     image: string | null;
+    /** Qo'shimcha rasmlar (oynadagi galereya); eski keshlangan javobda bo'lmasligi mumkin */
+    photos?: { id: number; url: string }[];
+    video?: string | null;
     founder: string;
     sphere: string;
     amount: number | null;

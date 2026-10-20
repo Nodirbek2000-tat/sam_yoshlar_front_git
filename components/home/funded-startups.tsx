@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import { Icon } from "@/components/icon";
 import { Img } from "@/components/img";
@@ -23,7 +23,20 @@ const MARQUEE_FROM = 4;
  */
 export function FundedStartups({ data }: { data: FundedList }) {
     const [open, setOpen] = useState<FundedStartup | null>(null);
+    const section = useRef<HTMLElement>(null);
     const items = data.results;
+
+    // Botdagi «Batafsil» havolasi: /?mablag=12 — o'sha startapning oynasi o'zi ochiladi
+    useEffect(() => {
+        const id = Number(new URLSearchParams(window.location.search).get("mablag"));
+        const found = id ? data.results.find((item) => item.id === id) : undefined;
+        if (!found) return;
+        section.current?.scrollIntoView({ block: "start" });
+        // Sahifa ochilishi bilan bir marta — URL'dan olingan holat
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setOpen(found);
+    }, [data.results]);
+
     if (!items.length) return null;
 
     const marquee = items.length >= MARQUEE_FROM;
@@ -33,7 +46,7 @@ export function FundedStartups({ data }: { data: FundedList }) {
     ].filter(Boolean);
 
     return (
-        <section className="tone-emerald relative overflow-hidden border-b border-line">
+        <section ref={section} id="mablag" className="tone-emerald relative scroll-mt-16 overflow-hidden border-b border-line">
             {/* Orqa fon: yumshoq yog'du va to'r */}
             <div
                 aria-hidden
@@ -169,11 +182,25 @@ function FundedCard({
                         {formatMoney(item.amount, item.currency)}
                     </span>
                 ) : null}
-                {item.year ? (
-                    <span className="absolute right-4 top-4 rounded-full bg-black/45 px-2.5 py-1 text-[12px] font-medium text-white backdrop-blur">
-                        {item.year}
-                    </span>
-                ) : null}
+                <span className="absolute right-4 top-4 flex items-center gap-1.5">
+                    {item.video ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-black/45 px-2.5 py-1 text-[12px] font-medium text-white backdrop-blur">
+                            <PlayGlyph />
+                            Video
+                        </span>
+                    ) : null}
+                    {item.photos?.length ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-black/45 px-2.5 py-1 text-[12px] font-medium text-white backdrop-blur">
+                            <Icon name="image" size={12} />
+                            {item.photos.length + (item.image ? 1 : 0)}
+                        </span>
+                    ) : null}
+                    {item.year ? (
+                        <span className="rounded-full bg-black/45 px-2.5 py-1 text-[12px] font-medium text-white backdrop-blur">
+                            {item.year}
+                        </span>
+                    ) : null}
+                </span>
 
                 <div className="absolute inset-x-0 bottom-0 p-4">
                     <h3 className="line-clamp-1 text-[19px] font-semibold tracking-tight text-white">{item.name}</h3>
@@ -196,5 +223,13 @@ function FundedCard({
                 </span>
             </div>
         </button>
+    );
+}
+
+function PlayGlyph() {
+    return (
+        <svg aria-hidden viewBox="0 0 12 12" className="size-2.5 fill-current">
+            <path d="M3 1.8v8.4L10 6z" />
+        </svg>
     );
 }
