@@ -58,6 +58,7 @@ export function HeroStage({ children }: { children?: ReactNode }) {
 
     return (
         <section
+            data-hero-stage
             onPointerMove={onPointerMove}
             className="relative flex min-h-[calc(100svh-3.75rem)] flex-col overflow-hidden border-b border-line"
         >

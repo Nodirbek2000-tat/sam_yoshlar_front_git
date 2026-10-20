@@ -945,19 +945,26 @@ html.fx [data-fx="heading"]:not([data-shown]) .fx-char {
     }
 }
 
-/* Aylantirganda sahna tarqaladi — brauzer qo'llasa */
-@supports (animation-timeline: scroll()) {
+/* Aylantirganda sahna tarqaladi — brauzer qo'llasa.
+   Hisob sahifa boshidan emas, ochilish sahnasining o'zi ekrandan chiqib
+   ketishidan olinadi: tepada boshqa bo'lim (masalan, «Mablag' olgan
+   startuplar») tursa ham, sahna ekranga kelganda to'liq ko'rinadi. */
+@supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
+        [data-hero-stage] {
+            view-timeline: --hero block;
+        }
+
         [data-hero-content] {
             animation: hero-out linear both;
-            animation-timeline: scroll(root block);
-            animation-range: 0 90vh;
+            animation-timeline: --hero;
+            animation-range: exit 0% exit 90%;
         }
 
         [data-floater] {
             animation: floater-out linear both;
-            animation-timeline: scroll(root block);
-            animation-range: 0 90vh;
+            animation-timeline: --hero;
+            animation-range: exit 0% exit 90%;
         }
 
         /* Registon sahifadan chiqib ketayotganda kattalashib so'nadi — faqat kompozitor, JS'siz */
