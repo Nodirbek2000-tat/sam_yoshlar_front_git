@@ -23,6 +23,7 @@ const ALLOWED = new Set([
     "startups",
     "office-startups",
     "laureates",
+    "funded",
     "businesses",
     "reference",
 ]);

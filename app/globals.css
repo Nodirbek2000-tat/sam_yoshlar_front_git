@@ -1149,6 +1149,27 @@ html.fx [data-fx="heading"]:not([data-shown]) .fx-char {
     animation-play-state: paused;
 }
 
+/* Bosh sahifa: «Mablag' olgan startuplar» lentasi — tezligi kartalar soniga qarab */
+.funded-track {
+    animation-duration: var(--funded-duration, 48s);
+}
+
+.funded-marquee:focus-within .marquee-track {
+    animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /* Lenta yurmaydi — qo'lda yonga suriladi, ikkinchi nusxa kerak emas */
+    .funded-marquee {
+        overflow-x: auto;
+        mask-image: none;
+    }
+
+    .funded-marquee [data-copy] {
+        display: none;
+    }
+}
+
 /* --- Kursor ortidan yuruvchi yog'du (karta) --- */
 @utility spotlight {
     position: relative;

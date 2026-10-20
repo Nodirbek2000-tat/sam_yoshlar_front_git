@@ -638,3 +638,25 @@ export type LaureateList = {
     years: { value: number; count: number }[];
     results: Laureate[];
 };
+
+/** Mablag' (grant, investitsiya) olgan startap — bosh sahifa tepasida. */
+export type FundedStartup = {
+    id: number;
+    name: string;
+    image: string | null;
+    founder: string;
+    sphere: string;
+    amount: number | null;
+    currency: "UZS" | "USD";
+    currency_display: string;
+    funder: string;
+    year: number | null;
+    about: string;
+};
+
+export type FundedList = {
+    count: number;
+    /** Valyutalar alohida: so'm va dollar qo'shilmaydi */
+    totals: { UZS: number; USD: number };
+    results: FundedStartup[];
+};

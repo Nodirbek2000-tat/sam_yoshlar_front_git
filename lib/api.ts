@@ -16,6 +16,7 @@ import type {
     Overview,
     Paginated,
     Peer,
+    FundedList,
     LaureateDetail,
     LaureateList,
     OfficeStartupDetail,
@@ -206,6 +207,12 @@ export const getAnnouncement = (slug: string) =>
     apiFetch<Announcement>(`/announcements/${slug}/`, {
         revalidate: 120,
         tags: ["announcements"],
+    });
+
+export const getFundedStartups = () =>
+    apiFetch<FundedList>("/mablag-olganlar/", {
+        revalidate: 120,
+        tags: ["funded"],
     });
 
 export const getLaureates = (query?: Query) =>

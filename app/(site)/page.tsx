@@ -18,6 +18,7 @@ import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
 
 import { CategoryTile } from "@/components/category-tile";
+import { FundedStartups } from "@/components/home/funded-startups";
 import { BusinessCard, StartupCard } from "@/components/directory/cards";
 import { HeroStage } from "@/components/home/hero-stage";
 import { HomeFx } from "@/components/home/home-fx";
@@ -29,7 +30,7 @@ import { Img } from "@/components/img";
 import { CountUp } from "@/components/motion-primitives";
 import { JsonLd } from "@/components/seo/json-ld";
 import { Words } from "@/components/words";
-import { getDirections, getOverview } from "@/lib/api";
+import { getDirections, getFundedStartups, getOverview } from "@/lib/api";
 import { dayAndMonth, formatNumber, formatShortDate } from "@/lib/format";
 import { IMAGE_SIZES } from "@/lib/image";
 import { organizationSchema, websiteSchema } from "@/lib/seo";
@@ -187,9 +188,10 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-    const [data, directions] = await Promise.all([
+    const [data, directions, funded] = await Promise.all([
         getOverview().catch((): Overview | null => null),
         getDirections().catch(() => []),
+        getFundedStartups().catch(() => null),
     ]);
 
     const stats = data?.stats;
@@ -258,6 +260,9 @@ export default async function HomePage() {
             <ScrollScenes />
             {/* Sahifa qancha o'qilgani — eng tepadagi ingichka chiziq */}
             <div aria-hidden data-scroll-bar className="lp-progress" />
+
+            {/* ================= MABLAG' OLGAN STARTUPLAR — eng tepada ================= */}
+            {funded && <FundedStartups data={funded} />}
 
             {/* ================= OCHILISH ================= */}
             <HeroStage>

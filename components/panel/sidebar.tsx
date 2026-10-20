@@ -31,6 +31,11 @@ const GROUPS: { title: string; items: Item[] }[] = [
         ],
     },
     {
+        // Alohida bo'lim: faqat shu yerda qo'shilganlar bosh sahifaning eng tepasida chiqadi
+        title: "Bosh sahifa",
+        items: [{ href: "/nazorat/mablag", label: "Mablag' olgan startuplar", icon: "bank" }],
+    },
+    {
         title: "Kontent",
         items: [
             { href: "/nazorat/yangiliklar", label: "Yangiliklar", icon: "news" },

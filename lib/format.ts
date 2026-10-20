@@ -122,10 +122,11 @@ export function formatNumber(value: number) {
     return `${value < 0 ? "-" : ""}${grouped}${fraction ? `,${fraction}` : ""}`;
 }
 
-/** 150000000 -> "150 mln so'm", 1200000000 -> "1,2 mlrd so'm" */
-export function formatMoney(value: number | string | null | undefined) {
+/** 150000000 -> "150 mln so'm", 1200000000 -> "1,2 mlrd so'm"; dollarda -> "$20 000" */
+export function formatMoney(value: number | string | null | undefined, currency: "UZS" | "USD" = "UZS") {
     const amount = Number(value);
     if (!amount) return "";
+    if (currency === "USD") return `$${formatNumber(amount)}`;
 
     const short = (n: number) => (Math.round(n * 10) / 10).toString().replace(".", ",");
 
