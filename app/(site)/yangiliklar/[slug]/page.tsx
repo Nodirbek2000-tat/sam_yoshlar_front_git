@@ -129,7 +129,7 @@ export default async function NewsDetailPage({ params }: PageProps<"/yangiliklar
             )}
 
             <div className="container-page py-8 md:py-10">
-                <Reveal className="max-w-2xl space-y-5 text-[16px] leading-[1.8] text-muted">
+                <Reveal className="prose-pretty max-w-2xl space-y-5 text-[16px] leading-[1.8] text-muted">
                     {(item.body ?? "")
                         .split("\n")
                         .filter(Boolean)

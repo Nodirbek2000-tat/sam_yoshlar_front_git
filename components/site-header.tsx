@@ -56,7 +56,7 @@ export function SiteHeader() {
             (pathname.startsWith("/startuplar-ofisi") || pathname.startsWith("/mirzo-ulugbek-vorislari")));
 
     return (
-        <header className="sticky top-0 z-50 border-b border-line bg-page/80 backdrop-blur-xl">
+        <header className="sticky top-0 z-50 border-b border-line bg-page/85 backdrop-blur-md">
             <div className="container-page flex h-15 items-center gap-3 sm:gap-6 xl:gap-4">
                 <Link href="/" aria-label="Bosh sahifa" className="flex shrink-0 items-center">
                     {/*

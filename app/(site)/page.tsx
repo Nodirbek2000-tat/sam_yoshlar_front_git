@@ -646,7 +646,7 @@ export default async function HomePage() {
 
             {/* ================= REYTING ================= */}
             {top.length > 0 && (
-                <section className="overflow-x-clip border-b border-line">
+                <section className="cv-auto overflow-x-clip border-b border-line">
                     <div className="container-page py-20 md:py-24">
                         <SectionHead
                             n={no("rating")}
@@ -719,7 +719,7 @@ export default async function HomePage() {
             )}
 
             {/* ================= YANGILIKLAR + TADBIRLAR ================= */}
-            <section className="overflow-x-clip border-b border-line">
+            <section className="cv-auto overflow-x-clip border-b border-line">
                 <div className="container-page grid gap-14 py-20 md:py-24 lg:grid-cols-2 lg:gap-16">
                     <div>
                         <SectionHead
@@ -811,7 +811,7 @@ export default async function HomePage() {
             </section>
 
             {/* ================= E'LONLAR ================= */}
-            <section className="overflow-x-clip border-b border-line">
+            <section className="cv-auto overflow-x-clip border-b border-line">
                 <div className="container-page py-20 md:py-24">
                     <SectionHead
                         n={no("offers")}
@@ -866,7 +866,7 @@ export default async function HomePage() {
             </section>
 
             {/* ================= CHET ELDAGI TENGDOSHLAR ================= */}
-            <section className="relative overflow-hidden border-b border-line">
+            <section className="cv-auto relative overflow-hidden border-b border-line">
                 <div
                     aria-hidden
                     className="pointer-events-none absolute inset-0 bg-[radial-gradient(32rem_26rem_at_100%_8%,oklch(65%_0.14_230/0.12),transparent_70%),radial-gradient(28rem_24rem_at_0%_100%,color-mix(in_oklab,var(--accent)_12%,transparent),transparent_70%)]"
@@ -927,7 +927,7 @@ export default async function HomePage() {
             </section>
 
             {/* ================= TADBIRKORLAR ================= */}
-            <section className="overflow-x-clip border-b border-line">
+            <section className="cv-auto overflow-x-clip border-b border-line">
                 <div className="container-page py-20 md:py-24">
                     <SectionHead
                         n={no("business")}
@@ -961,7 +961,7 @@ export default async function HomePage() {
             </section>
 
             {/* ================= STARTAPLAR ================= */}
-            <section className="overflow-x-clip border-b border-line">
+            <section className="cv-auto overflow-x-clip border-b border-line">
                 <div className="container-page py-20 md:py-24">
                     <SectionHead
                         n={no("startups")}
@@ -995,7 +995,7 @@ export default async function HomePage() {
             </section>
 
             {/* ================= CHAQIRIQ ================= */}
-            <section className="relative overflow-hidden">
+            <section className="cv-auto relative overflow-hidden">
                 <div aria-hidden className="aurora" />
                 <div aria-hidden className="lp-dots absolute inset-0 [mask-image:radial-gradient(ellipse_60%_70%_at_50%_100%,#000,transparent)]" />
                 {/* Orqadagi yog'du — sahifadan sekinroq siljiydi */}

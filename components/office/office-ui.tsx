@@ -40,48 +40,43 @@ export const sphereOf = (value: string) =>
 export const stageOf = (value: string) => OFFICE_STAGES.find((item) => item.value === value) ?? OFFICE_STAGES[0];
 
 /**
- * Muqova — har bir loyihada Samarqand startup ofisining logosi.
- * Loyiha rasmi (Excel yoki paneldan yuklangan) saytda ko'rsatilmaydi.
+ * Muqova — rasm emas: soha rangidagi yumshoq fon, to'r va soha belgisi.
+ * Loyiha rasmi (Excel yoki paneldan yuklangan) saytda ko'rsatilmaydi; rasm
+ * yuklanmagani uchun 136 ta karta ham telefonda yengil ochiladi.
  */
-export const OFFICE_LOGO = {
-    small: "/startuplar-ofisi/logo-640.webp",
-    large: "/startuplar-ofisi/logo-1080.webp",
-    /** Ijtimoiy tarmoqlarda ulashilganda */
-    share: "/startuplar-ofisi/logo-share.jpg",
-};
-
 export function OfficeCover({
-    priority = false,
+    sphere,
+    size = "card",
     className,
-    imageClassName,
 }: {
-    priority?: boolean;
+    sphere: string;
+    /** `card` — ro'yxatdagi karta, `wide` — loyiha sahifasi */
+    size?: "card" | "wide";
     className?: string;
-    imageClassName?: string;
 }) {
+    const info = sphereOf(sphere);
     return (
-        <div className={cn("relative overflow-hidden bg-[#e7ebf2]", className)}>
-            {/* Logo kvadrat — chetlari o'zining xira nusxasi bilan to'ldiriladi */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-                src={OFFICE_LOGO.small}
-                alt=""
+        <div
+            className={cn(
+                toneClass(info.tone),
+                "relative grid place-items-center overflow-hidden bg-tone-soft",
+                className,
+            )}
+        >
+            <div className="grid-lines absolute inset-0 opacity-40 [mask-image:radial-gradient(70%_70%_at_50%_50%,#000,transparent)]" />
+            <div
                 aria-hidden
-                loading={priority ? "eager" : "lazy"}
-                decoding="async"
-                className="absolute inset-0 size-full scale-125 object-cover opacity-70 blur-2xl"
+                className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_45%,color-mix(in_oklab,var(--tone)_22%,transparent),transparent_70%)]"
             />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-                src={OFFICE_LOGO.small}
-                srcSet={`${OFFICE_LOGO.small} 640w, ${OFFICE_LOGO.large} 1080w`}
-                sizes="(min-width: 1024px) 520px, 100vw"
-                alt="Samarqand startup ofisi"
-                loading={priority ? "eager" : "lazy"}
-                decoding="async"
-                {...(priority ? { fetchPriority: "high" as const } : {})}
-                className={cn("relative size-full object-contain", imageClassName)}
-            />
+            <span
+                aria-hidden
+                className={cn(
+                    "relative transition-transform duration-500 group-hover:scale-110",
+                    size === "wide" ? "text-8xl" : "text-6xl",
+                )}
+            >
+                {info.emoji}
+            </span>
         </div>
     );
 }
@@ -144,7 +139,7 @@ export function StagePill({ value, className }: { value: string; className?: str
         <span
             className={cn(
                 stage.tone,
-                "inline-flex items-center gap-1.5 rounded-full bg-page/90 px-2.5 py-1 text-[11.5px] font-semibold text-tone-text backdrop-blur",
+                "inline-flex items-center gap-1.5 rounded-full bg-page/95 px-2.5 py-1 text-[11.5px] font-semibold text-tone-text",
                 className,
             )}
         >
@@ -163,14 +158,11 @@ export function OfficeCard({ item }: { item: OfficeStartup }) {
             href={`/startuplar-ofisi/${item.id}`}
             className={cn(
                 toneClass(sphere.tone),
-                "group relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-raised transition-all duration-300 hover:-translate-y-1 hover:border-tone-line hover:shadow-[0_22px_44px_-26px_var(--tone)]",
+                "cv-card group relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-raised transition-[translate,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-tone-line hover:shadow-[0_22px_44px_-26px_var(--tone)]",
             )}
         >
             <div className="relative aspect-[16/10] overflow-hidden">
-                <OfficeCover
-                    className="size-full"
-                    imageClassName="transition-transform duration-700 group-hover:scale-[1.05]"
-                />
+                <OfficeCover sphere={item.sphere} className="size-full" />
                 <span className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/25 to-transparent" />
                 <StagePill value={item.stage} className="absolute right-3 top-3" />
             </div>

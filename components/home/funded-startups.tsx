@@ -24,6 +24,7 @@ const MARQUEE_FROM = 4;
 export function FundedStartups({ data }: { data: FundedList }) {
     const [open, setOpen] = useState<FundedStartup | null>(null);
     const section = useRef<HTMLElement>(null);
+    const lane = useRef<HTMLDivElement>(null);
     const items = data.results;
 
     // Botdagi «Batafsil» havolasi: /?mablag=12 — o'sha startapning oynasi o'zi ochiladi
@@ -36,6 +37,17 @@ export function FundedStartups({ data }: { data: FundedList }) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setOpen(found);
     }, [data.results]);
+
+    // Lenta ekrandan chiqqanda to'xtaydi — grafik protsessor bekorga ishlamasin
+    useEffect(() => {
+        const element = lane.current;
+        if (!element) return;
+        const observer = new IntersectionObserver(([entry]) =>
+            element.toggleAttribute("data-paused", !entry.isIntersecting),
+        );
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, [items.length]);
 
     if (!items.length) return null;
 
@@ -63,7 +75,7 @@ export function FundedStartups({ data }: { data: FundedList }) {
                     <div className="max-w-2xl">
                         <span className="inline-flex items-center gap-2 rounded-full border border-tone-line bg-tone-soft px-3.5 py-1.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-tone-text">
                             <span className="relative flex size-2">
-                                <span className="absolute inline-flex size-full animate-ping rounded-full bg-tone opacity-60" />
+                                <span className="absolute inline-flex size-full animate-ping rounded-full bg-tone opacity-60 [animation-iteration-count:3]" />
                                 <span className="relative inline-flex size-2 rounded-full bg-tone" />
                             </span>
                             Mablag&apos; olgan startuplar
@@ -88,9 +100,20 @@ export function FundedStartups({ data }: { data: FundedList }) {
 
             {marquee ? (
                 <div
-                    className="funded-marquee marquee relative pb-12 pt-4 [mask-image:linear-gradient(90deg,transparent,#000_5%,#000_95%,transparent)]"
+                    ref={lane}
+                    className="funded-marquee marquee relative overflow-hidden pb-12 pt-4"
                     style={{ "--funded-duration": `${Math.max(30, items.length * 7)}s` } as CSSProperties}
                 >
+                    {/* Chetlar so'nadi: niqob (mask) o'rniga ustidagi gradient — lenta
+                        har kadrda alohida qatlamga qayta yig'ilmaydi */}
+                    <span
+                        aria-hidden
+                        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-[5%] bg-gradient-to-r from-page to-transparent"
+                    />
+                    <span
+                        aria-hidden
+                        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-[5%] bg-gradient-to-l from-page to-transparent"
+                    />
                     {/* Oraliq kartaning o'ng chetida — ikki nusxa aynan teng, lenta sakramaydi */}
                     <div className="marquee-track funded-track">
                         {[...items, ...items].map((item, index) => (
@@ -121,7 +144,7 @@ function Stat({ value, label, accent = false }: { value: string; label: string; 
     return (
         <span
             className={cn(
-                "inline-flex flex-col rounded-2xl border px-4 py-2.5 backdrop-blur",
+                "inline-flex flex-col rounded-2xl border px-4 py-2.5",
                 accent ? "border-tone-line bg-tone-soft" : "border-line bg-page/70",
             )}
         >
@@ -184,19 +207,19 @@ function FundedCard({
                 ) : null}
                 <span className="absolute right-4 top-4 flex items-center gap-1.5">
                     {item.video ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-black/45 px-2.5 py-1 text-[12px] font-medium text-white backdrop-blur">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[12px] font-medium text-white">
                             <PlayGlyph />
                             Video
                         </span>
                     ) : null}
                     {item.photos?.length ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-black/45 px-2.5 py-1 text-[12px] font-medium text-white backdrop-blur">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[12px] font-medium text-white">
                             <Icon name="image" size={12} />
                             {item.photos.length + (item.image ? 1 : 0)}
                         </span>
                     ) : null}
                     {item.year ? (
-                        <span className="rounded-full bg-black/45 px-2.5 py-1 text-[12px] font-medium text-white backdrop-blur">
+                        <span className="rounded-full bg-black/60 px-2.5 py-1 text-[12px] font-medium text-white">
                             {item.year}
                         </span>
                     ) : null}

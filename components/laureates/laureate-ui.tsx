@@ -16,27 +16,34 @@ export const LAUREATE_LOGO = {
     share: "/vorislar/logo-share.jpg",
 };
 
-export function LaureateCover({ priority = false, className }: { priority?: boolean; className?: string }) {
+/** Oldindan tayyorlangan muqova: logo va uning xira foni bitta faylda (brauzerda filtr yo'q). */
+const LAUREATE_COVERS = {
+    card: { src: "/vorislar/cover-640.webp", srcSet: "/vorislar/cover-640.webp 640w, /vorislar/cover-1200.webp 1200w" },
+    wide: { src: "/vorislar/cover-wide-1080.webp", srcSet: undefined },
+};
+
+export function LaureateCover({
+    shape = "card",
+    priority = false,
+    className,
+}: {
+    shape?: keyof typeof LAUREATE_COVERS;
+    priority?: boolean;
+    className?: string;
+}) {
+    const cover = LAUREATE_COVERS[shape];
     return (
         <div className={cn("relative overflow-hidden bg-[#dfe9f2]", className)}>
-            {/* Logo kvadrat — chetlari o'zining xira nusxasi bilan to'ldiriladi */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-                src={LAUREATE_LOGO.src}
-                alt=""
-                aria-hidden
-                loading={priority ? "eager" : "lazy"}
-                decoding="async"
-                className="absolute inset-0 size-full scale-125 object-cover opacity-70 blur-2xl"
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-                src={LAUREATE_LOGO.src}
+                src={cover.src}
+                srcSet={cover.srcSet}
+                sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw"
                 alt="Samarqand viloyati Innovatsion rivojlanish bo'linmasi"
                 loading={priority ? "eager" : "lazy"}
                 decoding="async"
                 {...(priority ? { fetchPriority: "high" as const } : {})}
-                className="relative size-full object-contain transition-transform duration-700 group-hover:scale-[1.04]"
+                className="size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
             />
         </div>
     );
@@ -46,7 +53,7 @@ export function YearPill({ year, className }: { year: number; className?: string
     return (
         <span
             className={cn(
-                "inline-flex items-center gap-1.5 rounded-full bg-page/90 px-2.5 py-1 text-[11.5px] font-semibold tabular-nums text-text backdrop-blur",
+                "inline-flex items-center gap-1.5 rounded-full bg-page/95 px-2.5 py-1 text-[11.5px] font-semibold tabular-nums text-text",
                 className,
             )}
         >
@@ -75,7 +82,7 @@ export function LaureateCard({ item }: { item: Laureate }) {
     return (
         <Link
             href={`/mirzo-ulugbek-vorislari/${item.id}`}
-            className="tone-blue group relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-raised transition-all duration-300 hover:-translate-y-1 hover:border-tone-line hover:shadow-[0_22px_44px_-26px_var(--tone)]"
+            className="cv-card tone-blue group relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-raised transition-[translate,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-tone-line hover:shadow-[0_22px_44px_-26px_var(--tone)]"
         >
             <div className="relative aspect-[16/10] overflow-hidden">
                 <LaureateCover className="size-full" />

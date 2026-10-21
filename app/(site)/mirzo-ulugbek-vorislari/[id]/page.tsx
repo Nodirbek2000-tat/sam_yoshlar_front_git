@@ -95,7 +95,7 @@ export default async function LaureatePage({ params }: PageProps<"/mirzo-ulugbek
 
                     <Reveal delay={0.1}>
                         <div className="relative overflow-hidden rounded-[2rem] border border-line shadow-[0_30px_70px_-40px_var(--tone)]">
-                            <LaureateCover priority className="aspect-[4/3]" />
+                            <LaureateCover shape="wide" priority className="aspect-[4/3]" />
                         </div>
                     </Reveal>
                 </div>

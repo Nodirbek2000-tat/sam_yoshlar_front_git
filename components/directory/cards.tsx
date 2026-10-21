@@ -80,7 +80,7 @@ export function BusinessCard({ business }: { business: PublicBusiness }) {
                 <span className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/35 to-transparent" />
 
                 {business.photo_count > 1 && (
-                    <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-1 text-[11px] font-medium text-white backdrop-blur">
+                    <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/65 px-2 py-1 text-[11px] font-medium text-white">
                         <Icon name="image" size={12} />
                         {business.photo_count}
                     </span>

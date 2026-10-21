@@ -20,16 +20,28 @@ import { useEffect } from "react";
  *
  * Har bir kadrda faqat ekran yaqinidagi sahnalar o'lchanadi. «Harakatni
  * kamaytirish» yoqilgan bo'lsa umuman ishlamaydi — sahifa oddiy ko'rinishda.
+ *
+ * Brauzer aylantirish vaqt o'qini (`animation-timeline: view()`) qo'llasa,
+ * uzluksiz harakatlar (`view` sahnalar, rels `--p`, o'qish chizig'i) CSS'da
+ * bajariladi — `globals.css` oxiri. Bu yerda faqat qadamli narsalar qoladi:
+ * `--step`, `--idx`, `data-active` — ular kamdan-kam o'zgaradi.
  */
 export function ScrollScenes() {
     useEffect(() => {
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
         const root = document.documentElement;
+        // Uzluksiz harakatni brauzer o'zi bajaradimi (JS har kadrda yozmasin)
+        const cssDriven =
+            typeof CSS !== "undefined" &&
+            CSS.supports("animation-timeline: view()") &&
+            CSS.supports("animation-range: contain 0% contain 100%");
         // Oxirgi yozilgan qiymatlar — o'zgarmagan bo'lsa qayta yozilmaydi (stil qayta hisoblanmasin)
         const written = new Map<HTMLElement, Map<string, string>>();
-        const scenes = Array.from(document.querySelectorAll<HTMLElement>("[data-scene]"));
-        const bar = document.querySelector<HTMLElement>("[data-scroll-bar]");
+        const scenes = Array.from(document.querySelectorAll<HTMLElement>("[data-scene]")).filter(
+            (scene) => !(cssDriven && scene.dataset.scene === "view"),
+        );
+        const bar = cssDriven ? null : document.querySelector<HTMLElement>("[data-scroll-bar]");
         const near = new Set<HTMLElement>();
         const items = new Map<HTMLElement, HTMLElement[]>();
         let frame = 0;
@@ -121,13 +133,15 @@ export function ScrollScenes() {
                     continue;
                 }
 
-                write(scene, "--p", value.toFixed(3));
+                if (!cssDriven) write(scene, "--p", value.toFixed(3));
                 const count = Number(scene.dataset.count);
                 if (count) write(scene, "--idx", String(Math.round(value * (count - 1))));
             }
         }
 
         const schedule = () => {
+            // Yaqinda sahna yo'q va chiziqni CSS yuritadi — kadr so'ramaymiz (asosiy oqim bo'sh qoladi)
+            if (!bar && near.size === 0) return;
             if (!frame) frame = requestAnimationFrame(update);
         };
 

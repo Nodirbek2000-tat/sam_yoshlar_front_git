@@ -6,7 +6,6 @@ import { Icon } from "@/components/icon";
 import { Reveal } from "@/components/motion-primitives";
 import {
     FounderAvatar,
-    OFFICE_LOGO,
     OfficeCard,
     OfficeCover,
     SpherePill,
@@ -40,7 +39,8 @@ export async function generateMetadata({ params }: PageProps<"/startuplar-ofisi/
     return shareMetadata({
         title: `${item.name} — Samarqand startuplar ofisi`,
         description: item.about || `${item.full_name} loyihasi`,
-        image: OFFICE_LOGO.share,
+        // Ulashilganda — asoschining surati (bo'lmasa saytning umumiy rasmi)
+        image: item.photo,
         path: `/startuplar-ofisi/${item.id}`,
     });
 }
@@ -107,8 +107,8 @@ export default async function OfficeStartupPage({ params }: PageProps<"/startupl
 
                     <Reveal delay={0.1}>
                         <div className="relative overflow-hidden rounded-[2rem] border border-line bg-tone-soft shadow-[0_30px_70px_-40px_var(--tone)]">
-                            {/* Har bir loyihada ofis logosi — loyiha rasmi ko'rsatilmaydi */}
-                            <OfficeCover priority className="aspect-[4/3]" />
+                            {/* Loyiha rasmi ko'rsatilmaydi — soha belgisi */}
+                            <OfficeCover sphere={item.sphere} size="wide" className="aspect-[4/3]" />
                         </div>
                     </Reveal>
                 </div>

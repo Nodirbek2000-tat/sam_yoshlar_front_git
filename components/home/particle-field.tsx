@@ -18,8 +18,11 @@ import { useEffect, useRef } from "react";
  * Oddiy 2D canvas — kutubxonasiz. Faqat **biror narsa o'zgarayotganda** chizadi:
  * shakl yig'ilayotganda, sichqoncha qimirlaganda yoki aylantirilganda. Hammasi
  * tinchigach chizish to'xtaydi — protsessor bo'sh, sahifa silliq aylanadi.
- * Telefonda: nuqtalar kamroq, kadr siyrakroq, burilish yo'q. «Harakatni
- * kamaytirish» yoqilgan bo'lsa — birinchi shakl qimirlamay turadi.
+ * Telefonda: nuqtalar kamroq, kadr siyrakroq (30 fps). Ochilish sahnasi
+ * (Registon) telefonda ham portlab yig'iladi, o'z-o'zidan sekin aylanib turadi,
+ * telefon qiyshaytirilsa (giroskop) buriladi, barmoq tekkan joydan nuqtalar
+ * tarqaladi — faqat ekranda ko'rinib turganda. «Harakatni kamaytirish»
+ * yoqilgan bo'lsa — birinchi shakl qimirlamay turadi.
  */
 
 export type ParticleShape = "dome" | "rings" | "clusters" | "check" | "bulb";
@@ -264,7 +267,7 @@ export function ParticleField({
         // Ochilishdagi Registon zichroq — burchak va chiziqlar aniq chiqsin
         const count = lowPower
             ? interactive
-                ? 900
+                ? 1100
                 : window.innerWidth < 640
                   ? 420
                   : 700
@@ -275,6 +278,8 @@ export function ParticleField({
               : window.innerWidth < 1280
                 ? 1100
                 : 1700;
+        // Telefondagi ochilish sahnasi: o'zi aylanadi va giroskop/barmoqqa javob beradi
+        const lively = interactive && lowPower && !reduce;
         // Tejamkor rejimda kadr ikki baravar siyrak — prujina shunga yarasha tezroq
         const stiffness = lowPower ? 0.075 : 0.03;
         const damping = lowPower ? 0.76 : 0.86;
@@ -346,11 +351,14 @@ export function ParticleField({
         let tiltToY = 0;
         // Sichqoncha oxirgi marta qachon qimirlagan — shundan keyin biroz chizib, to'xtaydi
         let lastPointer = 0;
+        // Telefon: giroskopdan kelgan oxirgi burilish va barmoq tekkan payt
+        let lastTilt = 0;
+        let touchUntil = 0;
         let colors = PALETTE.light;
 
         for (let index = 0; index < count; index++) {
-            if (interactive && !lowPower) {
-                // Ochilishda markazdan portlab chiqadi — keyin shaklga yig'iladi (telefonda shunchaki yig'iladi)
+            if (interactive && !reduce) {
+                // Ochilishda markazdan portlab chiqadi — keyin shaklga yig'iladi
                 const angle = Math.random() * Math.PI * 2;
                 const speed = 0.04 + Math.random() * 0.1;
                 x[index] = (Math.random() - 0.5) * 0.1;
@@ -406,7 +414,7 @@ export function ParticleField({
             const tx = targetX[current];
             const ty = targetY[current];
             const tz = targetZ[current];
-            const push = interactive && pointerOn;
+            const push = interactive && (lowPower ? now < touchUntil : pointerOn);
             const mx = (pointerX - width / 2) / scale;
             const my = (pointerY - height / 2) / scale;
             const reach = 0.28;
@@ -458,8 +466,8 @@ export function ParticleField({
 
         /** 3D -> ekran: butun bulutni buradi va perspektiva beradi. */
         function project() {
-            const motion = !reduce && !lowPower;
-            // Sichqoncha bilan buriladi. Telefonda qimirlamaydi, lekin chuqurlik qoladi.
+            const motion = !reduce && (!lowPower || lively);
+            // Sichqoncha bilan buriladi; telefonda — o'zi aylanadi yoki giroskop bilan.
             const angleY = motion ? tiltY * 0.5 : 0;
             const angleX = (interactive ? 0.06 : 0.42) - (motion ? tiltX * 0.35 : 0);
             const cosY = Math.cos(angleY);
@@ -494,11 +502,12 @@ export function ParticleField({
             project();
 
             const perBucket = count / buckets;
-            // Telefonda bitta qatlam — chizish uch baravar kam
-            const layers = lowPower ? 1 : LAYERS.length;
+            // Telefonda bitta qatlam — chizish uch baravar kam (aylanuvchi Registonda chuqurlik uchun uchta)
+            const deep = !lowPower || lively;
+            const layers = deep ? LAYERS.length : 1;
 
             for (let depth = 0; depth < layers; depth++) {
-                ctx!.globalAlpha = lowPower ? 1 : LAYERS[depth];
+                ctx!.globalAlpha = deep ? LAYERS[depth] : 1;
 
                 for (let bucket = 0; bucket < buckets; bucket++) {
                     ctx!.fillStyle = colors[bucket];
@@ -506,7 +515,7 @@ export function ParticleField({
                     const to = Math.floor((bucket + 1) * perBucket);
 
                     for (let index = from; index < to; index++) {
-                        if (!lowPower && layer[index] !== depth) continue;
+                        if (deep && layer[index] !== depth) continue;
                         const dot = ps[index];
                         ctx!.fillRect(px[index] - dot / 2, py[index] - dot / 2, dot, dot);
                     }
@@ -521,6 +530,11 @@ export function ParticleField({
 
             const step = wantedStep();
             if (step !== current) morph(step, now);
+            if (lively && now - lastTilt > 1500) {
+                // Giroskop jim — Registon sekin chapga-o'ngga aylanib turadi
+                tiltToY = Math.sin(now * 0.00042) * 0.95;
+                tiltToX = Math.sin(now * 0.00027) * 0.3;
+            }
             // Burilish sichqoncha ortidan yumshoq yuradi
             tiltX += (tiltToX - tiltX) * 0.08;
             tiltY += (tiltToY - tiltY) * 0.08;
@@ -530,7 +544,7 @@ export function ParticleField({
             paint();
 
             // Hammasi tinchidi — keyingi o'zgarishgacha chizilmaydi (protsessor bo'sh)
-            const busy = moving || tilting || now - lastPointer < 150;
+            const busy = lively || moving || tilting || now - lastPointer < 150;
             calm = busy ? 0 : calm + 1;
             if (calm > 6) stop();
         }
@@ -562,6 +576,24 @@ export function ParticleField({
                     if (wantedStep() !== current) start();
                 }),
             );
+        }
+
+        /** Telefon qiyshaytirilsa Registon ham buriladi (Android; iOS ruxsat so'raydi — o'zi aylanadi). */
+        function onOrientation(event: DeviceOrientationEvent) {
+            if (event.beta === null || event.gamma === null) return;
+            tiltToY = Math.max(-1, Math.min(1, event.gamma / 30));
+            tiltToX = Math.max(-1, Math.min(1, (event.beta - 45) / 40));
+            lastTilt = performance.now();
+        }
+
+        /** Barmoq tekkan joydan nuqtalar tarqaladi. */
+        function onTouch(event: PointerEvent) {
+            if (event.pointerType === "mouse") return;
+            const rect = canvas!.getBoundingClientRect();
+            pointerX = event.clientX - rect.left;
+            pointerY = event.clientY - rect.top;
+            touchUntil = performance.now() + 700;
+            start();
         }
 
         function onPointer(event: PointerEvent) {
@@ -618,6 +650,10 @@ export function ParticleField({
         if (!lowPower && !reduce) {
             window.addEventListener("pointermove", onPointer, { passive: true });
         }
+        if (lively) {
+            window.addEventListener("deviceorientation", onOrientation, { passive: true });
+            canvas.addEventListener("pointerdown", onTouch, { passive: true });
+        }
 
         return () => {
             stop();
@@ -627,6 +663,8 @@ export function ParticleField({
             window.removeEventListener("resize", onResize);
             window.removeEventListener("scroll", onScroll);
             window.removeEventListener("pointermove", onPointer);
+            window.removeEventListener("deviceorientation", onOrientation);
+            canvas.removeEventListener("pointerdown", onTouch);
         };
     }, [key, interactive]);
 
