@@ -137,7 +137,8 @@ function parseBulk(text: string, districts: Choice[], category = ""): Row[] {
 }
 
 function rowsOf(poll: PanelPoll | null): Row[] {
-    if (!poll) return [emptyRow(), emptyRow(), emptyRow()];
+    // Nomzodlar havola orqali o'zi keladi — qo'lda kiritish shart emas
+    if (!poll) return [];
     return poll.editable.map((option) => ({
         key: `id${option.id}`,
         id: option.id,
@@ -155,7 +156,11 @@ function rowsOf(poll: PanelPoll | null): Row[] {
 }
 
 function categoriesOf(poll: PanelPoll | null): CategoryRow[] {
-    return (poll?.categories ?? []).map((category) => ({
+    // Yangi so'rovnomada yetakchilar tanlovining 6 yo'nalishi tayyor turadi
+    if (!poll) {
+        return LEADERS_PRESET.map((item) => ({ key: nextKey(), id: null, count: 0, ...item }));
+    }
+    return poll.categories.map((category) => ({
         key: `c${category.id}`,
         id: category.id,
         title: category.title,
@@ -221,7 +226,7 @@ export function PollsPanel({ polls, districts }: { polls: PanelPoll[]; districts
         <>
             <PanelHeader
                 title="So'rovnomalar"
-                description="Masalan, viloyatning eng yaxshi mahalla yetakchisi: nomzodlarni kiriting — yoshlar saytda ovoz beradi, reyting har ovoz bilan yangilanadi."
+                description="So'rovnoma qo'shing — darhol ariza havolasi chiqadi. Uni yetakchilarga yuborasiz, ular o'zi nomzod bo'lib kiradi; «Arizalar»da tasdiqlaganingizdan keyin saytda chiqadi va ovoz beriladi."
                 action={
                     <button
                         type="button"
@@ -411,7 +416,7 @@ function PollRow({
                 </div>
 
                 <div className="flex shrink-0 flex-wrap items-center gap-1.5">
-                    {(poll.apply_url || poll.pending_count > 0) && (
+                    {poll.apply_url && (
                         <Link
                             href={`${resultsHref}/arizalar`}
                             className={cn(
@@ -722,11 +727,6 @@ function PollForm({
         const options = rows
             .map((row, index) => ({ ...row, pos: index + 1 }))
             .filter((row) => row.name.trim());
-        // Yo'nalishli so'rovnomada nomzodlar arizadan keladi — bo'sh boshlash mumkin
-        if (options.length < 2 && !categorized) {
-            setError("Kamida 2 ta nomzod kiriting.");
-            return;
-        }
         const homeless = options.find((row) => categorized && !refs.has(row.category));
         if (homeless) {
             setError(`${homeless.pos}-nomzod: yo'nalishni tanlang.`);
@@ -845,7 +845,11 @@ function PollForm({
             }
 
             await refreshPublic("polls");
-            onDone(poll ? "Saqlandi." : "So'rovnoma qo'shildi.");
+            onDone(
+                poll
+                    ? "Saqlandi."
+                    : "So'rovnoma qo'shildi. Ariza havolasi ro'yxatda — nusxalab yetakchilarga yuboring.",
+            );
         } catch {
             setError("Tarmoqda xatolik.");
         } finally {
@@ -926,15 +930,10 @@ function PollForm({
                     label="Natijalar hammaga ko'rinsin"
                     defaultChecked={poll?.show_results ?? true}
                 />
-                <Toggle
-                    name="apply_open"
-                    label="Nomzodlar havola orqali ariza bersin"
-                    defaultChecked={poll?.apply_open ?? false}
-                />
             </div>
-            <p className="mt-2 text-[11.5px] text-faint">
-                Ariza yoqilsa, saqlangach ro&apos;yxatda maxfiy havola chiqadi — uni nomzodlarga
-                yuborasiz. Arizalar «Arizalar» bo&apos;limida tasdiqlangandan keyingina saytda ko&apos;rinadi.
+            <p className="mt-3 text-[12px] text-faint">
+                Saqlagach ro&apos;yxatda ariza havolasi chiqadi — yetakchilar u orqali o&apos;zi nomzod bo&apos;lib
+                kiradi. Nomzod kiritish shart emas.
             </p>
             {poll?.apply_url && (
                 <label className="mt-3 inline-flex items-center gap-2 text-[12.5px] text-muted">
@@ -954,11 +953,20 @@ function PollForm({
                             </span>
                         </h3>
                         <p className="mt-1 text-[12.5px] text-muted">
-                            Ixtiyoriy. Bo&apos;lsa — reyting har yo&apos;nalishda alohida, har kim har
-                            yo&apos;nalishda bittadan ovoz beradi.
+                            Yetakchi ariza berganda shulardan birini tanlaydi. Reyting har yo&apos;nalishda
+                            alohida, har kim har yo&apos;nalishda bittadan ovoz beradi.
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
+                        {categories.length > 0 && !categories.some((item) => item.count) && (
+                            <button
+                                type="button"
+                                onClick={() => setCategories([])}
+                                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] text-muted transition-colors hover:text-text"
+                            >
+                                Yo&apos;nalishsiz
+                            </button>
+                        )}
                         <button
                             type="button"
                             onClick={addPreset}
@@ -1029,15 +1037,15 @@ function PollForm({
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <h3 className="text-[15px] font-semibold">
-                            Nomzodlar{" "}
+                            Nomzodlar <span className="font-normal text-faint">(ixtiyoriy)</span>{" "}
                             <span className="ml-1 rounded-full bg-page px-2 py-0.5 text-[12px] font-medium text-muted">
                                 {filled}
                             </span>
                         </h3>
                         <p className="mt-1 text-[12.5px] text-muted">
-                            {categorized
-                                ? "Bu yerda saytdagi (tasdiqlangan) nomzodlar. Havoladan kelgan arizalar «Arizalar» bo'limida."
-                                : "Tartib — saytda natijalar yopiq bo'lganda shu tartibda chiqadi."}
+                            Odatda bo&apos;sh qoladi — yetakchilar havola orqali o&apos;zi kiradi va
+                            «Arizalar»da tasdiqlanganlari shu yerda ko&apos;rinadi. Xohlasangiz qo&apos;lda ham
+                            qo&apos;shasiz.
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2">

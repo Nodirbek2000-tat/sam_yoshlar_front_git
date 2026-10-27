@@ -37,6 +37,30 @@ export function PollApplicationsView({ initial }: { initial: PollApplicationList
     const [flash, setFlash] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const latest = useRef(0);
+    const [accepting, setAccepting] = useState(poll.apply_open);
+    const [switching, setSwitching] = useState(false);
+
+    async function toggleAccepting() {
+        setSwitching(true);
+        setError(null);
+        try {
+            const response = await fetch(`/api/proxy/panel/polls/${poll.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ apply_open: !accepting }),
+            });
+            if (!response.ok) {
+                setError("O'zgartirib bo'lmadi.");
+                return;
+            }
+            setAccepting(!accepting);
+            setFlash(accepting ? "Ariza qabul qilish to'xtatildi." : "Ariza qabul qilish ochildi.");
+        } catch {
+            setError("Tarmoqda xatolik.");
+        } finally {
+            setSwitching(false);
+        }
+    }
 
     const indexOf = (id: number | null) => poll.categories.findIndex((item) => item.id === id);
 
@@ -170,7 +194,17 @@ export function PollApplicationsView({ initial }: { initial: PollApplicationList
                     </p>
                 </div>
                 {poll.apply_url ? (
-                    <ApplyLink url={poll.apply_url} open={poll.apply_open} />
+                    <>
+                        <ApplyLink url={poll.apply_url} open={accepting} />
+                        <button
+                            type="button"
+                            onClick={toggleAccepting}
+                            disabled={switching}
+                            className="relative mt-2 text-[12px] text-muted underline-offset-2 hover:text-text hover:underline disabled:opacity-50"
+                        >
+                            {accepting ? "Ariza qabul qilishni to'xtatish" : "Ariza qabul qilishni qayta ochish"}
+                        </button>
+                    </>
                 ) : (
                     <p className="relative mt-4 text-[12.5px] text-faint">
                         Ariza havolasi hali yo&apos;q — so&apos;rovnomani tahrirlab, «Nomzodlar havola orqali ariza
