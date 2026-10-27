@@ -32,6 +32,8 @@ export default function VoteDialog({
     min,
     title,
     path,
+    rule = "Har kim bitta so'rovnomada faqat bir marta ovoz beradi — keyin o'zgartirib bo'lmaydi.",
+    tone = "tone-amber",
     onClose,
     onVoted,
     onConflict,
@@ -43,6 +45,9 @@ export default function VoteDialog({
     min: number;
     title: string;
     path: string;
+    /** Ovoz qoidasi (yo'nalishli so'rovnomada — «har yo'nalishda bir marta») */
+    rule?: string;
+    tone?: string;
     onClose: () => void;
     onVoted: (result: PollVoteResult) => void;
     onConflict: () => void;
@@ -111,7 +116,7 @@ export default function VoteDialog({
             onClose={onClose}
             label="Ovozni tasdiqlash"
             locked={busy}
-            className="tone-amber text-center"
+            className={`${tone} text-center`}
         >
             {result ? (
                 <div className="pb-1 pt-2">
@@ -189,8 +194,7 @@ export default function VoteDialog({
                     {option.note && <p className="mt-2 text-[13px] text-faint">{option.note}</p>}
 
                     <p className="mt-5 rounded-xl bg-surface px-4 py-3 text-[12.5px] leading-relaxed text-muted">
-                        Har kim bitta so&apos;rovnomada faqat bir marta ovoz beradi — keyin
-                        o&apos;zgartirib bo&apos;lmaydi.
+                        {rule}
                     </p>
 
                     {error && (

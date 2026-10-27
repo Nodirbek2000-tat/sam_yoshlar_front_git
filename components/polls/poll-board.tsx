@@ -39,7 +39,7 @@ const PAGE = 30;
  * animatsiya yozadi — shunda yangi son bir lahza chiqib, keyin orqaga
  * sakramaydi, yarim yo'lda kelgan yangi son esa ekrandagisidan davom etadi.
  */
-function Num({ value }: { value: number }) {
+export function Num({ value }: { value: number }) {
     const ref = useRef<HTMLSpanElement>(null);
     const [first] = useState(value);
     const shown = useRef(value);
@@ -68,7 +68,7 @@ function Num({ value }: { value: number }) {
 }
 
 /** «2 kun 5 soat», «3 soat 12 daqiqa», «8 daqiqa». */
-function remaining(until: string, now: number) {
+export function remaining(until: string, now: number) {
     const minutes = Math.max(0, Math.floor((new Date(until).getTime() - now) / 60_000));
     const days = Math.floor(minutes / 1440);
     const hours = Math.floor((minutes % 1440) / 60);
@@ -79,7 +79,7 @@ function remaining(until: string, now: number) {
 }
 
 /** Brauzerdagi joriy vaqt — yarim daqiqada bir yangilanadi (serverda `null`). */
-function useNow() {
+export function useNow() {
     const [now, setNow] = useState<number | null>(null);
     useEffect(() => {
         const tick = () => setNow(Date.now());
@@ -514,7 +514,7 @@ export function PollBoard({ initial }: { initial: Poll }) {
     );
 }
 
-function HeroStat({ label, children }: { label: string; children: ReactNode }) {
+export function HeroStat({ label, children }: { label: string; children: ReactNode }) {
     return (
         <div className="rounded-2xl border border-line bg-page/70 px-3.5 py-3 backdrop-blur">
             <dt className="text-[11.5px] text-faint">{label}</dt>
@@ -746,7 +746,7 @@ function OptionRow({
 }
 
 /** Telegram'da ulashish (telefonda — tizimning o'z ulashish oynasi). */
-function ShareButton({
+export function ShareButton({
     title,
     path,
     label = "Ulashish",

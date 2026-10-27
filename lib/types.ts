@@ -518,6 +518,8 @@ export type AuthResult = {
 /** So'rovnomadagi bitta nomzod. `votes`/`percent`/`rank` — natijalar ochiq bo'lsagina. */
 export type PollOption = {
     id: number;
+    /** Yo'nalish (nominatsiya) id'si; oddiy so'rovnomada `null` */
+    category?: number | null;
     name: string;
     mahalla: string;
     district: string;
@@ -527,6 +529,16 @@ export type PollOption = {
     votes?: number;
     percent?: number;
     rank?: number;
+};
+
+/** Yo'nalish (nominatsiya): reyting va ovoz shu ichida alohida. */
+export type PollCategory = {
+    id: number;
+    title: string;
+    emoji: string;
+    options_count: number;
+    /** Natijalar yopiq bo'lsa `null` */
+    total_votes: number | null;
 };
 
 export type Poll = {
@@ -546,11 +558,15 @@ export type Poll = {
     /** Natijalar yopiq bo'lsa `null` */
     total_votes: number | null;
     options_count: number;
-    /** Ro'yxatda — peshqadam uchtalik, sahifada — hammasi (reyting tartibida) */
+    /** Yo'nalishlar; bo'sh bo'lsa — oddiy so'rovnoma (eski javobda bo'lmasligi mumkin) */
+    categories?: PollCategory[];
+    /** Ro'yxatda — peshqadamlar (yo'nalishlisida har yo'nalish birinchisi), sahifada — hammasi */
     options: PollOption[];
     created_at: string;
     /** Kirgan foydalanuvchi qaysi nomzodga ovoz bergan (faqat sahifada) */
     my_vote?: number | null;
+    /** Yo'nalishli so'rovnomada — har yo'nalishdagi ovozlari */
+    my_votes?: number[];
 };
 
 /** Ovoz berilgandan keyingi javob — yangilangan so'rovnoma. */
@@ -560,7 +576,60 @@ export type PollVoteResult = Poll & { my_vote: number; message: string };
 export type PanelPoll = Poll & {
     url: string;
     total_votes: number;
+    categories: PollCategory[];
     editable: (PollOption & { votes: number })[];
+    /** Nomzodlar o'zi ariza beradimi */
+    apply_open: boolean;
+    /** Maxfiy ariza havolasi (`/sorovnomalar/ariza/...`); hali yaratilmagan bo'lsa `null` */
+    apply_url: string | null;
+    /** Ko'rib chiqilmagan arizalar */
+    pending_count: number;
+};
+
+export type PollApplicationStatus = "pending" | "approved" | "rejected";
+
+/** Panel: havola orqali kelgan ariza. */
+export type PollApplication = {
+    id: number;
+    name: string;
+    mahalla: string;
+    district: string;
+    district_display: string;
+    note: string;
+    phone: string;
+    photo: string | null;
+    category: number | null;
+    category_title: string;
+    status: PollApplicationStatus;
+    votes: number;
+    created_at: string;
+};
+
+export type PollApplicationCounts = Record<PollApplicationStatus, number>;
+
+/** Panel: arizalar sahifasi javobi. */
+export type PollApplicationList = {
+    poll: {
+        id: number;
+        title: string;
+        url: string;
+        apply_open: boolean;
+        apply_url: string | null;
+        categories: { id: number; title: string; emoji: string }[];
+    };
+    counts: PollApplicationCounts;
+    results: PollApplication[];
+};
+
+/** Ariza sahifasi uchun: so'rovnoma nomi, yo'nalishlar va tumanlar. */
+export type PollApplyInfo = {
+    title: string;
+    description: string;
+    image: string | null;
+    /** Hozir ariza qabul qilinadimi */
+    accepts: boolean;
+    categories: { id: number; title: string; emoji: string }[];
+    districts: Choice[];
 };
 
 /** Panel: natijalar sahifasi. */
@@ -578,6 +647,7 @@ export type PollResults = Poll & {
         district: string;
         option_id: number;
         option: string;
+        category?: number | null;
         created_at: string;
     }[];
 };

@@ -7,6 +7,8 @@ import { formatNumber, formatShortDate } from "@/lib/format";
 import { toneClass } from "@/lib/tone";
 import type { Poll, PollOption } from "@/lib/types";
 
+import { inNomination, nominationEmoji, nominationsOf, nominationTone } from "./contest-ui";
+
 /**
  * So'rovnomaning umumiy bo'laklari — ro'yxat kartasi, nomzod surati,
  * medal ranglari. Ham serverda, ham brauzerda ishlaydi.
@@ -115,6 +117,7 @@ export function PollPill({
 /** Ro'yxatdagi karta: muqova, peshqadam uchtalik, ovoz berish tugmasi. */
 export function PollCard({ poll }: { poll: Poll }) {
     const min = poll.podium_min_votes ?? 1000;
+    const nominations = nominationsOf(poll);
     // Peshqadamlar — faqat chegaradan o'tganlar (kam ovoz bilan «1-o'rin» chiqmasin)
     const leaders = poll.show_results
         ? poll.options.filter((option) => qualifies(option, min))
@@ -161,9 +164,17 @@ export function PollCard({ poll }: { poll: Poll }) {
                             {formatShortDate(poll.ends_at)} gacha
                         </span>
                     )}
+                    {nominations.length > 0 && (
+                        <span className="inline-flex items-center gap-1.5">
+                            <Icon name="trophy" size={13} />
+                            {nominations.length} yo&apos;nalish
+                        </span>
+                    )}
                 </p>
 
-                {leaders.length ? (
+                {nominations.length ? (
+                    <NominationLeaders poll={poll} min={min} />
+                ) : leaders.length ? (
                     <ol className="mt-5 space-y-3">
                         {leaders.map((option) => {
                             const medal = medalOf(option, min);
@@ -254,6 +265,44 @@ export function PollCard({ poll }: { poll: Poll }) {
     );
 }
 
+/** Yo'nalishli so'rovnoma kartasi: har yo'nalish va uning peshqadami. */
+function NominationLeaders({ poll, min }: { poll: Poll; min: number }) {
+    const nominations = nominationsOf(poll);
+    return (
+        <ul className="mt-5 space-y-2">
+            {nominations.slice(0, 6).map((item, index) => {
+                const first = poll.options.find((option) => inNomination(option, item.id));
+                const leader = poll.show_results && qualifies(first, min) ? first : null;
+                return (
+                    <li key={item.id} className={cn(nominationTone(index), "flex items-center gap-3")}>
+                        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-tone-soft text-[15px]">
+                            {nominationEmoji(item)}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                            <span className="block truncate text-[12.5px] text-muted">{item.title}</span>
+                            {leader && (
+                                <span className="block truncate text-[13px] font-medium">{leader.name}</span>
+                            )}
+                        </span>
+                        {leader ? (
+                            <span className="shrink-0 text-[12px] font-medium tabular-nums text-tone-text">
+                                {formatNumber(leader.votes ?? 0)} ovoz
+                            </span>
+                        ) : (
+                            <span className="shrink-0 text-[11.5px] tabular-nums text-faint">
+                                {item.options_count} nomzod
+                            </span>
+                        )}
+                    </li>
+                );
+            })}
+            {nominations.length > 6 && (
+                <li className="pl-11 text-[12px] text-faint">va yana {nominations.length - 6} ta yo&apos;nalish</li>
+            )}
+        </ul>
+    );
+}
+
 /**
  * Muqova rasmi bo'lmasa — zinapoya ko'rinishidagi bezak. Faqat chegaradan
  * o'tgan peshqadamlar suratda chiqadi, qolgan o'rinlar bo'sh turadi.
@@ -303,9 +352,11 @@ export function PollArt({ options }: { options: PollOption[] }) {
 export function PollBanner({ poll }: { poll: Poll }) {
     const min = poll.podium_min_votes ?? 1000;
     // 1-o'rinni teng ovoz bilan bir nechta nomzod bo'lishishi mumkin
-    const leaders = poll.show_results
-        ? poll.options.filter((option) => option.rank === 1 && qualifies(option, min))
-        : [];
+    const nominations = poll.categories?.length ?? 0;
+    const leaders =
+        poll.show_results && !nominations
+            ? poll.options.filter((option) => option.rank === 1 && qualifies(option, min))
+            : [];
 
     return (
         <Link
@@ -333,6 +384,7 @@ export function PollBanner({ poll }: { poll: Poll }) {
                 </h2>
                 <p className="mt-1.5 text-[13px] text-muted">
                     {poll.options_count} nomzod
+                    {nominations > 0 && ` · ${nominations} yo'nalish`}
                     {poll.total_votes !== null && ` · ${formatNumber(poll.total_votes)} ovoz`}
                     {leaders.length > 0 && (
                         <>

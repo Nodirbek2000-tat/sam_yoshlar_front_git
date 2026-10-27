@@ -22,6 +22,7 @@ import type {
     OfficeStartupDetail,
     OfficeStartupList,
     Poll,
+    PollApplyInfo,
     Problem,
     PublicProfile,
     Reference,
@@ -246,6 +247,10 @@ export const getPolls = () =>
 
 export const getPoll = (slug: string) =>
     apiFetch<Poll>(`/polls/${slug}/`, { revalidate: 30, tags: ["polls"] });
+
+/** Nomzod ariza sahifasi — har safar yangisi (qabul yopilgani darhol bilinsin). */
+export const getPollApply = (token: string) =>
+    apiFetch<PollApplyInfo>(`/polls/ariza/${encodeURIComponent(token)}/`, { revalidate: 0 });
 
 export const getProblems = () =>
     apiFetch<Paginated<Problem>>("/problems/", { revalidate: 60, tags: ["problems"] });

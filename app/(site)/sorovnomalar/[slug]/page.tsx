@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { ContestBoard } from "@/components/polls/contest-board";
 import { PollBoard } from "@/components/polls/poll-board";
 import { ApiError, getPoll } from "@/lib/api";
 import { shareMetadata } from "@/lib/seo";
@@ -49,5 +50,6 @@ export default async function PollPage({ params }: PageProps<"/sorovnomalar/[slu
         throw error;
     }
 
-    return <PollBoard initial={poll} />;
+    // Yo'nalishli (nominatsiyali) so'rovnoma — yetakchilar tanlovi ko'rinishi
+    return poll.categories?.length ? <ContestBoard initial={poll} /> : <PollBoard initial={poll} />;
 }

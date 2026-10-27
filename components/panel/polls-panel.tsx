@@ -18,6 +18,7 @@ import {
     Toggle,
 } from "@/components/panel/ui";
 import { cn } from "@/lib/cn";
+import { LEADERS_PRESET, nominationEmoji, nominationTone } from "@/components/polls/contest-ui";
 import { qualifies } from "@/components/polls/poll-ui";
 import { foldText, formatNumber, formatShortDate, formatTime, toTashkentInput } from "@/lib/format";
 import { shrinkImage } from "@/lib/shrink-image";
@@ -30,11 +31,29 @@ import type { Choice, PanelPoll, Poll } from "@/lib/types";
  * yetakchilari ro'yxatini bittalab yoki to'g'ridan-to'g'ri ro'yxatdan
  * (har qatorda bitta nomzod) qo'shish mumkin. Natijalar har bir
  * so'rovnomaning alohida sahifasida.
+ *
+ * Yetakchilar tanlovi: so'rovnomaga yo'nalishlar (nominatsiyalar) qo'shiladi,
+ * nomzodlar maxfiy havola orqali o'zi ariza beradi, admin «Arizalar»
+ * bo'limida tasdiqlaydi.
  */
+
+type CategoryRow = {
+    key: string;
+    id: number | null;
+    title: string;
+    emoji: string;
+    /** Saytdagi (tasdiqlangan) nomzodlar soni */
+    count: number;
+};
+
+/** Nomzod qatoridagi yo'nalish ishorasi: saqlangani — id, yangisi — key */
+const refOf = (category: CategoryRow) => (category.id ? String(category.id) : category.key);
 
 type Row = {
     key: string;
     id: number | null;
+    /** Yo'nalish ishorasi (`refOf`); yo'nalishsiz so'rovnomada bo'sh */
+    category: string;
     name: string;
     mahalla: string;
     district: string;
@@ -51,9 +70,10 @@ type Row = {
 let sequence = 0;
 const nextKey = () => `n${(sequence += 1)}${Date.now().toString(36)}`;
 
-const emptyRow = (): Row => ({
+const emptyRow = (category = ""): Row => ({
     key: nextKey(),
     id: null,
+    category,
     name: "",
     mahalla: "",
     district: "",
@@ -96,7 +116,7 @@ function matchDistrict(text: string, districts: Choice[]) {
 }
 
 /** Har qatorda bitta nomzod: `F.I.O. | Mahalla | Tuman` (ajratuvchi: | ; yoki Tab). */
-function parseBulk(text: string, districts: Choice[]): Row[] {
+function parseBulk(text: string, districts: Choice[], category = ""): Row[] {
     return text
         .split(/\r?\n/)
         .filter((line) => line.trim())
@@ -106,7 +126,7 @@ function parseBulk(text: string, districts: Choice[]): Row[] {
                 .split(/\t|\s*[|;]\s*/)
                 .map((part) => part.trim());
             return {
-                ...emptyRow(),
+                ...emptyRow(category),
                 name: name.slice(0, 150),
                 mahalla: mahalla.slice(0, 150),
                 district: matchDistrict(district, districts),
@@ -121,6 +141,7 @@ function rowsOf(poll: PanelPoll | null): Row[] {
     return poll.editable.map((option) => ({
         key: `id${option.id}`,
         id: option.id,
+        category: option.category ? String(option.category) : "",
         name: option.name,
         mahalla: option.mahalla,
         district: option.district,
@@ -130,6 +151,16 @@ function rowsOf(poll: PanelPoll | null): Row[] {
         preview: null,
         remove_photo: false,
         votes: option.votes,
+    }));
+}
+
+function categoriesOf(poll: PanelPoll | null): CategoryRow[] {
+    return (poll?.categories ?? []).map((category) => ({
+        key: `c${category.id}`,
+        id: category.id,
+        title: category.title,
+        emoji: category.emoji,
+        count: category.options_count,
     }));
 }
 
@@ -317,8 +348,9 @@ function PollRow({
     onEdit: () => void;
     onRemove: () => void;
 }) {
+    const nominations = poll.categories ?? [];
     const top = poll.options.slice(0, 3);
-    const leader = poll.total_votes ? top[0] : null;
+    const leader = poll.total_votes && !nominations.length ? top[0] : null;
     // Kubok — faqat saytdagi zinapoya chegarasidan o'tgan bo'lsa
     const crowned = qualifies(leader ?? undefined, poll.podium_min_votes ?? 1000);
     const max = top[0]?.votes || 1;
@@ -361,6 +393,7 @@ function PollRow({
                     </Link>
                     <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-faint">
                         <span>{poll.options_count} nomzod</span>
+                        {nominations.length > 0 && <span>{nominations.length} yo&apos;nalish</span>}
                         <span className="font-medium text-muted">
                             {formatNumber(poll.total_votes)} ovoz
                         </span>
@@ -378,6 +411,25 @@ function PollRow({
                 </div>
 
                 <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+                    {(poll.apply_url || poll.pending_count > 0) && (
+                        <Link
+                            href={`${resultsHref}/arizalar`}
+                            className={cn(
+                                "relative inline-flex h-9 items-center gap-1.5 rounded-lg border px-3.5 text-[13px] font-medium transition-colors",
+                                poll.pending_count
+                                    ? "tone-emerald border-tone-line bg-tone-soft text-tone-text"
+                                    : "border-line text-muted hover:bg-surface hover:text-text",
+                            )}
+                        >
+                            <Icon name="clipboard" size={15} />
+                            Arizalar
+                            {poll.pending_count > 0 && (
+                                <span className="tone-emerald rounded-full bg-tone px-1.5 text-[11px] font-semibold tabular-nums text-page">
+                                    {poll.pending_count}
+                                </span>
+                            )}
+                        </Link>
+                    )}
                     <Link
                         href={resultsHref}
                         className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-invert px-3.5 text-[13px] font-medium text-on-invert transition-opacity hover:opacity-90"
@@ -416,7 +468,27 @@ function PollRow({
                 </div>
             </div>
 
-            {poll.total_votes > 0 && (
+            {poll.apply_url && <ApplyLink url={poll.apply_url} open={poll.apply_open} />}
+
+            {nominations.length > 0 && (
+                <ul className="mt-4 flex flex-wrap gap-1.5 border-t border-line pt-4">
+                    {nominations.map((item, index) => (
+                        <li
+                            key={item.id}
+                            className={cn(
+                                nominationTone(index),
+                                "inline-flex max-w-full items-center gap-1.5 rounded-full bg-tone-soft py-1 pl-1.5 pr-2.5 text-[12px] text-tone-text",
+                            )}
+                        >
+                            <span>{nominationEmoji(item)}</span>
+                            <span className="truncate">{item.title}</span>
+                            <span className="font-semibold tabular-nums">{item.options_count}</span>
+                        </li>
+                    ))}
+                </ul>
+            )}
+
+            {poll.total_votes > 0 && !nominations.length && (
                 <ol className="mt-4 grid gap-2 border-t border-line pt-4 sm:grid-cols-3">
                     {top.map((option) => (
                         <li key={option.id} className="min-w-0">
@@ -445,6 +517,62 @@ function PollRow({
     );
 }
 
+/** Maxfiy ariza havolasi: nusxalash va ochib ko'rish. */
+export function ApplyLink({ url, open }: { url: string; open: boolean }) {
+    const [copied, setCopied] = useState(false);
+    const [full, setFull] = useState(url);
+    useEffect(() => {
+        // Serverda domen noma'lum — brauzerda to'liq manzil
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setFull(`${window.location.origin}${url}`);
+    }, [url]);
+
+    async function copy() {
+        try {
+            await navigator.clipboard.writeText(full);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            window.prompt("Havolani nusxalang:", full);
+        }
+    }
+
+    return (
+        <div
+            className={cn(
+                "mt-4 flex flex-col gap-2 rounded-xl border p-3 sm:flex-row sm:items-center",
+                open ? "tone-emerald border-tone-line bg-tone-soft" : "border-dashed border-line bg-surface",
+            )}
+        >
+            <span className="inline-flex shrink-0 items-center gap-1.5 text-[12px] font-medium text-tone-text">
+                <Icon name={open ? "send" : "lock"} size={13} />
+                {open ? "Ariza havolasi" : "Ariza qabul qilish yopiq"}
+            </span>
+            <code className="min-w-0 flex-1 truncate rounded-lg bg-page px-2.5 py-1.5 font-mono text-[12px] text-muted">
+                {full}
+            </code>
+            <div className="flex shrink-0 gap-1.5">
+                <button
+                    type="button"
+                    onClick={copy}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-invert px-3 text-[12.5px] font-medium text-on-invert"
+                >
+                    <Icon name={copied ? "check" : "clipboard"} size={13} />
+                    {copied ? "Nusxalandi" : "Nusxalash"}
+                </button>
+                <Link
+                    href={url}
+                    target="_blank"
+                    title="Ariza sahifasini ochish"
+                    className="grid size-8 place-items-center rounded-lg border border-line bg-page text-muted hover:text-text"
+                >
+                    <Icon name="arrowRight" size={13} />
+                </Link>
+            </div>
+        </div>
+    );
+}
+
 /* ------------------------------------------------------------------------ */
 /* Forma                                                                     */
 /* ------------------------------------------------------------------------ */
@@ -461,6 +589,8 @@ function PollForm({
     onDone: (message: string) => void;
 }) {
     const [rows, setRows] = useState<Row[]>(() => rowsOf(poll));
+    const [categories, setCategories] = useState<CategoryRow[]>(() => categoriesOf(poll));
+    const [bulkCategory, setBulkCategory] = useState("");
     const [bulkOpen, setBulkOpen] = useState(false);
     const [bulk, setBulk] = useState("");
     const [busy, setBusy] = useState(false);
@@ -475,6 +605,51 @@ function PollForm({
     }, []);
 
     const filled = rows.filter((row) => row.name.trim()).length;
+    const categorized = categories.length > 0;
+    const refs = new Set(categories.map(refOf));
+
+    function updateCategory(key: string, changes: Partial<CategoryRow>) {
+        setCategories((list) =>
+            list.map((item) => (item.key === key ? { ...item, ...changes } : item)),
+        );
+    }
+
+    function addCategory(title = "", emoji = "") {
+        setCategories((list) => [...list, { key: nextKey(), id: null, title, emoji, count: 0 }]);
+    }
+
+    function addPreset() {
+        setCategories((list) => {
+            const have = new Set(list.map((item) => item.title.trim().toLowerCase()));
+            const extra = LEADERS_PRESET.filter((item) => !have.has(item.title.toLowerCase())).map(
+                (item) => ({ key: nextKey(), id: null, count: 0, ...item }),
+            );
+            return [...list, ...extra];
+        });
+        // Bo'sh boshlang'ich qatorlar — arizalar havoladan keladi
+        setRows((list) => list.filter((row) => row.name.trim() || row.id));
+    }
+
+    function moveCategory(index: number, step: -1 | 1) {
+        setCategories((list) => {
+            const target = index + step;
+            if (target < 0 || target >= list.length) return list;
+            const next = [...list];
+            [next[index], next[target]] = [next[target], next[index]];
+            return next;
+        });
+    }
+
+    function removeCategory(item: CategoryRow) {
+        const ref = refOf(item);
+        if (item.count || rows.some((row) => row.category === ref && row.name.trim())) {
+            setError(
+                `«${item.title || "Yo'nalish"}»da nomzodlar bor — avval ularni o'chiring yoki boshqa yo'nalishga o'tkazing.`,
+            );
+            return;
+        }
+        setCategories((list) => list.filter((entry) => entry.key !== item.key));
+    }
 
     function update(key: string, changes: Partial<Row>) {
         setRows((list) => list.map((row) => (row.key === key ? { ...row, ...changes } : row)));
@@ -497,7 +672,8 @@ function PollForm({
     }
 
     function addRow() {
-        setRows((list) => [...list, emptyRow()]);
+        // Yangi qator oxirgi qatorning yo'nalishida — ketma-ket kiritish qulay
+        setRows((list) => [...list, emptyRow(list.at(-1)?.category ?? "")]);
         // Yangi qatorga o'tib, ism maydoniga kursor qo'yamiz
         requestAnimationFrame(() => {
             const inputs = listRef.current?.querySelectorAll<HTMLInputElement>("[data-name-input]");
@@ -506,7 +682,7 @@ function PollForm({
     }
 
     function addBulk() {
-        const parsed = parseBulk(bulk, districts);
+        const parsed = parseBulk(bulk, districts, bulkCategory || (categories[0] ? refOf(categories[0]) : ""));
         if (!parsed.length) return;
         // Bo'sh qatorlar o'rniga ro'yxat tushadi
         setRows((list) => [...list.filter((row) => row.name.trim() || row.id), ...parsed]);
@@ -536,12 +712,24 @@ function PollForm({
             return;
         }
 
+        const untitled = categories.findIndex((item) => !item.title.trim());
+        if (untitled >= 0) {
+            setError(`${untitled + 1}-yo'nalish: nomini yozing.`);
+            return;
+        }
+
         // Butunlay bo'sh yangi qatorlar hisobga olinmaydi; `pos` — formadagi qator raqami
         const options = rows
             .map((row, index) => ({ ...row, pos: index + 1 }))
             .filter((row) => row.name.trim());
-        if (options.length < 2) {
+        // Yo'nalishli so'rovnomada nomzodlar arizadan keladi — bo'sh boshlash mumkin
+        if (options.length < 2 && !categorized) {
             setError("Kamida 2 ta nomzod kiriting.");
+            return;
+        }
+        const homeless = options.find((row) => categorized && !refs.has(row.category));
+        if (homeless) {
+            setError(`${homeless.pos}-nomzod: yo'nalishni tanlang.`);
             return;
         }
 
@@ -558,12 +746,24 @@ function PollForm({
             }
 
             data.set(
+                "categories",
+                JSON.stringify(
+                    categories.map((item) => ({
+                        id: item.id,
+                        key: item.key,
+                        title: item.title.trim(),
+                        emoji: item.emoji.trim(),
+                    })),
+                ),
+            );
+            data.set(
                 "options",
                 JSON.stringify(
                     options.map((row) => ({
                         id: row.id,
                         key: row.key,
                         pos: row.pos,
+                        category: categorized ? row.category : "",
                         name: row.name.trim(),
                         mahalla: row.mahalla.trim(),
                         district: row.district,
@@ -726,7 +926,103 @@ function PollForm({
                     label="Natijalar hammaga ko'rinsin"
                     defaultChecked={poll?.show_results ?? true}
                 />
+                <Toggle
+                    name="apply_open"
+                    label="Nomzodlar havola orqali ariza bersin"
+                    defaultChecked={poll?.apply_open ?? false}
+                />
             </div>
+            <p className="mt-2 text-[11.5px] text-faint">
+                Ariza yoqilsa, saqlangach ro&apos;yxatda maxfiy havola chiqadi — uni nomzodlarga
+                yuborasiz. Arizalar «Arizalar» bo&apos;limida tasdiqlangandan keyingina saytda ko&apos;rinadi.
+            </p>
+            {poll?.apply_url && (
+                <label className="mt-3 inline-flex items-center gap-2 text-[12.5px] text-muted">
+                    <input type="checkbox" name="new_apply_link" value="true" />
+                    Yangi havola yaratish (eskisi ishlamay qoladi)
+                </label>
+            )}
+
+            {/* Yo'nalishlar (nominatsiyalar) */}
+            <section className="mt-8 border-t border-line pt-6">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h3 className="text-[15px] font-semibold">
+                            Yo&apos;nalishlar{" "}
+                            <span className="ml-1 rounded-full bg-page px-2 py-0.5 text-[12px] font-medium text-muted">
+                                {categories.length}
+                            </span>
+                        </h3>
+                        <p className="mt-1 text-[12.5px] text-muted">
+                            Ixtiyoriy. Bo&apos;lsa — reyting har yo&apos;nalishda alohida, har kim har
+                            yo&apos;nalishda bittadan ovoz beradi.
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            onClick={addPreset}
+                            className="tone-amber inline-flex items-center gap-1.5 rounded-full border border-tone-line bg-tone-soft px-3.5 py-1.5 text-[12.5px] font-medium text-tone-text transition-colors hover:bg-raised"
+                        >
+                            <Icon name="trophy" size={14} />
+                            Yetakchilar tanlovi: 6 yo&apos;nalish
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => addCategory()}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-line bg-page px-3.5 py-1.5 text-[12.5px] font-medium transition-colors hover:bg-raised"
+                        >
+                            <Icon name="plus" size={14} />
+                            Yo&apos;nalish qo&apos;shish
+                        </button>
+                    </div>
+                </div>
+
+                {categories.length > 0 && (
+                    <ol className="mt-4 space-y-2">
+                        {categories.map((item, index) => (
+                            <li
+                                key={item.key}
+                                className={cn(
+                                    nominationTone(index),
+                                    "flex items-center gap-2 rounded-xl border border-line bg-page p-2",
+                                )}
+                            >
+                                <input
+                                    value={item.emoji}
+                                    onChange={(event) =>
+                                        updateCategory(item.key, { emoji: event.target.value.slice(0, 8) })
+                                    }
+                                    placeholder="🏆"
+                                    aria-label={`${index + 1}-yo'nalish belgisi`}
+                                    className="size-10 shrink-0 rounded-lg border border-line bg-tone-soft text-center text-[18px] outline-none focus:border-accent"
+                                />
+                                <input
+                                    value={item.title}
+                                    onChange={(event) => updateCategory(item.key, { title: event.target.value })}
+                                    maxLength={150}
+                                    placeholder="Yo'nalish nomi"
+                                    aria-label={`${index + 1}-yo'nalish nomi`}
+                                    className={cn(INPUT, "py-2 font-medium")}
+                                />
+                                {item.count > 0 && (
+                                    <span className="hidden shrink-0 rounded-full bg-surface px-2 py-0.5 text-[11.5px] text-muted sm:inline">
+                                        {item.count} nomzod
+                                    </span>
+                                )}
+                                <RowActions
+                                    className="flex flex-row"
+                                    first={index === 0}
+                                    last={index === categories.length - 1}
+                                    onUp={() => moveCategory(index, -1)}
+                                    onDown={() => moveCategory(index, 1)}
+                                    onRemove={() => removeCategory(item)}
+                                />
+                            </li>
+                        ))}
+                    </ol>
+                )}
+            </section>
 
             {/* Nomzodlar */}
             <section className="mt-8 border-t border-line pt-6">
@@ -739,7 +1035,9 @@ function PollForm({
                             </span>
                         </h3>
                         <p className="mt-1 text-[12.5px] text-muted">
-                            Tartib — saytda natijalar yopiq bo&apos;lganda shu tartibda chiqadi.
+                            {categorized
+                                ? "Bu yerda saytdagi (tasdiqlangan) nomzodlar. Havoladan kelgan arizalar «Arizalar» bo'limida."
+                                : "Tartib — saytda natijalar yopiq bo'lganda shu tartibda chiqadi."}
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -771,6 +1069,20 @@ function PollForm({
                             className="overflow-hidden"
                         >
                             <div className="mt-4 rounded-xl border border-line bg-page p-4">
+                                {categorized && (
+                                    <select
+                                        value={bulkCategory || refOf(categories[0])}
+                                        onChange={(event) => setBulkCategory(event.target.value)}
+                                        aria-label="Ro'yxatdagi nomzodlar yo'nalishi"
+                                        className={cn(INPUT, "mb-3 py-2")}
+                                    >
+                                        {categories.map((item) => (
+                                            <option key={item.key} value={refOf(item)}>
+                                                {nominationEmoji(item)} {item.title || "Nomsiz yo'nalish"}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
                                 <p className="text-[12.5px] text-muted">
                                     Har qatorga bitta nomzod:{" "}
                                     <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-[11.5px] text-text">
@@ -880,6 +1192,29 @@ function PollForm({
                                             </option>
                                         ))}
                                     </select>
+                                    {categorized && (
+                                        <select
+                                            value={refs.has(row.category) ? row.category : ""}
+                                            onChange={(event) =>
+                                                update(row.key, { category: event.target.value })
+                                            }
+                                            // Ovozi bor nomzod boshqa yo'nalishga o'tmaydi (ovozlar yo'nalishga bog'langan)
+                                            disabled={row.votes > 0 && refs.has(row.category)}
+                                            aria-label={`${index + 1}-nomzod yo'nalishi`}
+                                            className={cn(
+                                                INPUT,
+                                                "py-2 sm:col-span-2 lg:col-span-3",
+                                                !refs.has(row.category) && "text-faint",
+                                            )}
+                                        >
+                                            <option value="">Yo&apos;nalishni tanlang</option>
+                                            {categories.map((item) => (
+                                                <option key={item.key} value={refOf(item)}>
+                                                    {nominationEmoji(item)} {item.title || "Nomsiz yo'nalish"}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    )}
                                     <input
                                         value={row.note}
                                         onChange={(event) =>

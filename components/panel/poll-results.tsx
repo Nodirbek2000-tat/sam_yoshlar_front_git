@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/icon";
 import { Img } from "@/components/img";
 import { PollStatus } from "@/components/panel/polls-panel";
+import { nominationEmoji, nominationsOf, nominationTone } from "@/components/polls/contest-ui";
 import { medalOf } from "@/components/polls/poll-ui";
 import { Flash, INPUT } from "@/components/panel/ui";
 import { UserDrawer } from "@/components/panel/user-drawer";
@@ -96,8 +97,16 @@ export function PollResultsView({ initial }: { initial: PollResults }) {
         return () => clearInterval(timer);
     }, [data.is_open, load]);
 
+    // Yo'nalishli so'rovnomada reyting har yo'nalishda alohida
+    const nominations = nominationsOf(data);
+    const [nomination, setNomination] = useState<number | null>(() => nominations[0]?.id ?? null);
+    const shown =
+        nomination === null || !nominations.length
+            ? data.options
+            : data.options.filter((item) => (item.category ?? 0) === nomination);
+
     const total = data.total_votes;
-    const [leader, runnerUp] = data.options;
+    const [leader, runnerUp] = shown;
     const margin = leader && runnerUp ? (leader.votes ?? 0) - (runnerUp.votes ?? 0) : null;
     const maxVotes = leader?.votes || 1;
     const maxDistrict = data.districts[0]?.votes || 1;
@@ -147,6 +156,15 @@ export function PollResultsView({ initial }: { initial: PollResults }) {
                         </p>
                     </div>
                     <div className="flex shrink-0 gap-2">
+                        {nominations.length > 0 && (
+                            <Link
+                                href={`/nazorat/elonlar/sorovnomalar/${data.id}/arizalar`}
+                                className="inline-flex items-center gap-2 rounded-full border border-line bg-page px-4 py-2.5 text-[13px] font-medium transition-colors hover:bg-surface"
+                            >
+                                <Icon name="clipboard" size={14} />
+                                Arizalar
+                            </Link>
+                        )}
                         <button
                             type="button"
                             onClick={() => load()}
@@ -219,8 +237,41 @@ export function PollResultsView({ initial }: { initial: PollResults }) {
                         </span>
                     </div>
 
+                    {nominations.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-1.5">
+                            {nominations.map((item, index) => {
+                                const on = item.id === nomination;
+                                return (
+                                    <button
+                                        key={item.id}
+                                        type="button"
+                                        onClick={() => setNomination(item.id)}
+                                        className={cn(
+                                            nominationTone(index),
+                                            "inline-flex max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 text-[12px] transition-colors",
+                                            on
+                                                ? "border-tone-line bg-tone-soft font-medium text-tone-text"
+                                                : "border-line text-muted hover:text-text",
+                                        )}
+                                    >
+                                        <span>{nominationEmoji(item)}</span>
+                                        <span className="max-w-[13rem] truncate">{item.title}</span>
+                                        <span className="tabular-nums text-faint">
+                                            {formatNumber(item.total_votes ?? 0)}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+
                     <ol className="mt-4 space-y-1.5">
-                        {data.options.map((item) => {
+                        {shown.length === 0 && (
+                            <li className="py-8 text-center text-[13px] text-faint">
+                                Bu yo&apos;nalishda hali nomzod yo&apos;q.
+                            </li>
+                        )}
+                        {shown.map((item) => {
                             // Saytdagidek: medal faqat zinapoya chegarasidan o'tganlarga
                             const medal = medalOf(item, data.podium_min_votes ?? 1000);
                             const active = option === item.id;
